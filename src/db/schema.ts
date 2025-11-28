@@ -1,3 +1,4 @@
+import { InferModel } from "drizzle-orm";
 import {
   pgTable,
   varchar,
@@ -15,7 +16,7 @@ export const profiles = pgTable("profiles", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   username: varchar("username", { length: 100 }).notNull().unique(),
   phone: varchar("phone", { length: 20 }),
-
+avatarUrl:varchar("avatar_url"),
   // Agreed To Terms
   agreedToTerms: boolean("agreed_to_terms").default(false).notNull(),
   googleId: text("google_id"),
@@ -25,3 +26,8 @@ export const profiles = pgTable("profiles", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+
+
+export type Profile = InferModel<typeof profiles>;
+export type NewProfile = InferModel<typeof profiles, "insert">;

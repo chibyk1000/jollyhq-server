@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { admin } from "../utils/supabase";
+import { supabase } from "../utils/supabase";
 
 
 export async function verifySupabaseToken(req:Request, res:Response, next:NextFunction) {
@@ -8,7 +8,7 @@ export async function verifySupabaseToken(req:Request, res:Response, next:NextFu
 
   if (!token) return res.status(401).json({ message: "No token" });
 
-  const { data, error } = await admin.auth.getUser(token);
+  const { data, error } = await supabase.auth.getUser(token);
 
   if (error) return res.status(403).json({ message: "Invalid token" });
 
