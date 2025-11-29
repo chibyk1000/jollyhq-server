@@ -22,7 +22,7 @@ router.get("/:id", EventPlannerControllers.getEventPlanner);
 
 // UPDATE
 router.patch(
-  "/:id",
+  "/:id", 
   verifySupabaseToken,
   upload.fields([
     { name: "logo", maxCount: 1 },

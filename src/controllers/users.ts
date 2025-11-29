@@ -140,6 +140,7 @@ export class UserControllers {
     try {
       const { id } = req.params;
 
+
       if (!id || typeof id !== "string") {
         return res.status(400).json({ error: "User ID is required." });
       }
