@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 
 import { db } from "../db";
-import { profiles } from "../db/schema";
+import { profiles } from "../db/schema/profiles";
 import { eq } from "drizzle-orm";
 import { supabase } from "../utils/supabase";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
     try {
-        const {
-         id,   
+      const {
+        id,
         email,
         firstName,
         lastName,
@@ -19,7 +19,7 @@ export class UserControllers {
         googleId,
         facebookId,
         instagramId,
-      } = req.body ;
+      } = req.body;
 
       const file = req.file; // Multer file
 

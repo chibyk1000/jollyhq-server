@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import { NewProfile, profiles } from "../db/schema";
+import { NewProfile, profiles } from "../db/schema/profiles";
 import { supabase } from "../utils/supabase";
 import { db } from "../db";
 import { uploadToSupabase } from "../utils/upload";
 import { eq } from "drizzle-orm";
+import { eventPlanners } from "../db/schema/eventPlanner";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
@@ -106,7 +107,7 @@ export class UserControllers {
       const avatarFile = req.file; // from multer
 
       // ===== Upload avatar to Supabase =====
-      if (avatarFile) {
+      if (!avatarFile) {
         return res.status(400).json({ error: "avatar is required" });
       }
 
@@ -144,11 +145,10 @@ export class UserControllers {
       }
 
       // Fetch user from database
-     const user = await db
-       .select()
-       .from(profiles)
-       .where(eq(profiles.id, id))
-       
+      const [user] = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.id, id));
 
       if (!user) {
         return res.status(404).json({ error: "User not found." });

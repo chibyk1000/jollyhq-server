@@ -5,6 +5,7 @@ import {
   text,
   timestamp,
   boolean,
+  
 } from "drizzle-orm/pg-core";
 
 export const profiles = pgTable("profiles", {
@@ -16,10 +17,13 @@ export const profiles = pgTable("profiles", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   username: varchar("username", { length: 100 }).notNull().unique(),
   phone: varchar("phone", { length: 20 }),
-avatarUrl:varchar("avatar_url"),
+  avatarUrl: varchar("avatar_url"),
   // Agreed To Terms
   agreedToTerms: boolean("agreed_to_terms").default(false).notNull(),
   googleId: text("google_id"),
+  // Roles
+  roles: text("role").array().default(["user"]), // default array with "user"
+  currentRole: varchar("current_role", { length: 50 }).default("user"), // default role
   facebookId: text("facebook_id"),
   instagramId: text("instagram_id"),
   // Timestamps
