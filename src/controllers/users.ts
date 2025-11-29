@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
-import { NewProfile } from "../db/schema";
+import { NewProfile, profiles } from "../db/schema";
+import { supabase } from "../utils/supabase";
+import { db } from "../db";
+import { uploadToSupabase } from "../utils/upload";
+import { eq } from "drizzle-orm";
 
 export class UserControllers {
-  static createUser(req: Request, res: Response) {
+  static async createUser(req: Request, res: Response) {
     try {
       const {
+        id,
         email,
         firstName,
         lastName,
@@ -13,8 +18,7 @@ export class UserControllers {
         phone,
         googleId,
         facebookId,
-          instagramId,
-    
+        instagramId,
       } = req.body as NewProfile;
 
       // ----- REQUIRED FIELDS -----
@@ -22,6 +26,11 @@ export class UserControllers {
         return res
           .status(400)
           .json({ error: "Email is required and must be a string." });
+      }
+      if (!id || typeof id !== "string") {
+        return res
+          .status(400)
+          .json({ error: "ID is required and must be a string." });
       }
 
       if (!firstName || typeof firstName !== "string") {
@@ -68,7 +77,7 @@ export class UserControllers {
       }
 
       // ----- AGREED TO TERMS -----
-      if (agreedToTerms !== true) {
+      if (JSON.parse(agreedToTerms as any) !== true) {
         return res.status(400).json({
           error:
             "User must accept Terms & Conditions before creating an account.",
@@ -94,9 +103,58 @@ export class UserControllers {
       if (instagramId && typeof instagramId !== "string") {
         return res.status(400).json({ error: "instagramId must be a string." });
       }
+      const avatarFile = req.file; // from multer
 
-      // -------- IF YOU PASSED ALL VALIDATION --------
-      return res.status(200).json({ message: "User validated successfully" });
+      // ===== Upload avatar to Supabase =====
+      if (avatarFile) {
+        return res.status(400).json({ error: "avatar is required" });
+      }
+
+      const avatarUrl = await uploadToSupabase(avatarFile, "avatars");
+
+      // ----- INSERT INTO DATABASE -----
+      const newUser: NewProfile = {
+        id: id, // Or generate a UUID here if needed
+        email,
+        firstName,
+        lastName,
+        username,
+        agreedToTerms,
+        phone: phone || null,
+        googleId: googleId || null,
+        facebookId: facebookId || null,
+        instagramId: instagramId || null,
+        avatarUrl,
+      };
+
+      const result = await db.insert(profiles).values(newUser).returning();
+      return res.status(201).json(result[0]);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Server error" });
+    }
+  }
+
+  static async getProfile(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      if (!id || typeof id !== "string") {
+        return res.status(400).json({ error: "User ID is required." });
+      }
+
+      // Fetch user from database
+     const user = await db
+       .select()
+       .from(profiles)
+       .where(eq(profiles.id, id))
+       
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+
+      return res.status(200).json({ user });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Server error" });
