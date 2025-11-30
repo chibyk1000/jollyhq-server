@@ -3,20 +3,19 @@ dotenv.config();
 import express from "express";
 import router from "./routes";
 import { logger } from "./utils/logger";
-
+import morgan from "morgan";
 
 const PORT = process.env.PORT;
 const app = express();
 
 // Log each request
-app.use((req, res, next) => {
-  logger.info({
-    method: req.method,
-    url: req.url,
-    timestamp: new Date().toISOString(),
-  });
-  next();
-});
+app.use(
+  morgan("combined", {
+    stream: {
+      write: (message) => logger.info(message.trim()),
+    },
+  })
+);
 
 app.use("/api", router);
 

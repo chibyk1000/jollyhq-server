@@ -169,3 +169,7 @@
 {"level":"info","message":{"method":"GET","timestamp":"2025-11-30T02:48:55.366Z","url":"/api/users/f2345867-7c40-46c8-a09c-4ae25c60a099"},"timestamp":"2025-11-30T02:48:55.366Z"}
 {"level":"info","message":{"method":"GET","timestamp":"2025-11-30T02:49:00.926Z","url":"/api/event-planners/f2345867-7c40-46c8-a09c-4ae25c60a099"},"timestamp":"2025-11-30T02:49:00.926Z"}
 {"level":"info","message":{"method":"GET","timestamp":"2025-11-30T03:30:15.821Z","url":"/api/users/f2345867-7c40-46c8-a09c-4ae25c60a099"},"timestamp":"2025-11-30T03:30:15.821Z"}
+{"level":"info","message":"🚀 Server listening on port 8020","timestamp":"2025-11-30T18:52:03.830Z"}
+{"level":"info","message":"🚀 Server listening on port 8020","timestamp":"2025-11-30T19:00:20.532Z"}
+{"level":"info","message":"🚀 Server listening on port 8020","timestamp":"2025-11-30T19:02:04.207Z"}
+{"level":"info","message":"🚀 Server listening on port 8020","timestamp":"2025-11-30T19:05:31.936Z"}
