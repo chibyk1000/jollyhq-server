@@ -3,12 +3,27 @@ import { uploadToSupabase } from "../utils/upload";
 import { db } from "../db";
 import { eventPlanners } from "../db/schema/eventPlanner";
 import { eq } from "drizzle-orm";
+import { WalletController } from "./wallletController";
+import { logger } from "../utils/logger";
+import { wallets } from "../db/schema/wallet";
 
 export class EventPlannerControllers {
   static async createEventPlanner(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      // Check if user already has a profile
+      const existingPlanner = await db
+        .select()
+        .from(eventPlanners)
+        .where(eq(eventPlanners.profileId, userId));
+
+      if (existingPlanner.length > 0) {
+        return res
+          .status(400)
+          .json({ message: "Event planner profile already exists" });
+      }
 
       const {
         businessName,
@@ -31,9 +46,7 @@ export class EventPlannerControllers {
         return res.status(400).json({ message: "Business name is required" });
 
       // FILES
-      const files = req.files as {
-        [fieldname: string]: Express.Multer.File[];
-      };
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
       let logoUrl: string | null = null;
       let idDocumentUrl: string | null = null;
@@ -54,7 +67,7 @@ export class EventPlannerControllers {
           "kyc/business-docs"
         );
 
-      // Insert into DB
+      // Insert Event Planner into DB
       const [planner] = await db
         .insert(eventPlanners)
         .values({
@@ -79,7 +92,15 @@ export class EventPlannerControllers {
         })
         .returning();
 
-      return res.status(201).json({
+      // Create wallet for the new event planner
+      await db.insert(wallets).values({
+        eventPlannerId: planner.id,
+        balance: 0,
+        currency: "NGN",
+        isActive: true,
+      });
+
+      return res.status(200).json({
         message: "Event planner profile created",
         data: planner,
       });
@@ -91,6 +112,7 @@ export class EventPlannerControllers {
       });
     }
   }
+
   // GET ONE
   static async getEventPlanner(req: Request, res: Response) {
     try {
@@ -99,10 +121,12 @@ export class EventPlannerControllers {
       const data = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.id, id));
+        .where(eq(eventPlanners.profileId, id))
+        .leftJoin(wallets, eq(wallets.eventPlannerId, eventPlanners.id));
 
       if (data.length === 0)
         return res.status(404).json({ message: "Event planner not found" });
+console.log(data);
 
       return res.status(200).json(data[0]);
     } catch (error: any) {
@@ -166,16 +190,26 @@ export class EventPlannerControllers {
         data: updated,
       });
     } catch (error: any) {
+      console.log(error);
+
+      logger.error(error.message);
       return res.status(500).json({
         message: "Update failed",
         error: error.message,
       });
     }
   }
-  // GET ALL
+  // GET ALL with wallet
   static async getEventPlanners(req: Request, res: Response) {
     try {
-      const data = await db.select().from(eventPlanners);
+      const data = await db
+        .select({
+          planner: eventPlanners,
+          wallet: wallets,
+        })
+        .from(eventPlanners)
+        .leftJoin(wallets, eq(wallets.eventPlannerId, eventPlanners.id));
+
       return res.status(200).json(data);
     } catch (error: any) {
       return res.status(500).json({

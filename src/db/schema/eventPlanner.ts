@@ -14,7 +14,7 @@ export const eventPlanners = pgTable("event_planners", {
 
   profileId: varchar("profile_id", { length: 36 })
     .notNull()
-    .references(() => profiles.id, { onDelete: "cascade" }), // FK to base user profile
+    .references(() => profiles.id, { onDelete: "cascade" }).unique(), // FK to base user profile
 
   // BASIC COMPANY INFO
   businessName: varchar("business_name", { length: 255 }).notNull(),

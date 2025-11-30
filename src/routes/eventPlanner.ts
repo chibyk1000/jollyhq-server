@@ -17,7 +17,7 @@ router.post(
 );
 
 // READ
-router.get("/", EventPlannerControllers.getEventPlanners);
+router.get("/", verifySupabaseToken, EventPlannerControllers.getEventPlanners);
 router.get("/:id", EventPlannerControllers.getEventPlanner);
 
 // UPDATE

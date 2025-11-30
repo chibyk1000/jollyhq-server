@@ -1,0 +1,1 @@
+ALTER TABLE "wallets" ALTER COLUMN "balance" SET DATA TYPE real;

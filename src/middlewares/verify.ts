@@ -20,7 +20,8 @@ export async function verifySupabaseToken(req:Request, res:Response, next:NextFu
 
   if (error) return res.status(403).json({ message: "Invalid token" });
 
-  req.user = data.user;   
+  req.user = data.user;
+
   next();
 }
 

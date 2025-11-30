@@ -9,12 +9,32 @@
       "tag": "0000_outstanding_the_executioner",
       "breakpoints": true
     },
-  
     {
       "idx": 1,
       "version": "7",
       "when": 1764420780349,
       "tag": "0001_secret_jubilee",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764465050366,
+      "tag": "0002_striped_blacklash",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764466180465,
+      "tag": "0003_slim_valkyrie",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764466712464,
+      "tag": "0004_flaky_tigra",
       "breakpoints": true
     }
   ]
