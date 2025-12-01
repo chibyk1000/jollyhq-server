@@ -8,15 +8,16 @@ dotenv_1.default.config();
 const express_1 = __importDefault(require("express"));
 const routes_1 = __importDefault(require("./routes"));
 const logger_1 = require("./utils/logger");
-const morgan_1 = __importDefault(require("morgan"));
 const PORT = process.env.PORT;
 const app = (0, express_1.default)();
 // Log each request
-app.use((0, morgan_1.default)("combined", {
-    stream: {
-        write: (message) => logger_1.logger.info(message.trim()),
-    },
-}));
+// app.use(
+//   morgan("combined", {
+//     stream: {
+//       write: (message) => logger.info(message.trim()),
+//     gi},
+//   })
+// );
 app.use(express_1.default.json());
 app.use("/api", routes_1.default);
 app.listen(PORT, () => {
