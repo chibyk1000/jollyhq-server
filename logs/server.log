@@ -577,3 +577,4 @@
 {"level":"info","message":"::ffff:192.168.1.181 - - [01/Dec/2025:08:43:25 +0000] \"GET /api/events/planner/261ec422-dfa3-407a-a4cb-25cad2f9669c HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-01T08:43:25.177Z"}
 {"level":"info","message":"::ffff:192.168.1.181 - - [01/Dec/2025:08:43:32 +0000] \"GET /api/events/01ffc3e8-a01d-41a7-bda8-5a888c38b947 HTTP/1.1\" 200 1599 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-01T08:43:32.975Z"}
 {"level":"info","message":"::ffff:192.168.1.181 - - [01/Dec/2025:08:44:08 +0000] \"GET /api/event-planners/261ec422-dfa3-407a-a4cb-25cad2f9669c HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-01T08:44:08.242Z"}
+{"level":"info","message":"🚀 Server listening on port 8020","timestamp":"2025-12-01T19:30:29.279Z"}
