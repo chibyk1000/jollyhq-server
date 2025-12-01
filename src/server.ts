@@ -9,13 +9,13 @@ const PORT = process.env.PORT;
 const app = express();
 
 // Log each request
-// app.use(
-//   morgan("combined", {
-//     stream: {
-//       write: (message) => logger.info(message.trim()),
-//     gi},
-//   })
-// );
+app.use(
+  morgan("combined", {
+    stream: {
+      write: (message) => logger.info(message.trim()),
+    },
+  })
+);
 app.use(express.json())
 app.use("/api", router);
 

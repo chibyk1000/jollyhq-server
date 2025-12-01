@@ -34,12 +34,13 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = void 0;
-// logger.ts
 const winston_1 = __importStar(require("winston"));
 const { combine, timestamp, printf, colorize, json } = winston_1.format;
 const consoleFormat = printf(({ level, message, timestamp }) => {
     return `[${timestamp}] ${level}: ${message}`;
 });
+// detect serverless or cloud env
+const isServerless = !!process.env.VERCEL;
 winston_1.default.addColors({
     info: "bold green",
     warn: "italic yellow",
@@ -48,12 +49,14 @@ winston_1.default.addColors({
 });
 exports.logger = (0, winston_1.createLogger)({
     level: "info",
-    format: combine(timestamp(), json()), // default format (for files)
+    format: combine(timestamp(), json()),
     transports: [
         new winston_1.transports.Console({
-            format: combine(colorize({ all: true }), // add colors
-            timestamp(), consoleFormat),
+            format: combine(colorize({ all: true }), timestamp(), consoleFormat),
         }),
-        new winston_1.transports.File({ filename: "logs/server.log" }),
+        // only enable file logging locally
+        ...(isServerless
+            ? []
+            : [new winston_1.transports.File({ filename: "logs/server.log" })]),
     ],
 });
