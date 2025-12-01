@@ -1,2 +1,2 @@
 import "./profiles";
-import "./eventPlanner";
+import "./eventPlanners";

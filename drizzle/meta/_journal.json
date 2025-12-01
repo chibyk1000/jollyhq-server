@@ -36,6 +36,27 @@
       "when": 1764466712464,
       "tag": "0004_flaky_tigra",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1764533506434,
+      "tag": "0005_tired_blonde_phantom",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1764540147433,
+      "tag": "0006_dizzy_morg",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1764540242539,
+      "tag": "0007_bitter_lady_mastermind",
+      "breakpoints": true
     }
   ]
 }

@@ -9,7 +9,7 @@ import {
   numeric,
   real,
 } from "drizzle-orm/pg-core";
-import { eventPlanners } from "./eventPlanner"; // your existing schema
+import { eventPlanners } from "./eventPlanners"; // your existing schema
 
 // ------------------- Wallet Schema -------------------
 export const wallets = pgTable("wallets", {
@@ -38,5 +38,3 @@ export const walletRelations = relations(wallets, ({ one }) => ({
     references: [eventPlanners.id],
   }),
 }));
-
-

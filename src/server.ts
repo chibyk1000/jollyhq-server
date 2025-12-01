@@ -16,9 +16,10 @@ app.use(
     },
   })
 );
-
+app.use(express.json())
 app.use("/api", router);
 
 app.listen(PORT, () => {
   logger.info(`🚀 Server listening on port ${PORT}`);
 });
+export default app;

@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "category" varchar(50) NOT NULL;

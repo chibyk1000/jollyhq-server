@@ -4,7 +4,7 @@ import { supabase } from "../utils/supabase";
 import { db } from "../db";
 import { uploadToSupabase } from "../utils/upload";
 import { eq } from "drizzle-orm";
-import { eventPlanners } from "../db/schema/eventPlanner";
+import { eventPlanners } from "../db/schema/eventPlanners";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
@@ -139,7 +139,6 @@ export class UserControllers {
   static async getProfile(req: Request, res: Response) {
     try {
       const { id } = req.params;
-
 
       if (!id || typeof id !== "string") {
         return res.status(400).json({ error: "User ID is required." });

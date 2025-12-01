@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { uploadToSupabase } from "../utils/upload";
 import { db } from "../db";
-import { eventPlanners } from "../db/schema/eventPlanner";
+import { eventPlanners } from "../db/schema/eventPlanners";
 import { eq } from "drizzle-orm";
 import { WalletController } from "./wallletController";
 import { logger } from "../utils/logger";
@@ -126,7 +126,6 @@ export class EventPlannerControllers {
 
       if (data.length === 0)
         return res.status(404).json({ message: "Event planner not found" });
-console.log(data);
 
       return res.status(200).json(data[0]);
     } catch (error: any) {
