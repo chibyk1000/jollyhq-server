@@ -1,13 +1,13 @@
 {
   "version": 2,
   "functions": {
-    "dist/api/index.js": {
+    "dist/server.js": {
       "runtime": "vercel-node@5.0.0"
     }
   },
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/(.*)",
       "dest": "dist/server.js"
     }
   ]
