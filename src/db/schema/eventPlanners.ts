@@ -13,7 +13,7 @@ import { events } from "./events";
 export const eventPlanners = pgTable("event_planners", {
   id: uuid("id").defaultRandom().primaryKey(),
 
-  profileId: varchar("profile_id", { length: 36 })
+  profileId: uuid("profile_id",)
     .notNull()
     .references(() => profiles.id, { onDelete: "cascade" }).unique(), // FK to base user profile
 

@@ -5,11 +5,12 @@ import {
   text,
   timestamp,
   boolean,
+  uuid,
   
 } from "drizzle-orm/pg-core";
 
 export const profiles = pgTable("profiles", {
-  id: varchar("id", { length: 36 }).primaryKey(), // supabase auth uid
+  id: uuid("id").defaultRandom().primaryKey(), // supabase auth uid
 
   firstName: varchar("first_name", { length: 100 }).notNull(),
   lastName: varchar("last_name", { length: 100 }).notNull(),

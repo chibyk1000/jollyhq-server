@@ -1,1 +1,0 @@
-ALTER TABLE "event_planners" ADD CONSTRAINT "event_planners_profile_id_unique" UNIQUE("profile_id");

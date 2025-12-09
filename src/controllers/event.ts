@@ -5,6 +5,8 @@ import { eventPlanners } from "../db/schema/eventPlanners";
 import { eq } from "drizzle-orm";
 import { uploadToSupabase } from "../utils/upload";
 import { eventTickets } from "../db/schema/eventTickets";
+import { chatMembers } from "../db/schema/chatMembers";
+import { chats } from "../db/schema/chats";
 
 export class EventController {
   // ---------------- CREATE EVENT ----------------
@@ -19,10 +21,14 @@ export class EventController {
         description,
         category,
       } = req.body;
+
       const user = req.user;
 
-      if (!user?.id) return res.status(401).json({ message: "Unauthorized" });
+      if (!user?.id) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
 
+      // ✅ Ensure user is an Event Planner
       const [planner] = await db
         .select()
         .from(eventPlanners)
@@ -35,34 +41,61 @@ export class EventController {
         });
       }
 
+      // ✅ Upload event image (if provided)
       let imageUrl: string | null = null;
       if (req.file) {
         imageUrl = await uploadToSupabase(req.file, "events/images");
       }
 
-      const [newEvent] = await db
-        .insert(events)
-        .values({
-          plannerId: planner.id,
-          imageUrl,
-          eventType,
-          category,
-          name,
-          eventDate: new Date(eventDate),
-          eventTime: new Date(eventTime),
-          location,
-          description,
-        })
-        .returning();
+      // ✅ TRANSACTION (Event + Chat + Admin Member)
+      const result = await db.transaction(async (tx) => {
+        // 1. Create Event
+        const [newEvent] = await tx
+          .insert(events)
+          .values({
+            plannerId: planner.id,
+            imageUrl,
+            eventType,
+            category,
+            name,
+            eventDate: new Date(eventDate),
+            eventTime: new Date(eventTime),
+            location,
+            description,
+          })
+          .returning();
 
-      res
-        .status(201)
-        .json({ message: "Event created successfully", event: newEvent });
+        // 2. Create Chat for Event
+        const [newChat] = await tx
+          .insert(chats)
+          .values({
+            eventId: newEvent.id,
+            name: `${name} Group`,
+            isGroup: true,
+          })
+          .returning();
+
+        // 3. Add Event Planner as Admin
+        await tx.insert(chatMembers).values({
+          chatId: newChat.id,
+          profileId: user.id,
+          role: "admin",
+        });
+
+        return { newEvent, newChat };
+      });
+
+      return res.status(201).json({
+        message: "Event and group chat created successfully",
+        event: result.newEvent,
+        chat: result.newChat,
+      });
     } catch (error: any) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ error: error.message || "Failed to create event" });
+      console.error("Create Event Error:", error);
+      return res.status(500).json({
+        message: "Failed to create event",
+        error: error.message,
+      });
     }
   }
 
@@ -141,8 +174,7 @@ export class EventController {
             id: eventPlanners.id,
             profileId: eventPlanners.profileId,
             name: eventPlanners.businessName, // if you have a name column
-            image:eventPlanners.logoUrl
-
+            image: eventPlanners.logoUrl,
           },
         })
         .from(events)
@@ -159,11 +191,10 @@ export class EventController {
         .from(eventTickets)
         .where(eq(eventTickets.eventId, eventId));
 
-
       return res.json({
         event: {
-          ...event.event,   
-          planner:event.planner
+          ...event.event,
+          planner: event.planner,
         },
         tickets,
       });

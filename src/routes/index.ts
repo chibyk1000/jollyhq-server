@@ -1,5 +1,6 @@
 import { Router } from "express";
 import usersRoutes from "./usersRoutes"
+import chatsRoutes from "./chats"
 import plannerRoutes from "./eventPlanner"
 import eventRoutes from "./event"
 import ticketsRoutes from "./tickets"
@@ -7,6 +8,7 @@ import ticketsRoutes from "./tickets"
 const router = Router()
 
 router.use("/users",   usersRoutes)
+router.use("/chats",   chatsRoutes)
 router.use("/tickets",   ticketsRoutes)
 router.use("/events",   eventRoutes)
 router.use("/event-planners",   plannerRoutes)
