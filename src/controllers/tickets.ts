@@ -2,8 +2,10 @@
 import { Request, Response } from "express";
 import { db } from "../db";
 import { eventTickets } from "../db/schema/eventTickets";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { eventDiscounts } from "../db/schema/eventDiscounts";
+import { userTickets } from "../db/schema/userTickets";
+import { events } from "../db/schema";
 
 export class TicketController {
   /**
@@ -12,17 +14,14 @@ export class TicketController {
    */
   static async createTicket(req: Request, res: Response) {
     try {
-      const payload = req.body;
-  
-
       const {
         eventId,
-        eventType,
+
         ticketType,
-        seatingEnabled,
+
         tickets,
         discountCodes,
-      } = payload;
+      } = req.body;
 
       if (
         !eventId ||
@@ -41,9 +40,9 @@ export class TicketController {
         label: t.label,
         quantity: Number(t.quantity),
         remaining: Number(t.quantity),
-        price: t.price,
+        price: ticketType === "free" ? 0 : t.price,
         ticketType,
-        seatingEnabled: !!seatingEnabled,
+        isFree: ticketType === "free",
       }));
 
       // Insert tickets
@@ -52,15 +51,11 @@ export class TicketController {
         .values(ticketsToInsert)
         .returning();
 
-      // Handle discount codes if provided
-      let createdDiscounts = [] as any;
-      if (
-        discountCodes &&
-        Array.isArray(discountCodes) &&
-        discountCodes.length > 0
-      ) {
+      // Handle discount codes only if paid tickets
+      let createdDiscounts: any[] = [];
+      if (ticketType === "paid" && discountCodes?.length) {
         const discountsToInsert = discountCodes
-          .filter((d: any) => d.code && d.code.trim() !== "")
+          .filter((d: any) => d.code?.trim())
           .map((d: any) => ({
             eventId,
             code: d.code.trim(),
@@ -76,7 +71,7 @@ export class TicketController {
       }
 
       return res.status(201).json({
-        message: "Tickets and discounts created successfully",
+        message: "Tickets created successfully",
         tickets: createdTickets,
         discounts: createdDiscounts,
       });
@@ -172,6 +167,50 @@ export class TicketController {
       return res.json({ message: "Ticket deleted" });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
+    }
+  }
+
+  /**
+   * GET Tickets purchased by a user
+   */
+  static async getTicketsByUser(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      // Join userTickets → eventTickets → events to get ticket + event info
+      const tickets = await db
+        .select({
+          ticketId: eventTickets.id,
+          label: eventTickets.label,
+          price: eventTickets.price,
+          isFree: eventTickets.isFree,
+          quantity: userTickets.quantity,
+          purchasedAt: userTickets.purchasedAt,
+
+          // Event details
+          event: {
+            eventId: events.id,
+            name: events.name,
+            category: events.category,
+            eventType: events.eventType,
+            imageUrl: events.imageUrl,
+            location: events.location,
+            eventDate: events.eventDate,
+            eventTime: events.eventTime,
+            plannerId: events.plannerId,
+          },
+        })
+        .from(userTickets)
+        .innerJoin(eventTickets, eq(userTickets.ticketId, eventTickets.id))
+        .innerJoin(events, eq(eventTickets.eventId, events.id))
+        .where(eq(userTickets.userId, userId))
+        .orderBy(desc(userTickets.purchasedAt));
+
+      return res.json({ tickets });
+    } catch (err: any) {
+      console.error(err);
+      return res.status(500).json({ error: err.message });
     }
   }
 }

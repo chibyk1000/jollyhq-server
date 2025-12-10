@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { db } from "../db";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, sql } from "drizzle-orm";
 import { chats } from "../db/schema/chats";
 import { chatMembers } from "../db/schema/chatMembers";
 import { messages } from "../db/schema/messages";
-import { messageReads } from "../db/schema";
+import { events, messageReads } from "../db/schema";
 
 
 /* ---------------------------------------------------
@@ -20,17 +20,27 @@ export class ChatController {
       const userChats = await db
         .select({
           chatId: chats.id,
-          name: chats.name,
+          chatName: chats.name,
           eventId: chats.eventId,
           joinedAt: chatMembers.joinedAt,
+          eventName: events.name,
+          eventLogo: events.imageUrl, // adjust to your column
+          membersCount: sql<number>`(
+          SELECT COUNT(*)
+          FROM ${chatMembers}
+          WHERE ${chatMembers.chatId} = ${chats.id}
+        )`,
         })
         .from(chatMembers)
         .innerJoin(chats, eq(chatMembers.chatId, chats.id))
+        .leftJoin(events, eq(chats.eventId, events.id))
         .where(eq(chatMembers.profileId, userId))
         .orderBy(desc(chatMembers.joinedAt));
 
       return res.json(userChats);
     } catch (error: any) {
+      console.log(error);
+      
       res.status(500).json({ error: error.message });
     }
   }
@@ -74,9 +84,9 @@ export class ChatController {
     try {
       const { chatId, content, type } = req.body;
       const userId = req.user?.id;
-if (!userId) {
-  return res.status(401).json({ message: "Unauthorized" });
-}
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       if (!chatId || !content)
         return res.status(400).json({ message: "Invalid payload" });
 
@@ -135,9 +145,9 @@ if (!userId) {
     try {
       const { chatId, profileId } = req.body;
       const userId = req.user?.id;
-if (!userId) {
-  return res.status(401).json({ message: "Unauthorized" });
-}
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const admin = await db.query.chatMembers.findFirst({
         where: and(
           eq(chatMembers.chatId, chatId),
@@ -162,11 +172,11 @@ if (!userId) {
   static async removeMember(req: Request, res: Response) {
     try {
       const { chatId, profileId } = req.body;
-        const userId = req.user?.id;
-        
-        if (!userId) {
-          return res.status(401).json({ message: "Unauthorized" });
-        }
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
 
       const admin = await db.query.chatMembers.findFirst({
         where: and(
@@ -200,9 +210,9 @@ if (!userId) {
     try {
       const { chatId, profileId } = req.body;
       const userId = req.user?.id;
-if (!userId) {
-  return res.status(401).json({ message: "Unauthorized" });
-}
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       const admin = await db.query.chatMembers.findFirst({
         where: and(
           eq(chatMembers.chatId, chatId),

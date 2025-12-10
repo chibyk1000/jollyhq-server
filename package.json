@@ -4,7 +4,7 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "nodemon",
-    "build":"tsc",
+    "build": "tsc",
     "start": "node dist/server.js"
   },
   "keywords": [],
@@ -34,6 +34,7 @@
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "pg": "^8.16.3",
+    "react-native-reanimated-skeleton": "^1.6.0",
     "winston": "^3.18.3"
   }
 }
