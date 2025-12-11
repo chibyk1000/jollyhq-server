@@ -42,7 +42,7 @@ export class TrendingEventsController {
         ORDER BY COALESCE(SUM(t.quantity), 0) DESC
         LIMIT ${limit};
       `);
-console.log(trending);
+
 
       // Format priceRange in JS
       const formatted = trending.rows.map((e: any) => {

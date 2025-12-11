@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.profiles = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 exports.profiles = (0, pg_core_1.pgTable)("profiles", {
-    id: (0, pg_core_1.varchar)("id", { length: 36 }).primaryKey(), // supabase auth uid
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(), // supabase auth uid
     firstName: (0, pg_core_1.varchar)("first_name", { length: 100 }).notNull(),
     lastName: (0, pg_core_1.varchar)("last_name", { length: 100 }).notNull(),
     email: (0, pg_core_1.varchar)("email", { length: 255 }).notNull().unique(),

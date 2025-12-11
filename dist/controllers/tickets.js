@@ -5,6 +5,8 @@ const db_1 = require("../db");
 const eventTickets_1 = require("../db/schema/eventTickets");
 const drizzle_orm_1 = require("drizzle-orm");
 const eventDiscounts_1 = require("../db/schema/eventDiscounts");
+const userTickets_1 = require("../db/schema/userTickets");
+const schema_1 = require("../db/schema");
 class TicketController {
     /**
      * CREATE Ticket(s)
@@ -12,8 +14,7 @@ class TicketController {
      */
     static async createTicket(req, res) {
         try {
-            const payload = req.body;
-            const { eventId, eventType, ticketType, seatingEnabled, tickets, discountCodes, } = payload;
+            const { eventId, ticketType, tickets, discountCodes, } = req.body;
             if (!eventId ||
                 !tickets ||
                 !Array.isArray(tickets) ||
@@ -28,22 +29,20 @@ class TicketController {
                 label: t.label,
                 quantity: Number(t.quantity),
                 remaining: Number(t.quantity),
-                price: t.price,
+                price: ticketType === "free" ? 0 : t.price,
                 ticketType,
-                seatingEnabled: !!seatingEnabled,
+                isFree: ticketType === "free",
             }));
             // Insert tickets
             const createdTickets = await db_1.db
                 .insert(eventTickets_1.eventTickets)
                 .values(ticketsToInsert)
                 .returning();
-            // Handle discount codes if provided
+            // Handle discount codes only if paid tickets
             let createdDiscounts = [];
-            if (discountCodes &&
-                Array.isArray(discountCodes) &&
-                discountCodes.length > 0) {
+            if (ticketType === "paid" && discountCodes?.length) {
                 const discountsToInsert = discountCodes
-                    .filter((d) => d.code && d.code.trim() !== "")
+                    .filter((d) => d.code?.trim())
                     .map((d) => ({
                     eventId,
                     code: d.code.trim(),
@@ -57,7 +56,7 @@ class TicketController {
                 }
             }
             return res.status(201).json({
-                message: "Tickets and discounts created successfully",
+                message: "Tickets created successfully",
                 tickets: createdTickets,
                 discounts: createdDiscounts,
             });
@@ -142,6 +141,48 @@ class TicketController {
         }
         catch (e) {
             res.status(500).json({ error: e.message });
+        }
+    }
+    /**
+     * GET Tickets purchased by a user
+     */
+    static async getTicketsByUser(req, res) {
+        try {
+            const userId = req.user?.id;
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
+            // Join userTickets → eventTickets → events to get ticket + event info
+            const tickets = await db_1.db
+                .select({
+                ticketId: eventTickets_1.eventTickets.id,
+                label: eventTickets_1.eventTickets.label,
+                price: eventTickets_1.eventTickets.price,
+                isFree: eventTickets_1.eventTickets.isFree,
+                quantity: userTickets_1.userTickets.quantity,
+                purchasedAt: userTickets_1.userTickets.purchasedAt,
+                // Event details
+                event: {
+                    eventId: schema_1.events.id,
+                    name: schema_1.events.name,
+                    category: schema_1.events.category,
+                    eventType: schema_1.events.eventType,
+                    imageUrl: schema_1.events.imageUrl,
+                    location: schema_1.events.location,
+                    eventDate: schema_1.events.eventDate,
+                    eventTime: schema_1.events.eventTime,
+                    plannerId: schema_1.events.plannerId,
+                },
+            })
+                .from(userTickets_1.userTickets)
+                .innerJoin(eventTickets_1.eventTickets, (0, drizzle_orm_1.eq)(userTickets_1.userTickets.ticketId, eventTickets_1.eventTickets.id))
+                .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, schema_1.events.id))
+                .where((0, drizzle_orm_1.eq)(userTickets_1.userTickets.userId, userId))
+                .orderBy((0, drizzle_orm_1.desc)(userTickets_1.userTickets.purchasedAt));
+            return res.json({ tickets });
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).json({ error: err.message });
         }
     }
 }

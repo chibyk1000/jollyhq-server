@@ -2,40 +2,60 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TrendingEventsController = void 0;
 const db_1 = require("../db");
-const events_1 = require("../db/schema/events");
-const eventTickets_1 = require("../db/schema/eventTickets");
-const eventPlanners_1 = require("../db/schema/eventPlanners");
 const drizzle_orm_1 = require("drizzle-orm");
 class TrendingEventsController {
     static async getTrendingEvents(req, res) {
         try {
-            console.log("dfsdfa");
             const limit = Number(req.query.limit) || 10;
-            // Select events + planner + total tickets sold
-            const trending = await db_1.db
-                .select({
-                id: events_1.events.id,
-                name: events_1.events.name,
-                category: events_1.events.category,
-                eventType: events_1.events.eventType,
-                imageUrl: events_1.events.imageUrl,
-                location: events_1.events.location,
-                type: events_1.events.eventType,
-                eventDate: events_1.events.eventDate,
-                plannerId: events_1.events.plannerId,
-                totalTicketsSold: (0, drizzle_orm_1.sql) `COALESCE(SUM(${eventTickets_1.eventTickets.quantity}), 0)`,
-            })
-                .from(events_1.events)
-                .leftJoin(eventTickets_1.eventTickets, (0, drizzle_orm_1.sql) `${eventTickets_1.eventTickets.eventId} = ${events_1.events.id}`)
-                .leftJoin(eventPlanners_1.eventPlanners, (0, drizzle_orm_1.sql) `${eventPlanners_1.eventPlanners.id} = ${events_1.events.plannerId}`)
-                .groupBy(events_1.events.id, eventPlanners_1.eventPlanners.id)
-                .orderBy((0, drizzle_orm_1.sql) `COALESCE(SUM(${eventTickets_1.eventTickets.quantity}), 0) DESC`)
-                .limit(limit);
-            res.json(trending);
+            const trending = await db_1.db.execute((0, drizzle_orm_1.sql) `
+        SELECT 
+          e.id AS "eventId",
+          e.name,
+          e.category,
+          e.event_type AS "eventType",
+          e.image_url AS "imageUrl",
+          e.location,
+          e.event_date AS "eventDate",
+          e.event_time AS "eventTime",
+          e.planner_id AS "plannerId",
+          COALESCE(SUM(t.quantity), 0) AS "totalTicketsSold",
+          MIN(CASE WHEN t.is_free = FALSE THEN t.price END) AS "minPrice",
+          MAX(CASE WHEN t.is_free = FALSE THEN t.price END) AS "maxPrice",
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'ticketId', t.id,
+                'label', t.label,
+                'quantity', t.quantity,
+                'price', t.price,
+                'isFree', t.is_free
+              )
+            ) FILTER (WHERE t.id IS NOT NULL),
+            '[]'
+          ) AS tickets
+        FROM events e
+        LEFT JOIN event_tickets t ON t.event_id = e.id
+        GROUP BY e.id
+        ORDER BY COALESCE(SUM(t.quantity), 0) DESC
+        LIMIT ${limit};
+      `);
+            // Format priceRange in JS
+            const formatted = trending.rows.map((e) => {
+                const prices = e.tickets
+                    .filter((t) => !t.isFree)
+                    .map((t) => Number(t.price));
+                return {
+                    ...e,
+                    priceRange: prices.length > 0
+                        ? `₦${Math.min(...prices).toLocaleString()} - ₦${Math.max(...prices).toLocaleString()}`
+                        : "FREE",
+                };
+            });
+            res.json({ trending: formatted });
         }
-        catch (err) {
-            console.error(err);
-            res.status(500).json({ error: err.message });
+        catch (error) {
+            console.error(error);
+            res.status(500).json({ error: error.message });
         }
     }
 }

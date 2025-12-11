@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.db = void 0;
 const pg_1 = require("pg");
 const node_postgres_1 = require("drizzle-orm/node-postgres");
-const schema = __importStar(require("./schema/profiles"));
+const schema = __importStar(require("./schema/"));
 const pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
 });
