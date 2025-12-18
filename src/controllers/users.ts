@@ -160,4 +160,88 @@ export class UserControllers {
       return res.status(500).json({ error: "Server error" });
     }
   }
+
+  static async updateProfile(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const { firstName, lastName, password } = req.body;
+
+      if (!id || typeof id !== "string") {
+        return res.status(400).json({ error: "User ID is required." });
+      }
+
+      // ---------- VALIDATION ----------
+      if (firstName && typeof firstName !== "string") {
+        return res.status(400).json({ error: "First name must be a string." });
+      }
+
+      if (lastName && typeof lastName !== "string") {
+        return res.status(400).json({ error: "Last name must be a string." });
+      }
+
+      if (password && typeof password !== "string") {
+        return res.status(400).json({ error: "Password must be a string." });
+      }
+
+      if (password && password.length < 8) {
+        return res
+          .status(400)
+          .json({ error: "Password must be at least 8 characters long." });
+      }
+
+      // ---------- AVATAR UPLOAD ----------
+      let avatarUrl: string | undefined;
+      const avatarFile = req.file;
+
+      if (avatarFile) {
+        avatarUrl = await uploadToSupabase(avatarFile, "avatars");
+      }
+
+      // ---------- UPDATE LOCAL DB ----------
+      const updateData: Partial<NewProfile> = {};
+
+      if (firstName) updateData.firstName = firstName;
+      if (lastName) updateData.lastName = lastName;
+      if (avatarUrl) updateData.avatarUrl = avatarUrl;
+
+      if (Object.keys(updateData).length > 0) {
+        await db.update(profiles).set(updateData).where(eq(profiles.id, id));
+      }
+
+      // ---------- UPDATE SUPABASE AUTH ----------
+      const authUpdatePayload: any = {
+        user_metadata: {
+          firstName,
+          lastName,
+        },
+      };
+
+      if (password) {
+        authUpdatePayload.password = password;
+      }
+
+      const { error: supabaseError } = await supabase.auth.admin.updateUserById(
+        id,
+        authUpdatePayload
+      );
+
+      if (supabaseError) {
+        console.error("Supabase update error:", supabaseError.message);
+        return res
+          .status(500)
+          .json({ error: "Failed to update Supabase auth user." });
+      }
+
+      // ---------- FETCH UPDATED USER ----------
+      const [updatedUser] = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.id, id));
+
+      return res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Server error" });
+    }
+  }
 }
