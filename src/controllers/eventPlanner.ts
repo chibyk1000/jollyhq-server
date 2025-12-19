@@ -94,7 +94,8 @@ export class EventPlannerControllers {
 
       // Create wallet for the new event planner
       await db.insert(wallets).values({
-        eventPlannerId: planner.id,
+        ownerId: planner.id,
+        ownerType: "event-planner",
         balance: 0,
         currency: "NGN",
         isActive: true,
@@ -119,15 +120,24 @@ export class EventPlannerControllers {
       const { id } = req.params;
 
       const data = await db
-        .select()
+        .select({
+          eventPlanner: eventPlanners,
+          wallet: wallets,
+        })
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, id))
-        .leftJoin(wallets, eq(wallets.eventPlannerId, eventPlanners.id));
+        .leftJoin(wallets, eq(wallets.ownerId, eventPlanners.id))
+        .where(eq(eventPlanners.profileId, id));
 
-      if (data.length === 0)
+      if (data.length === 0) {
         return res.status(404).json({ message: "Event planner not found" });
+      }
 
-      return res.status(200).json(data[0]);
+      return res.status(200).json({
+        event_planner: {
+          ...data[0].eventPlanner,
+          wallet: data[0].wallet ?? null,
+        },
+      });
     } catch (error: any) {
       return res.status(500).json({
         message: "Failed to get event planner",
@@ -206,8 +216,7 @@ export class EventPlannerControllers {
           planner: eventPlanners,
           wallet: wallets,
         })
-        .from(eventPlanners)
-        .leftJoin(wallets, eq(wallets.eventPlannerId, eventPlanners.id));
+        .from(eventPlanners);
 
       return res.status(200).json(data);
     } catch (error: any) {

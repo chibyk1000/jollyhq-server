@@ -1,4 +1,4 @@
-import { InferModel } from "drizzle-orm";
+import { InferModel, relations } from "drizzle-orm";
 import {
   pgTable,
   varchar,
@@ -8,6 +8,7 @@ import {
   uuid,
   
 } from "drizzle-orm/pg-core";
+import { wallets } from "./wallet";
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").defaultRandom().primaryKey(), // supabase auth uid
@@ -30,9 +31,16 @@ export const profiles = pgTable("profiles", {
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
+   deletedAt: timestamp("deleted_at")
 });
 
 
 
 export type Profile = InferModel<typeof profiles>;
 export type NewProfile = InferModel<typeof profiles, "insert">;
+export const userRelations = relations(profiles, ({ one }) => ({
+  wallet: one(wallets, {
+    fields: [profiles.id],
+    references: [wallets.ownerId],
+  }),
+}));

@@ -15,6 +15,27 @@
       "when": 1765313835505,
       "tag": "0001_common_phalanx",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766124290993,
+      "tag": "0002_wandering_apocalypse",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1766127842904,
+      "tag": "0003_special_fallen_one",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1766133640608,
+      "tag": "0004_polite_gravity",
+      "breakpoints": true
     }
   ]
 }

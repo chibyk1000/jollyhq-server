@@ -3,8 +3,10 @@ import { NewProfile, profiles } from "../db/schema/profiles";
 import { supabase } from "../utils/supabase";
 import { db } from "../db";
 import { uploadToSupabase } from "../utils/upload";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { eventPlanners } from "../db/schema/eventPlanners";
+import { vendors } from "../db/schema/vendors";
+import { wallets } from "../db/schema/wallet";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
@@ -144,7 +146,7 @@ export class UserControllers {
         return res.status(400).json({ error: "User ID is required." });
       }
 
-      // Fetch user from database
+      // Check if user exists
       const [user] = await db
         .select()
         .from(profiles)
@@ -154,7 +156,49 @@ export class UserControllers {
         return res.status(404).json({ error: "User not found." });
       }
 
-      return res.status(200).json({ user });
+      // Check if user has a vendor profile
+      const [vendorProfile] = await db
+        .select()
+        .from(vendors)
+        .where(eq(vendors.userId, id));
+
+      // Check if user has an event planner profile
+      const [plannerProfile] = await db
+        .select()
+        .from(eventPlanners)
+        .where(eq(eventPlanners.profileId, id));
+
+      const hasVendorProfile = Boolean(vendorProfile);
+      const hasPlannerProfile = Boolean(plannerProfile);
+
+      // Check for wallet
+const conditions = [];
+
+if (plannerProfile?.id) {
+  conditions.push(eq(wallets.ownerId, plannerProfile.id));
+}
+
+if (vendorProfile?.id) {
+  conditions.push(eq(wallets.ownerId, vendorProfile.id));
+}
+
+let wallet = null;
+
+if (conditions.length > 0) {
+  [wallet] = await db
+    .select()
+    .from(wallets)
+    .where(or(...conditions));
+}
+
+
+      const hasWallet = Boolean(wallet);
+      return res.status(200).json({
+        user,
+        hasVendorProfile,
+        hasPlannerProfile,
+        hasWallet,
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Server error" });

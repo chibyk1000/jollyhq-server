@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { profiles } from "./profiles"; // ensure correct import path
 import { events } from "./events";
+import { wallets } from "./wallet";
 
 export const eventPlanners = pgTable("event_planners", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -57,15 +58,15 @@ export const eventPlanners = pgTable("event_planners", {
 export type EventPlanner = InferModel<typeof eventPlanners>;
 export type NewEventPlanner = InferModel<typeof eventPlanners, "insert">;
 
-export const eventPlannerRelations = relations(
-  eventPlanners,
-  ({ one, many }) => ({
-    profile: one(profiles, {
-      fields: [eventPlanners.profileId],
-      references: [profiles.id],
-    }),
-
-    events: many(events), // 👈 EventPlanner has many events
-  })
-);
+export const eventPlannerRelations = relations(eventPlanners, ({ one, many }) => ({
+  profile: one(profiles, {
+    fields: [eventPlanners.profileId],
+    references: [profiles.id],
+  }),
+  wallet: one(wallets, {
+    fields: [eventPlanners.id],
+    references: [wallets.ownerId],
+  }),
+  events: many(events), // 👈 EventPlanner has many events
+}));
 
