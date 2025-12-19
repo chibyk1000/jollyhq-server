@@ -131,6 +131,7 @@ export class EventPlannerControllers {
       if (data.length === 0) {
         return res.status(404).json({ message: "Event planner not found" });
       }
+console.log(data);
 
       return res.status(200).json({
         event_planner: {

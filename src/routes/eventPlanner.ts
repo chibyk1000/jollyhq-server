@@ -3,6 +3,7 @@ import { UserControllers } from "../controllers/users";
 import { verifySupabaseToken } from "../middlewares/verify";
 import { upload } from "../middlewares/upload";
 import { EventPlannerControllers } from "../controllers/eventPlanner";
+import { DashboardController } from "../controllers/dashboard";
 
 const router = Router() 
 router.post(
@@ -18,6 +19,7 @@ router.post(
 
 // READ
 router.get("/", verifySupabaseToken, EventPlannerControllers.getEventPlanners);
+router.get("/dashboard", verifySupabaseToken, DashboardController.getEventPlannerDashboard);
 router.get("/:id", EventPlannerControllers.getEventPlanner);
 
 // UPDATE
