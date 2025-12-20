@@ -63,7 +63,8 @@ class EventPlannerControllers {
                 .returning();
             // Create wallet for the new event planner
             await db_1.db.insert(wallet_1.wallets).values({
-                eventPlannerId: planner.id,
+                ownerId: planner.id,
+                ownerType: "event-planner",
                 balance: 0,
                 currency: "NGN",
                 isActive: true,
@@ -86,13 +87,23 @@ class EventPlannerControllers {
         try {
             const { id } = req.params;
             const data = await db_1.db
-                .select()
+                .select({
+                eventPlanner: eventPlanners_1.eventPlanners,
+                wallet: wallet_1.wallets,
+            })
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, id))
-                .leftJoin(wallet_1.wallets, (0, drizzle_orm_1.eq)(wallet_1.wallets.eventPlannerId, eventPlanners_1.eventPlanners.id));
-            if (data.length === 0)
+                .leftJoin(wallet_1.wallets, (0, drizzle_orm_1.eq)(wallet_1.wallets.ownerId, eventPlanners_1.eventPlanners.id))
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, id));
+            if (data.length === 0) {
                 return res.status(404).json({ message: "Event planner not found" });
-            return res.status(200).json(data[0]);
+            }
+            console.log(data);
+            return res.status(200).json({
+                event_planner: {
+                    ...data[0].eventPlanner,
+                    wallet: data[0].wallet ?? null,
+                },
+            });
         }
         catch (error) {
             return res.status(500).json({
@@ -156,8 +167,7 @@ class EventPlannerControllers {
                 planner: eventPlanners_1.eventPlanners,
                 wallet: wallet_1.wallets,
             })
-                .from(eventPlanners_1.eventPlanners)
-                .leftJoin(wallet_1.wallets, (0, drizzle_orm_1.eq)(wallet_1.wallets.eventPlannerId, eventPlanners_1.eventPlanners.id));
+                .from(eventPlanners_1.eventPlanners);
             return res.status(200).json(data);
         }
         catch (error) {

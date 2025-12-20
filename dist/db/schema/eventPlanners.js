@@ -5,6 +5,7 @@ const drizzle_orm_1 = require("drizzle-orm");
 const pg_core_1 = require("drizzle-orm/pg-core");
 const profiles_1 = require("./profiles"); // ensure correct import path
 const events_1 = require("./events");
+const wallet_1 = require("./wallet");
 exports.eventPlanners = (0, pg_core_1.pgTable)("event_planners", {
     id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
     profileId: (0, pg_core_1.uuid)("profile_id")
@@ -43,6 +44,10 @@ exports.eventPlannerRelations = (0, drizzle_orm_1.relations)(exports.eventPlanne
     profile: one(profiles_1.profiles, {
         fields: [exports.eventPlanners.profileId],
         references: [profiles_1.profiles.id],
+    }),
+    wallet: one(wallet_1.wallets, {
+        fields: [exports.eventPlanners.id],
+        references: [wallet_1.wallets.ownerId],
     }),
     events: many(events_1.events), // 👈 EventPlanner has many events
 }));

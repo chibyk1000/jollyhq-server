@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.profiles = void 0;
+exports.userRelations = exports.profiles = void 0;
+const drizzle_orm_1 = require("drizzle-orm");
 const pg_core_1 = require("drizzle-orm/pg-core");
+const wallet_1 = require("./wallet");
 exports.profiles = (0, pg_core_1.pgTable)("profiles", {
     id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(), // supabase auth uid
     firstName: (0, pg_core_1.varchar)("first_name", { length: 100 }).notNull(),
@@ -21,4 +23,11 @@ exports.profiles = (0, pg_core_1.pgTable)("profiles", {
     // Timestamps
     createdAt: (0, pg_core_1.timestamp)("created_at").defaultNow(),
     updatedAt: (0, pg_core_1.timestamp)("updated_at").$onUpdate(() => new Date()),
+    deletedAt: (0, pg_core_1.timestamp)("deleted_at")
 });
+exports.userRelations = (0, drizzle_orm_1.relations)(exports.profiles, ({ one }) => ({
+    wallet: one(wallet_1.wallets, {
+        fields: [exports.profiles.id],
+        references: [wallet_1.wallets.ownerId],
+    }),
+}));

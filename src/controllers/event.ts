@@ -7,6 +7,10 @@ import { uploadToSupabase } from "../utils/upload";
 import { eventTickets } from "../db/schema/eventTickets";
 import { chatMembers } from "../db/schema/chatMembers";
 import { chats } from "../db/schema/chats";
+import { userTickets } from "../db/schema/userTickets";
+import { transactions } from "../db/schema/transactions";
+import { wallets } from "../db/schema/wallet";
+import { logger } from "../utils/logger";
 
 export class EventController {
   // ---------------- CREATE EVENT ----------------
@@ -155,9 +159,9 @@ export class EventController {
         ORDER BY e.event_date DESC;
       `);
 
-      res.json({ result:result.rows });
+      res.json({ result: result.rows });
     } catch (error: any) {
-      console.error(error); 
+      console.error(error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -248,6 +252,120 @@ export class EventController {
     } catch (error: any) {
       console.error(error);
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getEventOverview(req: Request, res: Response) {
+    try {
+      const { eventId } = req.params;
+      /* ---------------- EVENT INFO ---------------- */
+      const [event] = await db
+        .select({
+          id: events.id,
+          name: events.name,
+          imageUrl: events.imageUrl,
+          eventDate: events.eventDate,
+          eventTime: events.eventTime,
+          location: events.location,
+          plannerId: events.plannerId,
+        })
+        .from(events)
+        .where(eq(events.id, eventId));
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      /* ---------------- TICKETS ---------------- */
+      const tickets = await db
+        .select({
+          id: eventTickets.id,
+          label: eventTickets.label,
+          quantity: eventTickets.quantity,
+          price: eventTickets.price,
+          isFree: eventTickets.isFree,
+        })
+        .from(eventTickets)
+        .where(eq(eventTickets.eventId, eventId));
+      /* ---------------- SOLD TICKETS ---------------- */
+      const soldTickets = await db
+        .select({
+          ticketId: userTickets.ticketId,
+          sold: sql<number>`sum(${userTickets.quantity})`,
+        })
+        .from(userTickets)
+        .groupBy(userTickets.ticketId);
+      const soldMap = Object.fromEntries(
+        soldTickets.map((t) => [t.ticketId, Number(t.sold)])
+      );
+      /* ---------------- TICKET PROGRESS ---------------- */
+      const ticketProgress = tickets.map((t) => {
+        const sold = soldMap[t.id] ?? 0;
+        const total = t.quantity;
+        const revenue = t.isFree ? 0 : sold * Number(t.price);
+
+        return {
+          label: t.label,
+          sold,
+          available: Math.max(total - sold, 0),
+          total,
+          revenue,
+          progress: total > 0 ? sold / total : 0,
+        };
+      });
+      /* ---------------- TICKET SUMMARY ---------------- */
+      const ticketSummary = {
+        confirmed: ticketProgress.reduce((a, b) => a + b.sold, 0),
+        available: ticketProgress.reduce((a, b) => a + b.available, 0),
+        pending: 0, // no pending concept in schema yet
+        cancelled: 0, // no cancelled concept yet
+      };
+      /* ---------------- PAYMENTS ---------------- */
+      const payments = await db
+        .select({
+          amount: transactions.amount,
+          status: transactions.status,
+        })
+        .from(transactions)
+        .leftJoin(wallets, eq(transactions.walletId, wallets.id))
+        .where(eq(wallets.ownerId, event.plannerId));
+
+      const totalPaid = payments
+        .filter((p) => p.status === "completed")
+        .reduce((a, b) => a + Number(b.amount), 0);
+      const escrowHeld = payments
+        .filter((p) => p.status === "pending")
+        .reduce((a, b) => a + Number(b.amount), 0);
+      /* ---------------- RESPONSE ---------------- */
+      return res.json({
+        event: {
+          id: event.id,
+          name: event.name,
+          imageUrl: event.imageUrl,
+          date: event.eventDate,
+          time: event.eventTime,
+          location: event.location,
+          status: "Upcoming",
+          revenue: totalPaid,
+        },
+        stats: {
+          totalVendorsBooked: 0, // not in schema yet
+          vendorsPending: 0,
+          totalTickets: ticketSummary.confirmed,
+          payments: payments.length,
+        },
+        ticketSummary,
+        ticketProgress,
+        payment: {
+          totalPaid,
+          escrowHeld,
+          vendorBreakdown: {
+            completed: payments.filter((p) => p.status === "completed").length,
+            pending: payments.filter((p) => p.status === "pending").length,
+            cancelled: payments.filter((p) => p.status === "failed").length,
+          },
+        },
+      });
+    } catch (error) {
+      logger.error(error);
     }
   }
 }

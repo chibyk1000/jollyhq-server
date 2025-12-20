@@ -12,6 +12,7 @@ router.patch("/:eventId", upload_1.upload.single("image"), verify_1.verifySupaba
 // New routes
 router.get("/", verify_1.verifySupabaseToken, event_1.EventController.getAllEvents);
 // ⭐️ GET SINGLE EVENT + TICKETS
+router.get("/:eventId/overview", verify_1.verifySupabaseToken, event_1.EventController.getEventOverview);
 router.get("/:eventId", verify_1.verifySupabaseToken, event_1.EventController.getEventById);
 router.get("/planner/:plannerId", verify_1.verifySupabaseToken, event_1.EventController.getEventsByPlanner);
 exports.default = router;

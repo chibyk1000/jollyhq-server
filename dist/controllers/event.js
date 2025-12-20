@@ -9,6 +9,10 @@ const upload_1 = require("../utils/upload");
 const eventTickets_1 = require("../db/schema/eventTickets");
 const chatMembers_1 = require("../db/schema/chatMembers");
 const chats_1 = require("../db/schema/chats");
+const userTickets_1 = require("../db/schema/userTickets");
+const transactions_1 = require("../db/schema/transactions");
+const wallet_1 = require("../db/schema/wallet");
+const logger_1 = require("../utils/logger");
 class EventController {
     // ---------------- CREATE EVENT ----------------
     static async createEvent(req, res) {
@@ -213,6 +217,116 @@ class EventController {
         catch (error) {
             console.error(error);
             res.status(500).json({ error: error.message });
+        }
+    }
+    static async getEventOverview(req, res) {
+        try {
+            const { eventId } = req.params;
+            /* ---------------- EVENT INFO ---------------- */
+            const [event] = await db_1.db
+                .select({
+                id: events_1.events.id,
+                name: events_1.events.name,
+                imageUrl: events_1.events.imageUrl,
+                eventDate: events_1.events.eventDate,
+                eventTime: events_1.events.eventTime,
+                location: events_1.events.location,
+                plannerId: events_1.events.plannerId,
+            })
+                .from(events_1.events)
+                .where((0, drizzle_orm_1.eq)(events_1.events.id, eventId));
+            if (!event) {
+                return res.status(404).json({ message: "Event not found" });
+            }
+            /* ---------------- TICKETS ---------------- */
+            const tickets = await db_1.db
+                .select({
+                id: eventTickets_1.eventTickets.id,
+                label: eventTickets_1.eventTickets.label,
+                quantity: eventTickets_1.eventTickets.quantity,
+                price: eventTickets_1.eventTickets.price,
+                isFree: eventTickets_1.eventTickets.isFree,
+            })
+                .from(eventTickets_1.eventTickets)
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, eventId));
+            /* ---------------- SOLD TICKETS ---------------- */
+            const soldTickets = await db_1.db
+                .select({
+                ticketId: userTickets_1.userTickets.ticketId,
+                sold: (0, drizzle_orm_1.sql) `sum(${userTickets_1.userTickets.quantity})`,
+            })
+                .from(userTickets_1.userTickets)
+                .groupBy(userTickets_1.userTickets.ticketId);
+            const soldMap = Object.fromEntries(soldTickets.map((t) => [t.ticketId, Number(t.sold)]));
+            /* ---------------- TICKET PROGRESS ---------------- */
+            const ticketProgress = tickets.map((t) => {
+                const sold = soldMap[t.id] ?? 0;
+                const total = t.quantity;
+                const revenue = t.isFree ? 0 : sold * Number(t.price);
+                return {
+                    label: t.label,
+                    sold,
+                    available: Math.max(total - sold, 0),
+                    total,
+                    revenue,
+                    progress: total > 0 ? sold / total : 0,
+                };
+            });
+            /* ---------------- TICKET SUMMARY ---------------- */
+            const ticketSummary = {
+                confirmed: ticketProgress.reduce((a, b) => a + b.sold, 0),
+                available: ticketProgress.reduce((a, b) => a + b.available, 0),
+                pending: 0, // no pending concept in schema yet
+                cancelled: 0, // no cancelled concept yet
+            };
+            /* ---------------- PAYMENTS ---------------- */
+            const payments = await db_1.db
+                .select({
+                amount: transactions_1.transactions.amount,
+                status: transactions_1.transactions.status,
+            })
+                .from(transactions_1.transactions)
+                .leftJoin(wallet_1.wallets, (0, drizzle_orm_1.eq)(transactions_1.transactions.walletId, wallet_1.wallets.id))
+                .where((0, drizzle_orm_1.eq)(wallet_1.wallets.ownerId, event.plannerId));
+            const totalPaid = payments
+                .filter((p) => p.status === "completed")
+                .reduce((a, b) => a + Number(b.amount), 0);
+            const escrowHeld = payments
+                .filter((p) => p.status === "pending")
+                .reduce((a, b) => a + Number(b.amount), 0);
+            /* ---------------- RESPONSE ---------------- */
+            return res.json({
+                event: {
+                    id: event.id,
+                    name: event.name,
+                    imageUrl: event.imageUrl,
+                    date: event.eventDate,
+                    time: event.eventTime,
+                    location: event.location,
+                    status: "Upcoming",
+                    revenue: totalPaid,
+                },
+                stats: {
+                    totalVendorsBooked: 0, // not in schema yet
+                    vendorsPending: 0,
+                    totalTickets: ticketSummary.confirmed,
+                    payments: payments.length,
+                },
+                ticketSummary,
+                ticketProgress,
+                payment: {
+                    totalPaid,
+                    escrowHeld,
+                    vendorBreakdown: {
+                        completed: payments.filter((p) => p.status === "completed").length,
+                        pending: payments.filter((p) => p.status === "pending").length,
+                        cancelled: payments.filter((p) => p.status === "failed").length,
+                    },
+                },
+            });
+        }
+        catch (error) {
+            logger_1.logger.error(error);
         }
     }
 }

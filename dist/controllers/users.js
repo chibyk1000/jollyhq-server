@@ -2,9 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserControllers = void 0;
 const profiles_1 = require("../db/schema/profiles");
+const supabase_1 = require("../utils/supabase");
 const db_1 = require("../db");
 const upload_1 = require("../utils/upload");
 const drizzle_orm_1 = require("drizzle-orm");
+const eventPlanners_1 = require("../db/schema/eventPlanners");
+const vendors_1 = require("../db/schema/vendors");
+const wallet_1 = require("../db/schema/wallet");
 class UserControllers {
     static async createUser(req, res) {
         try {
@@ -111,7 +115,7 @@ class UserControllers {
             if (!id || typeof id !== "string") {
                 return res.status(400).json({ error: "User ID is required." });
             }
-            // Fetch user from database
+            // Check if user exists
             const [user] = await db_1.db
                 .select()
                 .from(profiles_1.profiles)
@@ -119,7 +123,108 @@ class UserControllers {
             if (!user) {
                 return res.status(404).json({ error: "User not found." });
             }
-            return res.status(200).json({ user });
+            // Check if user has a vendor profile
+            const [vendorProfile] = await db_1.db
+                .select()
+                .from(vendors_1.vendors)
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, id));
+            // Check if user has an event planner profile
+            const [plannerProfile] = await db_1.db
+                .select()
+                .from(eventPlanners_1.eventPlanners)
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, id));
+            const hasVendorProfile = Boolean(vendorProfile);
+            const hasPlannerProfile = Boolean(plannerProfile);
+            // Check for wallet
+            const conditions = [];
+            if (plannerProfile?.id) {
+                conditions.push((0, drizzle_orm_1.eq)(wallet_1.wallets.ownerId, plannerProfile.id));
+            }
+            if (vendorProfile?.id) {
+                conditions.push((0, drizzle_orm_1.eq)(wallet_1.wallets.ownerId, vendorProfile.id));
+            }
+            let wallet = null;
+            if (conditions.length > 0) {
+                [wallet] = await db_1.db
+                    .select()
+                    .from(wallet_1.wallets)
+                    .where((0, drizzle_orm_1.or)(...conditions));
+            }
+            const hasWallet = Boolean(wallet);
+            return res.status(200).json({
+                user,
+                hasVendorProfile,
+                hasPlannerProfile,
+                hasWallet,
+            });
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: "Server error" });
+        }
+    }
+    static async updateProfile(req, res) {
+        try {
+            const { id } = req.params;
+            const { firstName, lastName, password } = req.body;
+            if (!id || typeof id !== "string") {
+                return res.status(400).json({ error: "User ID is required." });
+            }
+            // ---------- VALIDATION ----------
+            if (firstName && typeof firstName !== "string") {
+                return res.status(400).json({ error: "First name must be a string." });
+            }
+            if (lastName && typeof lastName !== "string") {
+                return res.status(400).json({ error: "Last name must be a string." });
+            }
+            if (password && typeof password !== "string") {
+                return res.status(400).json({ error: "Password must be a string." });
+            }
+            if (password && password.length < 8) {
+                return res
+                    .status(400)
+                    .json({ error: "Password must be at least 8 characters long." });
+            }
+            // ---------- AVATAR UPLOAD ----------
+            let avatarUrl;
+            const avatarFile = req.file;
+            if (avatarFile) {
+                avatarUrl = await (0, upload_1.uploadToSupabase)(avatarFile, "avatars");
+            }
+            // ---------- UPDATE LOCAL DB ----------
+            const updateData = {};
+            if (firstName)
+                updateData.firstName = firstName;
+            if (lastName)
+                updateData.lastName = lastName;
+            if (avatarUrl)
+                updateData.avatarUrl = avatarUrl;
+            if (Object.keys(updateData).length > 0) {
+                await db_1.db.update(profiles_1.profiles).set(updateData).where((0, drizzle_orm_1.eq)(profiles_1.profiles.id, id));
+            }
+            // ---------- UPDATE SUPABASE AUTH ----------
+            const authUpdatePayload = {
+                user_metadata: {
+                    firstName,
+                    lastName,
+                },
+            };
+            if (password) {
+                authUpdatePayload.password = password;
+            }
+            const { error: supabaseError } = await supabase_1.supabase.auth.admin.updateUserById(id, authUpdatePayload);
+            if (supabaseError) {
+                console.error("Supabase update error:", supabaseError.message);
+                return res
+                    .status(500)
+                    .json({ error: "Failed to update Supabase auth user." });
+            }
+            // ---------- FETCH UPDATED USER ----------
+            const [updatedUser] = await db_1.db
+                .select()
+                .from(profiles_1.profiles)
+                .where((0, drizzle_orm_1.eq)(profiles_1.profiles.id, id));
+            return res.status(200).json(updatedUser);
         }
         catch (error) {
             console.error(error);

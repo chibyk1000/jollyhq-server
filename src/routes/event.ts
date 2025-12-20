@@ -15,6 +15,11 @@ router.patch("/:eventId", upload.single("image"), verifySupabaseToken, EventCont
 router.get("/", verifySupabaseToken, EventController.getAllEvents);
 // ⭐️ GET SINGLE EVENT + TICKETS
 router.get(
+  "/:eventId/overview",
+  verifySupabaseToken,
+  EventController.getEventOverview
+);
+router.get(
   "/:eventId",
   verifySupabaseToken,
   EventController.getEventById

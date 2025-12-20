@@ -15,3 +15,4 @@ export const userTickets = pgTable("user_tickets", {
   quantity: integer("quantity").default(1).notNull(),
   purchasedAt: timestamp("purchased_at").default(sql`NOW()`),
 });
+  

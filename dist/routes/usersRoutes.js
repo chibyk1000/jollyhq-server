@@ -14,4 +14,5 @@ router.get("/events/favorites/", verify_1.verifySupabaseToken, favorites_1.Favor
 router.get("/events/tickets", verify_1.verifySupabaseToken, tickets_1.TicketController.getTicketsByUser);
 router.post("/favorites/:eventId/", verify_1.verifySupabaseToken, favorites_1.FavoriteController.toggleFavorite);
 router.get("/:id", verify_1.verifySupabaseToken, users_1.UserControllers.getProfile);
+router.put("/:id", upload_1.upload.single("avatar"), users_1.UserControllers.updateProfile);
 exports.default = router;

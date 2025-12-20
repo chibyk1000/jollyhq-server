@@ -49,22 +49,78 @@ class ChatController {
         try {
             const { chatId } = req.params;
             const userId = req.user?.id;
-            if (!userId)
+            if (!userId) {
                 return res.status(401).json({ message: "Unauthorized" });
-            // Ensure user is a member
+            }
+            // 1️⃣ Ensure user is a member
             const member = await db_1.db.query.chatMembers.findFirst({
                 where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId)),
             });
-            if (!member)
+            if (!member) {
                 return res.status(403).json({ message: "Access denied" });
+            }
+            // 2️⃣ Get chat + event details
+            const [chat] = await db_1.db
+                .select({
+                chatId: chats_1.chats.id,
+                chatName: chats_1.chats.name,
+                eventId: schema_1.events.id,
+                eventName: schema_1.events.name,
+                eventLogo: schema_1.events.imageUrl,
+                eventDate: schema_1.events.eventDate,
+                eventTime: schema_1.events.eventTime,
+                description: schema_1.events.description,
+                location: schema_1.events.location,
+            })
+                .from(chats_1.chats)
+                .leftJoin(schema_1.events, (0, drizzle_orm_1.eq)(chats_1.chats.eventId, schema_1.events.id))
+                .where((0, drizzle_orm_1.eq)(chats_1.chats.id, chatId));
+            if (!chat) {
+                return res.status(404).json({ message: "Chat not found" });
+            }
+            // 3️⃣ Get members
+            const members = await db_1.db
+                .select({
+                id: chatMembers_1.chatMembers.profileId,
+                role: chatMembers_1.chatMembers.role,
+                joinedAt: chatMembers_1.chatMembers.joinedAt,
+                firstName: schema_1.profiles.firstName,
+                lastName: schema_1.profiles.lastName,
+                username: schema_1.profiles.username,
+                avatarUrl: schema_1.profiles.avatarUrl,
+            })
+                .from(chatMembers_1.chatMembers)
+                .innerJoin(schema_1.profiles, (0, drizzle_orm_1.eq)(schema_1.profiles.id, chatMembers_1.chatMembers.profileId))
+                .where((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId));
+            // 3️⃣ Get messages
             const chatMessages = await db_1.db
                 .select()
                 .from(messages_1.messages)
                 .where((0, drizzle_orm_1.eq)(messages_1.messages.chatId, chatId))
                 .orderBy((0, drizzle_orm_1.desc)(messages_1.messages.createdAt));
-            return res.json(chatMessages);
+            // 4️⃣ Final response
+            return res.json({
+                chat: {
+                    id: chat.chatId,
+                    name: chat.chatName,
+                    event: chat.eventId
+                        ? {
+                            id: chat.eventId,
+                            name: chat.eventName,
+                            imageUrl: chat.eventLogo,
+                            date: chat?.eventDate,
+                            time: chat.eventTime,
+                            location: chat.location,
+                            description: chat.description
+                        }
+                        : null,
+                },
+                members,
+                messages: chatMessages,
+            });
         }
         catch (error) {
+            console.error(error);
             res.status(500).json({ error: error.message });
         }
     }

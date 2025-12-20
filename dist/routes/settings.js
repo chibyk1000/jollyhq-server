@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const verify_1 = require("../middlewares/verify");
+const settings_1 = require("../controllers/settings");
+const router = (0, express_1.Router)();
+router.get("/", verify_1.verifySupabaseToken, settings_1.UserSettingsController.getSettings);
+router.put("/", verify_1.verifySupabaseToken, settings_1.UserSettingsController.updateSettings);
+router.post("/switch-mode", verify_1.verifySupabaseToken, settings_1.UserSettingsController.switchAccountMode);
+exports.default = router;

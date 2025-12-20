@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "../db";
-import { eventPlanners, events } from "../db/schema";
+import { eventPlanners, events, profiles } from "../db/schema";
 import { wallets } from "../db/schema/wallet";
 import { userTickets } from "../db/schema/userTickets";
 import { eventTickets } from "../db/schema/eventTickets";
@@ -14,7 +14,7 @@ export class DashboardController {
       const { plannerId } = req.params;
 
       // 1️⃣ Fetch Event Planner + Wallet
-      const planner = await db
+      const [planner] = await db
         .select({
           id: eventPlanners.id,
           businessName: eventPlanners.businessName,
@@ -58,7 +58,7 @@ export class DashboardController {
       const totalAttendeesResult = ticketsSoldResult;
 
       // 3️⃣ Upcoming Events (next 5)
-     const [upcomingEvents] = await db
+     const upcomingEvents = await db
        .select({
          id: events.id,
          name: events.name,
@@ -73,30 +73,32 @@ export class DashboardController {
      
 
       // 4️⃣ Recent Activity (latest 5 tickets sold)
-      const [recentActivity] = await db
+      const recentActivity = await db
         .select({
           type: sql`'ticket_sold'`,
-          message: sql`CONCAT(pq.name, ' purchased ', ut.quantity, ' tickets for ', e.name)`,
+          message: sql`CONCAT(${profiles.firstName}, ' ', ${profiles.lastName}, ' purchased ', ${userTickets.quantity}, ' tickets for ', ${events.name})`,
           time: userTickets.purchasedAt,
         })
         .from(userTickets)
         .innerJoin(eventTickets, eq(eventTickets.id, userTickets.ticketId))
         .innerJoin(events, eq(events.id, eventTickets.eventId))
-        .innerJoin(eventPlanners, eq(eventPlanners.id, events.plannerId))
-        .innerJoin(wallets, eq(wallets.ownerId, eventPlanners.id)) // optional for more info
-        .where(eq(eventPlanners.id, plannerId))
+        .innerJoin(profiles, eq(profiles.id, userTickets.userId
+
+        )) // <- user
+        .where(eq(events.plannerId, plannerId))
         .orderBy(desc(userTickets.purchasedAt))
         .limit(5);
       // 5️⃣ Ticket sales breakdown (Pie Chart)
-      const ticketSalesArray = await db
-        .select({
-          sold: sql`SUM(ut.quantity)`,
-          total: sql`SUM(et.quantity)`,
-        })
-        .from(eventTickets as any)
-        .leftJoin(userTickets as any, eq(eventTickets.id, userTickets.ticketId))
-        .innerJoin(events as any, eq(eventTickets.eventId, events.id))
-        .where(eq(events.plannerId, plannerId))
+   const ticketSalesArray = await db
+     .select({
+       sold: sql`SUM(${userTickets.quantity})`,
+       total: sql`SUM(${eventTickets.quantity})`,
+     })
+     .from(eventTickets)
+     .leftJoin(userTickets, eq(userTickets.ticketId, eventTickets.id))
+     .innerJoin(events, eq(eventTickets.eventId, events.id))
+     .where(eq(events.plannerId, plannerId));
+
        
       const ticketSales = ticketSalesArray[0];
 
@@ -160,23 +162,24 @@ export class DashboardController {
           wallet: { balance: wallet?.balance || 0 },
         },
         metrics: {
-          ticketsSold: Number(ticketsSoldResult.total || 0),
+          ticketsSold: Number(ticketsSoldResult.total || 0),      
           revenue: Number(revenueResult.revenue || 0),
           totalEvents: Number(totalEvents.count || 0),
           totalAttendees: Number(totalAttendeesResult.total || 0),
         },
         upcomingEvents,
-        recentActivity,
+        recentActivity,   
         ticketPieData,
         revenueChartData,
       };
 
-      res.json(dashboardData);
+
+      res.json(dashboardData); 
     } catch (error: any) {
       console.error(error);
       res
-        .status(500)
+        .status(500) 
         .json({ message: "Internal server error", error: error.message });
-    }
+    } 
   }
 }
