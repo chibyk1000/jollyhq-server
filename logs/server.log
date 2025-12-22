@@ -1524,3 +1524,22 @@
 {"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:06:32:15 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 500 24 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T06:32:15.248Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:06:32:21 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 500 24 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T06:32:21.459Z"}
 {"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T06:45:45.827Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T07:11:43.998Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:28:59 +0000] \"GET /api/settings HTTP/1.1\" 200 331 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:28:59.616Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:29:00 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:29:00.278Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:29:48 +0000] \"GET /api/settings HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:29:48.862Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:31:37 +0000] \"GET /api/settings HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:31:37.305Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:31:58 +0000] \"GET /api/users/events/trending HTTP/1.1\" 200 1700 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:31:58.011Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:31:58 +0000] \"GET /api/events HTTP/1.1\" 200 1494 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:31:58.712Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:31:58 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 200 16 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:31:58.730Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:31:59 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 200 605 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:31:59.838Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:32:46 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:32:46.135Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:33:12 +0000] \"GET /api/settings HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:33:12.541Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:36:38 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:36:38.392Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:36:38 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:36:38.685Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:36:38 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:36:38.702Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:36:39 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:36:39.702Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:37:22 +0000] \"GET /api/chats HTTP/1.1\" 200 600 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:37:22.300Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:38:22 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:38:22.510Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:38:22 +0000] \"GET /api/users/events/tickets HTTP/1.1\" 200 14 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:38:22.511Z"}
+{"level":"info","message":"::ffff:192.168.1.193 - - [22/Dec/2025:08:39:16 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-22T08:39:16.375Z"}
