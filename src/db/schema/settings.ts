@@ -30,13 +30,13 @@ export const userSettings = pgTable("user_settings", {
   plannerModeEnabled: boolean("planner_mode_enabled").notNull().default(false),
 
   vendorModeEnabled: boolean("vendor_mode_enabled").notNull().default(false),
-  hasSeenOnboarding: boolean("vendor_mode_enabled").notNull().default(false),
+  hasSeenOnboarding: boolean("vendor_mode_enabled").default(false),
 
   // active mode: null | planner | vendor
   activeAccountMode: varchar("active_account_mode", { length: 20 }),
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
-    .defaultNow()
+    .defaultNow() 
     .$onUpdate(() => new Date()),
 });
