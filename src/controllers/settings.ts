@@ -30,6 +30,8 @@ export class UserSettingsController {
 
       return res.json({ settings: settings[0] });
     } catch (error: any) {
+      console.log(error);
+      
       return res.status(500).json({
         message: "Failed to fetch settings",
         error: error.message,
