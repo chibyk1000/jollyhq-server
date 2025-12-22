@@ -12,21 +12,19 @@ exports.vendors = (0, pg_core_1.pgTable)("vendors", {
     userId: (0, pg_core_1.uuid)("user_id")
         .references(() => profiles_1.profiles.id, { onDelete: "cascade" })
         .notNull(),
+    contactName: (0, pg_core_1.varchar)("name", { length: 255 }).notNull(),
+    contactEmail: (0, pg_core_1.varchar)("email", { length: 255 }).notNull(),
+    contactPhone: (0, pg_core_1.varchar)("phone", { length: 255 }).notNull(),
     // ---------- BASIC INFO ----------
-    profession: (0, pg_core_1.varchar)("profession", { length: 255 }).notNull(),
     category: (0, pg_core_1.varchar)("category", { length: 255 }).notNull(),
-    bio: (0, pg_core_1.text)("bio"), // short description/about vendor
+    description: (0, pg_core_1.text)("description"), // short description/about vendor
     // ---------- MEDIA ----------
     image: (0, pg_core_1.varchar)("image", { length: 255 }).notNull(), // profile image
-    coverImage: (0, pg_core_1.varchar)("cover_image", { length: 255 }), // optional banner
     // ---------- PRICING ----------
-    price: (0, pg_core_1.varchar)("price", { length: 255 }).notNull(), // display price
-    minPrice: (0, pg_core_1.integer)("min_price"), // optional structured pricing
-    maxPrice: (0, pg_core_1.integer)("max_price"),
+    priceRange: (0, pg_core_1.varchar)("price_range", { length: 255 }).notNull(), // display price
     // ---------- LOCATION ----------
     location: (0, pg_core_1.varchar)("location", { length: 255 }).notNull(),
     city: (0, pg_core_1.varchar)("city", { length: 120 }),
-    country: (0, pg_core_1.varchar)("country", { length: 120 }),
     // ---------- PERFORMANCE ----------
     rating: (0, pg_core_1.real)("rating").default(0).notNull(),
     reviews: (0, pg_core_1.integer)("reviews").default(0).notNull(),

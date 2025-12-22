@@ -20,25 +20,25 @@ export const vendors = pgTable("vendors", {
   userId: uuid("user_id")
     .references(() => profiles.id, { onDelete: "cascade" })
     .notNull(),
-
+  contactName: varchar("name", {length:255}).notNull(),
+  contactEmail: varchar("email", {length:255}).notNull(),
+  contactPhone: varchar("phone", {length:255}).notNull(),
   // ---------- BASIC INFO ----------
-  profession: varchar("profession", { length: 255 }).notNull(),
+
   category: varchar("category", { length: 255 }).notNull(),
-  bio: text("bio"), // short description/about vendor
+  description: text("description"), // short description/about vendor
 
   // ---------- MEDIA ----------
   image: varchar("image", { length: 255 }).notNull(), // profile image
-  coverImage: varchar("cover_image", { length: 255 }), // optional banner
-
+  
   // ---------- PRICING ----------
-  price: varchar("price", { length: 255 }).notNull(), // display price
-  minPrice: integer("min_price"), // optional structured pricing
-  maxPrice: integer("max_price"),
+  priceRange: varchar("price_range", { length: 255 }).notNull(), // display price
+
 
   // ---------- LOCATION ----------
   location: varchar("location", { length: 255 }).notNull(),
   city: varchar("city", { length: 120 }),
-  country: varchar("country", { length: 120 }),
+ 
 
   // ---------- PERFORMANCE ----------
   rating: real("rating").default(0).notNull(),
