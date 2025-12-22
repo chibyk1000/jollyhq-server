@@ -50,6 +50,13 @@
       "when": 1766385913715,
       "tag": "0006_curvy_micromacro",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1766394967197,
+      "tag": "0007_square_earthquake",
+      "breakpoints": true
     }
   ]
 }

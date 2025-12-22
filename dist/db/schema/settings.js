@@ -18,7 +18,7 @@ exports.userSettings = (0, pg_core_1.pgTable)("user_settings", {
     // ===== Account Modes =====
     plannerModeEnabled: (0, pg_core_1.boolean)("planner_mode_enabled").notNull().default(false),
     vendorModeEnabled: (0, pg_core_1.boolean)("vendor_mode_enabled").notNull().default(false),
-    hasSeenOnboarding: (0, pg_core_1.boolean)("vendor_mode_enabled").default(false),
+    hasSeenOnboarding: (0, pg_core_1.boolean)("has_seen_onboarding").default(false),
     // active mode: null | planner | vendor
     activeAccountMode: (0, pg_core_1.varchar)("active_account_mode", { length: 20 }),
     createdAt: (0, pg_core_1.timestamp)("created_at").defaultNow(),

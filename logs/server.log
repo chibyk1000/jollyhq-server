@@ -1547,3 +1547,11 @@
 {"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T08:51:08.575Z"}
 {"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T09:09:49.948Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:10:09 +0000] \"GET /api/settings HTTP/1.1\" 200 361 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:10:09.063Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T09:14:13.111Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:17 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:17.594Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:17 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:17.974Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:17 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:17.980Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:19 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:19.099Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:22 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:22.871Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:29 +0000] \"PUT /api/settings HTTP/1.1\" 500 837 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:29.012Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:30 +0000] \"POST /api/settings/switch-mode HTTP/1.1\" 200 356 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:30.876Z"}

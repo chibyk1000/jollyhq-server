@@ -30,7 +30,7 @@ export const userSettings = pgTable("user_settings", {
   plannerModeEnabled: boolean("planner_mode_enabled").notNull().default(false),
 
   vendorModeEnabled: boolean("vendor_mode_enabled").notNull().default(false),
-  hasSeenOnboarding: boolean("vendor_mode_enabled").default(false),
+  hasSeenOnboarding: boolean("has_seen_onboarding").default(false),
 
   // active mode: null | planner | vendor
   activeAccountMode: varchar("active_account_mode", { length: 20 }),
