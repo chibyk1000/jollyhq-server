@@ -68,6 +68,7 @@ class UserSettingsController {
             return res.json({ settings: updated });
         }
         catch (error) {
+            console.log(error);
             return res.status(500).json({
                 message: "Failed to update settings",
                 error: error.message,
@@ -99,6 +100,7 @@ class UserSettingsController {
             return res.json({ settings: updated });
         }
         catch (error) {
+            console.log(error);
             return res.status(500).json({
                 message: "Failed to switch account mode",
                 error: error.message,
