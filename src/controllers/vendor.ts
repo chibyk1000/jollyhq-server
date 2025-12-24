@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { db } from "../db"; // adjust path
 import { vendors } from "../db/schema/vendors";
 import { eq, and, isNull } from "drizzle-orm";
+import { uploadToSupabase } from "../utils/upload";
+import { wallets } from "../db/schema/wallet";
 
 export class VendorsController {
   /**
@@ -9,19 +11,27 @@ export class VendorsController {
    */
   static async create(req: Request, res: Response) {
     try {
+      console.log(req);
+      
       const {
         userId,
         contactName,
         contactEmail,
-        contactPhone,
+        contactPhone,  
         category,
-        description,
-        image,
+        description,  
         priceRange,
         location,
         city,
         responseTime,
       } = req.body;
+
+      let imageUrl: string | null = null;
+
+      // Because you're using upload.single("image")
+      if (req.file) {
+        imageUrl = await uploadToSupabase(req.file, "vendors");
+      }
 
       const [vendor] = await db
         .insert(vendors)
@@ -32,14 +42,21 @@ export class VendorsController {
           contactPhone,
           category,
           description,
-          image,
+          image: imageUrl as string, // ✅ now defined
           priceRange,
           location,
           city,
           responseTime,
         })
         .returning();
-
+      // Create wallet for the new event planner
+      await db.insert(wallets).values({
+        ownerId: vendor.id,
+        ownerType: "event-planner",
+        balance: 0,
+        currency: "NGN",
+        isActive: true,
+      });
       return res.status(201).json(vendor);
     } catch (error) {
       console.error("Create vendor error:", error);

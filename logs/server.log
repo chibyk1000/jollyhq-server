@@ -1580,3 +1580,116 @@
 {"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T12:59:14.199Z"}
 {"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T13:26:23.976Z"}
 {"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T10:38:38.414Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T11:38:05.069Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:45:54 +0000] \"GET /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:45:54.314Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:46:14 +0000] \"GET /api/users/events/trending HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:46:14.515Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:46:14 +0000] \"GET /api/events HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:46:14.530Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:46:14 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:46:14.544Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:46:14 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:46:14.549Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:55:21 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:55:21.845Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:55:22 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:55:22.921Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:55:25 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:55:25.174Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:55:29 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:55:29.268Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:57:08 +0000] \"GET /api/settings HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:57:08.385Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:57:14 +0000] \"GET /api/events HTTP/1.1\" 200 1494 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:57:14.356Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:57:14 +0000] \"GET /api/users/events/trending HTTP/1.1\" 200 1700 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:57:14.361Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:57:14 +0000] \"PUT /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:57:14.843Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:57:14 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 200 16 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:57:14.911Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:11:57:15 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 200 605 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T11:57:15.698Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:03:47 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:03:47.251Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:03:48 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:03:48.313Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:03:50 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:03:50.789Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:03:54 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:03:54.809Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:04:28 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:04:28.675Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:04:29 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:04:29.706Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:04:32 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:04:32.193Z"}
+{"level":"info","message":"::ffff:10.13.80.56 - - [24/Dec/2025:12:04:36 +0000] \"GET /api/settings HTTP/1.1\" 401 22 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:04:36.218Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T12:06:16.107Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T12:09:21.751Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:12:45 +0000] \"GET /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:12:45.876Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:12:52 +0000] \"GET /api/users/events/trending HTTP/1.1\" 200 1700 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:12:52.923Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:12:53 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 200 16 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:12:53.595Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:12:54 +0000] \"GET /api/events HTTP/1.1\" 200 1494 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:12:54.464Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:12:54 +0000] \"PUT /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:12:54.545Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:12:55 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 200 605 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:12:55.160Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:13:20 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:13:20.049Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:13:23 +0000] \"GET /api/event-planners/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 200 1224 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:13:23.559Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:13:24 +0000] \"POST /api/settings/switch-mode HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:13:24.262Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:13:26 +0000] \"GET /api/event-planners/dashboard/15c709e9-3bf3-4a5a-a022-7007e876ddac HTTP/1.1\" 200 1159 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:13:26.465Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:16:34 +0000] \"GET /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:16:34.153Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:22 +0000] \"GET /api/settings HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:22.665Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:34 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:34.675Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:34 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:34.858Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:34 +0000] \"PUT /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:34.911Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:34 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:34.913Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:35 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:35.576Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:43 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:43.141Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:43 +0000] \"GET /api/users/events/tickets HTTP/1.1\" 200 14 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:43.160Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:17:48 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:17:48.901Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:18:03 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:18:03.136Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T12:28:13.764Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T12:31:35.283Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:38:00 +0000] \"GET /api/settings HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:38:00.310Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:38:11 +0000] \"GET /api/settings HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:38:11.360Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T12:38:29.875Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:38:35 +0000] \"GET /api/settings HTTP/1.1\" - - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:38:35.835Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T12:38:55.048Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:39:47 +0000] \"GET /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:39:47.811Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:39:56 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:39:56.148Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:39:56 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:39:56.713Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:39:58 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:39:58.284Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:39:58 +0000] \"PUT /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:39:58.379Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:39:59 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:39:59.222Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:40:07 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:40:07.041Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:40:12 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:40:12.189Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:41:36 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:41:36.293Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:41:45 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:41:45.162Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:41:51 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:41:51.034Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:42:49 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:42:49.490Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:42:53 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:42:53.893Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:42:56 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:42:56.185Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:44:59 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:44:59.280Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:45:13 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:45:13.907Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:45:22 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:45:22.909Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:46:16 +0000] \"GET /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:46:16.457Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:46:58 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:46:58.182Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:46:58 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:46:58.881Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:46:58 +0000] \"PUT /api/settings HTTP/1.1\" 200 361 \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:46:58.885Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:46:58 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:46:58.891Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:46:59 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:46:59.847Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:47:05 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:47:05.288Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:47:10 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:47:10.438Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:47:45 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:47:45.859Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:48:31 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:48:31.998Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:49:04 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:49:04.018Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:50:31 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:50:31.860Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:51:01 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:51:01.920Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:51:08 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:51:08.019Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:51:18 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:51:18.641Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:54:32 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:54:32.588Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:54:37 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:54:37.457Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:54:40 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:54:40.418Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:12:54:44 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T12:54:44.111Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T13:00:00.081Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:00:19 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:00:19.108Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:00:37 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:00:37.516Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:01:40 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:01:40.607Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:01:46 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:01:46.013Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:01:50 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:01:50.147Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:02:09 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:02:09.495Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:02:58 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:02:58.003Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:02:59 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:02:59.978Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:03 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:03.590Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:10 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:10.406Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:15 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:15.894Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:17 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:17.835Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:21 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:21.774Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:25 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:25.295Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:27 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:27.491Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:34 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:34.784Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:03:42 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:03:42.019Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:04:06 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:04:06.342Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:04:10 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:04:10.732Z"}
+{"level":"info","message":"::ffff:192.168.1.181 - - [24/Dec/2025:13:04:18 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"okhttp/4.12.0\"","timestamp":"2025-12-24T13:04:18.046Z"}
+{"level":"info","message":"::ffff:192.168.1.157 - - [24/Dec/2025:13:06:23 +0000] \"GET /api HTTP/1.1\" 404 142 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\"","timestamp":"2025-12-24T13:06:23.365Z"}
+{"level":"info","message":"::ffff:192.168.1.157 - - [24/Dec/2025:13:06:31 +0000] \"GET /api/event HTTP/1.1\" 404 148 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\"","timestamp":"2025-12-24T13:06:31.818Z"}

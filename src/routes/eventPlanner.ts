@@ -13,7 +13,7 @@ router.post(
     { name: "logo", maxCount: 1 },
     { name: "idDocument", maxCount: 1 },
     { name: "businessDocument", maxCount: 1 },
-  ]),
+  ]), 
   EventPlannerControllers.createEventPlanner
 );
 
