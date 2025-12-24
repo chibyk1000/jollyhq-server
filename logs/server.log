@@ -1555,3 +1555,28 @@
 {"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:22 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:22.871Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:29 +0000] \"PUT /api/settings HTTP/1.1\" 500 837 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:29.012Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:14:30 +0000] \"POST /api/settings/switch-mode HTTP/1.1\" 200 356 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:14:30.876Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T09:17:06.208Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:17:11 +0000] \"PUT /api/settings HTTP/1.1\" 200 361 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:17:11.763Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:17:11 +0000] \"POST /api/settings/switch-mode HTTP/1.1\" 200 361 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:17:11.765Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:16 +0000] \"GET /api/event-planners/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:16.994Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:17 +0000] \"POST /api/settings/switch-mode HTTP/1.1\" 200 361 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:17.195Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:17 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:17.436Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:20 +0000] \"GET /api/event-planners/dashboard/15c709e9-3bf3-4a5a-a022-7007e876ddac HTTP/1.1\" 200 1159 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:20.360Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:37 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:37.350Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:37 +0000] \"GET /api/settings HTTP/1.1\" 200 361 \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:37.417Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:37 +0000] \"GET /api/event-planners/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:37.458Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:37 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:37.669Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:37 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:37.997Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:38 +0000] \"GET /api/users/f2345867-7c40-46c8-a09c-4ae25c60a099 HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:38.483Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:18:40 +0000] \"GET /api/event-planners/dashboard/15c709e9-3bf3-4a5a-a022-7007e876ddac HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:18:40.472Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [22/Dec/2025:09:19:12 +0000] \"GET /api/settings HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.200.71 Darwin/24.6.0\"","timestamp":"2025-12-22T09:19:12.682Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T10:25:34.963Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T10:27:56.204Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T10:28:15.694Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T10:29:22.213Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T10:29:39.725Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T10:30:39.226Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T10:31:38.294Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T12:59:14.199Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-22T13:26:23.976Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2025-12-24T10:38:38.414Z"}
