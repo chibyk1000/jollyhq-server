@@ -42,7 +42,7 @@ export const vendorServices = pgTable("vendor_services", {
     .default(sql`NOW()`)
     .notNull(),
 
-  updatedAt: timestamp("updated_at").$onUpdate(() => sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
 
@@ -53,3 +53,4 @@ export const vendorServiceRelations = relations(vendorServices, ({ one }) => ({
     references: [vendors.id],
   }),
 }));
+ 

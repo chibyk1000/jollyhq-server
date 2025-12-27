@@ -1,0 +1,1 @@
+ALTER TABLE "vendors" ADD COLUMN "business_name" varchar(255);

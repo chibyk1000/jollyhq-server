@@ -7,6 +7,8 @@ const schema_1 = require("../db/schema");
 const wallet_1 = require("../db/schema/wallet");
 const userTickets_1 = require("../db/schema/userTickets");
 const eventTickets_1 = require("../db/schema/eventTickets");
+const vendors_1 = require("../db/schema/vendors");
+const vendorBooking_1 = require("../db/schema/vendorBooking");
 class DashboardController {
     // GET /dashboard/:plannerId
     static async getEventPlannerDashboard(req, res) {
@@ -152,6 +154,162 @@ class DashboardController {
             res
                 .status(500)
                 .json({ message: "Internal server error", error: error.message });
+        }
+    }
+    // GET /dashboard/vendor/:vendorId
+    static async getVendorDashboard(req, res) {
+        try {
+            const { vendorId } = req.params;
+            /* =========================
+               1️⃣ Vendor + Wallet
+            ========================= */
+            const [vendor] = await db_1.db
+                .select({
+                id: vendors_1.vendors.id,
+                contactName: vendors_1.vendors.contactName,
+                category: vendors_1.vendors.category,
+                image: vendors_1.vendors.image,
+                verified: vendors_1.vendors.verified,
+                rating: vendors_1.vendors.rating,
+            })
+                .from(vendors_1.vendors)
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.id, vendorId));
+            if (!vendor) {
+                return res.status(404).json({ message: "Vendor not found" });
+            }
+            const [wallet] = await db_1.db
+                .select({ balance: wallet_1.wallets.balance })
+                .from(wallet_1.wallets)
+                .where((0, drizzle_orm_1.eq)(wallet_1.wallets.ownerId, vendorId));
+            /* =========================
+               2️⃣ Metrics
+            ========================= */
+            const [totalBookingsResult] = await db_1.db
+                .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
+                .from(vendorBooking_1.vendorBookings)
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorId));
+            const [revenueResult] = await db_1.db
+                .select({
+                revenue: (0, drizzle_orm_1.sql) `SUM(${vendorBooking_1.vendorBookings.amount})`,
+            })
+                .from(vendorBooking_1.vendorBookings)
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorId), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "completed")));
+            const [pendingBookingsResult] = await db_1.db
+                .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
+                .from(vendorBooking_1.vendorBookings)
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorId), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "pending")));
+            /* =========================
+               3️⃣ Upcoming Jobs (Next 5)
+            ========================= */
+            const upcomingJobs = await db_1.db
+                .select({
+                id: vendorBooking_1.vendorBookings.id,
+                eventName: schema_1.events.name,
+                eventDate: schema_1.events.eventDate,
+            })
+                .from(vendorBooking_1.vendorBookings)
+                .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, vendorBooking_1.vendorBookings.eventId))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorId), (0, drizzle_orm_1.gte)(schema_1.events.eventDate, new Date())))
+                .orderBy((0, drizzle_orm_1.asc)(schema_1.events.eventDate))
+                .limit(5);
+            /* =========================
+               4️⃣ Recent Activity
+            ========================= */
+            const recentActivity = await db_1.db
+                .select({
+                type: (0, drizzle_orm_1.sql) `'booking'`,
+                message: (0, drizzle_orm_1.sql) `
+            CONCAT(
+              ${schema_1.profiles.firstName},
+              ' booked you for ',
+              ${schema_1.events.name}
+            )
+          `,
+                time: vendorBooking_1.vendorBookings.createdAt,
+            })
+                .from(vendorBooking_1.vendorBookings)
+                .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, vendorBooking_1.vendorBookings.eventId))
+                .innerJoin(schema_1.profiles, (0, drizzle_orm_1.eq)(schema_1.profiles.id, vendorBooking_1.vendorBookings.userId))
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorId))
+                .orderBy((0, drizzle_orm_1.desc)(vendorBooking_1.vendorBookings.createdAt))
+                .limit(5);
+            /* =========================
+               5️⃣ Booking Status Breakdown
+            ========================= */
+            const statusStats = await db_1.db
+                .select({
+                status: vendorBooking_1.vendorBookings.status,
+                count: (0, drizzle_orm_1.sql) `COUNT(*)`,
+            })
+                .from(vendorBooking_1.vendorBookings)
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorId))
+                .groupBy(vendorBooking_1.vendorBookings.status);
+            const bookingPieData = [
+                {
+                    name: "Completed",
+                    value: statusStats.find((s) => s.status === "completed")?.count ?? 0,
+                    color: "#22C55E",
+                },
+                {
+                    name: "Pending",
+                    value: statusStats.find((s) => s.status === "pending")?.count ?? 0,
+                    color: "#F59E0B",
+                },
+                {
+                    name: "Cancelled",
+                    value: statusStats.find((s) => s.status === "cancelled")?.count ?? 0,
+                    color: "#EF4444",
+                },
+            ];
+            /* =========================
+               6️⃣ Revenue Per Month
+            ========================= */
+            const revenueMonthly = await db_1.db
+                .select({
+                month: (0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${vendorBooking_1.vendorBookings.createdAt})`,
+                revenue: (0, drizzle_orm_1.sql) `SUM(${vendorBooking_1.vendorBookings.amount})`,
+            })
+                .from(vendorBooking_1.vendorBookings)
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorId), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "completed")))
+                .groupBy((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${vendorBooking_1.vendorBookings.createdAt})`)
+                .orderBy((0, drizzle_orm_1.asc)((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${vendorBooking_1.vendorBookings.createdAt})`));
+            const months = [
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+            ];
+            const revenueChartData = months.map((month, index) => {
+                const match = revenueMonthly.find((r) => Number(r.month) === index + 1);
+                return {
+                    month,
+                    revenue: Number(match?.revenue ?? 0),
+                    target: 0,
+                };
+            });
+            /* =========================
+               RESPONSE
+            ========================= */
+            res.json({
+                vendor: {
+                    ...vendor,
+                    wallet: { balance: wallet?.balance ?? 0 },
+                },
+                metrics: {
+                    totalBookings: Number(totalBookingsResult.count ?? 0),
+                    revenue: Number(revenueResult.revenue ?? 0),
+                    pendingBookings: Number(pendingBookingsResult.count ?? 0),
+                },
+                upcomingJobs,
+                recentActivity,
+                bookingPieData,
+                revenueChartData,
+            });
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).json({
+                message: "Failed to load vendor dashboard",
+                error: error.message,
+            });
         }
     }
 }

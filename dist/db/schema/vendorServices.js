@@ -28,7 +28,7 @@ exports.vendorServices = (0, pg_core_1.pgTable)("vendor_services", {
     createdAt: (0, pg_core_1.timestamp)("created_at")
         .default((0, drizzle_orm_1.sql) `NOW()`)
         .notNull(),
-    updatedAt: (0, pg_core_1.timestamp)("updated_at").$onUpdate(() => (0, drizzle_orm_1.sql) `CURRENT_TIMESTAMP`),
+    updatedAt: (0, pg_core_1.timestamp)("updated_at").$onUpdate(() => new Date()),
 });
 exports.vendorServiceRelations = (0, drizzle_orm_1.relations)(exports.vendorServices, ({ one }) => ({
     vendor: one(vendors_1.vendors, {

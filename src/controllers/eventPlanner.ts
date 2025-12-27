@@ -131,14 +131,14 @@ export class EventPlannerControllers {
       if (data.length === 0) {
         return res.status(404).json({ message: "Event planner not found" });
       }
-console.log(data);
+
 
       return res.status(200).json({
         event_planner: {
           ...data[0].eventPlanner,
           wallet: data[0].wallet ?? null,
         },
-      });
+      }); 
     } catch (error: any) {
       return res.status(500).json({
         message: "Failed to get event planner",

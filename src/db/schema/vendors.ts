@@ -20,9 +20,10 @@ export const vendors = pgTable("vendors", {
   userId: uuid("user_id")
     .references(() => profiles.id, { onDelete: "cascade" })
     .notNull(),
-  contactName: varchar("name", {length:255}).notNull(),
-  contactEmail: varchar("email", {length:255}).notNull(),
-  contactPhone: varchar("phone", {length:255}).notNull(),
+  businessName: varchar("business_name", { length: 255 }),
+  contactName: varchar("name", { length: 255 }).notNull(),
+  contactEmail: varchar("email", { length: 255 }).notNull(),
+  contactPhone: varchar("phone", { length: 255 }).notNull(),
   // ---------- BASIC INFO ----------
 
   category: varchar("category", { length: 255 }).notNull(),
@@ -30,15 +31,13 @@ export const vendors = pgTable("vendors", {
 
   // ---------- MEDIA ----------
   image: varchar("image", { length: 255 }).notNull(), // profile image
-  
+
   // ---------- PRICING ----------
   priceRange: varchar("price_range", { length: 255 }).notNull(), // display price
-
 
   // ---------- LOCATION ----------
   location: varchar("location", { length: 255 }).notNull(),
   city: varchar("city", { length: 120 }),
- 
 
   // ---------- PERFORMANCE ----------
   rating: real("rating").default(0).notNull(),

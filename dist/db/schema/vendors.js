@@ -12,6 +12,7 @@ exports.vendors = (0, pg_core_1.pgTable)("vendors", {
     userId: (0, pg_core_1.uuid)("user_id")
         .references(() => profiles_1.profiles.id, { onDelete: "cascade" })
         .notNull(),
+    businessName: (0, pg_core_1.varchar)("business_name", { length: 255 }),
     contactName: (0, pg_core_1.varchar)("name", { length: 255 }).notNull(),
     contactEmail: (0, pg_core_1.varchar)("email", { length: 255 }).notNull(),
     contactPhone: (0, pg_core_1.varchar)("phone", { length: 255 }).notNull(),

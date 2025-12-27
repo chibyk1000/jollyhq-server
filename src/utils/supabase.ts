@@ -5,3 +5,4 @@ export const supabase = createClient(
   process.env.SUPABASE_KEY!,
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
+   

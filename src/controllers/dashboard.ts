@@ -5,6 +5,8 @@ import { eventPlanners, events, profiles } from "../db/schema";
 import { wallets } from "../db/schema/wallet";
 import { userTickets } from "../db/schema/userTickets";
 import { eventTickets } from "../db/schema/eventTickets";
+import { vendors } from "../db/schema/vendors";
+import { vendorBookings } from "../db/schema/vendorBooking";
 
 
 export class DashboardController {
@@ -181,5 +183,208 @@ export class DashboardController {
         .status(500) 
         .json({ message: "Internal server error", error: error.message });
     } 
+  }
+
+
+// GET /dashboard/vendor/:vendorId
+  static async getVendorDashboard(req: Request, res: Response) {
+    try {
+      const { vendorId } = req.params;
+
+      /* =========================
+         1️⃣ Vendor + Wallet
+      ========================= */
+
+      const [vendor] = await db
+        .select({
+          id: vendors.id,
+          contactName: vendors.contactName,
+          category: vendors.category,
+          image: vendors.image,
+          verified: vendors.verified,
+          rating: vendors.rating,
+        })
+        .from(vendors)
+        .where(eq(vendors.id, vendorId));
+
+      if (!vendor) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+
+      const [wallet] = await db
+        .select({ balance: wallets.balance })
+        .from(wallets)
+        .where(eq(wallets.ownerId, vendorId));
+
+      /* =========================
+         2️⃣ Metrics
+      ========================= */
+
+      const [totalBookingsResult] = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(vendorBookings)
+        .where(eq(vendorBookings.vendorId, vendorId));
+
+      const [revenueResult] = await db
+        .select({
+          revenue: sql`SUM(${vendorBookings.amount})`,
+        })
+        .from(vendorBookings)
+        .where(
+          and(
+            eq(vendorBookings.vendorId, vendorId),
+            eq(vendorBookings.status, "completed")
+          )
+        );
+
+      const [pendingBookingsResult] = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(vendorBookings)
+        .where(
+          and(
+            eq(vendorBookings.vendorId, vendorId),
+            eq(vendorBookings.status, "pending")
+          )
+        );
+
+      /* =========================
+         3️⃣ Upcoming Jobs (Next 5)
+      ========================= */
+
+      const upcomingJobs = await db
+        .select({
+          id: vendorBookings.id,
+          eventName: events.name,
+          eventDate: events.eventDate,
+        })
+        .from(vendorBookings)
+        .innerJoin(events, eq(events.id, vendorBookings.eventId))
+        .where(
+          and(
+            eq(vendorBookings.vendorId, vendorId),
+            gte(events.eventDate, new Date())
+          )
+        )
+        .orderBy(asc(events.eventDate))
+        .limit(5);
+
+      /* =========================
+         4️⃣ Recent Activity
+      ========================= */
+
+      const recentActivity = await db
+        .select({
+          type: sql`'booking'`,
+          message: sql`
+            CONCAT(
+              ${profiles.firstName},
+              ' booked you for ',
+              ${events.name}
+            )
+          `,
+          time: vendorBookings.createdAt,
+        })
+        .from(vendorBookings)
+        .innerJoin(events, eq(events.id, vendorBookings.eventId))
+        .innerJoin(profiles, eq(profiles.id, vendorBookings.userId))
+        .where(eq(vendorBookings.vendorId, vendorId))
+        .orderBy(desc(vendorBookings.createdAt))
+        .limit(5);
+
+      /* =========================
+         5️⃣ Booking Status Breakdown
+      ========================= */
+
+      const statusStats = await db
+        .select({
+          status: vendorBookings.status,
+          count: sql`COUNT(*)`,
+        })
+        .from(vendorBookings)
+        .where(eq(vendorBookings.vendorId, vendorId))
+        .groupBy(vendorBookings.status);
+
+      const bookingPieData = [
+        {
+          name: "Completed",
+          value:
+            statusStats.find((s) => s.status === "completed")?.count ?? 0,
+          color: "#22C55E",
+        },
+        {
+          name: "Pending",
+          value:
+            statusStats.find((s) => s.status === "pending")?.count ?? 0,
+          color: "#F59E0B",
+        },
+        {
+          name: "Cancelled",
+          value:
+            statusStats.find((s) => s.status === "cancelled")?.count ?? 0,
+          color: "#EF4444",
+        },
+      ];
+
+      /* =========================
+         6️⃣ Revenue Per Month
+      ========================= */
+
+      const revenueMonthly = await db
+        .select({
+          month: sql`EXTRACT(MONTH FROM ${vendorBookings.createdAt})`,
+          revenue: sql`SUM(${vendorBookings.amount})`,
+        })
+        .from(vendorBookings)
+        .where(
+          and(
+            eq(vendorBookings.vendorId, vendorId),
+            eq(vendorBookings.status, "completed")
+          )
+        )
+        .groupBy(sql`EXTRACT(MONTH FROM ${vendorBookings.createdAt})`)
+        .orderBy(asc(sql`EXTRACT(MONTH FROM ${vendorBookings.createdAt})`));
+
+      const months = [
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec",
+      ];
+
+      const revenueChartData = months.map((month, index) => {
+        const match = revenueMonthly.find(
+          (r) => Number(r.month) === index + 1
+        );
+        return {
+          month,
+          revenue: Number(match?.revenue ?? 0),
+          target: 0,
+        };
+      });
+
+      /* =========================
+         RESPONSE
+      ========================= */
+
+      res.json({
+        vendor: {
+          ...vendor,
+          wallet: { balance: wallet?.balance ?? 0 },
+        },
+        metrics: {
+          totalBookings: Number(totalBookingsResult.count ?? 0),
+          revenue: Number(revenueResult.revenue ?? 0),
+          pendingBookings: Number(pendingBookingsResult.count ?? 0),
+        },
+        upcomingJobs,
+        recentActivity,
+        bookingPieData,
+        revenueChartData,
+      });
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({
+        message: "Failed to load vendor dashboard",
+        error: error.message,
+      });
+    }
   }
 }

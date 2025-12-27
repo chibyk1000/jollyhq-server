@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const verify_1 = require("../middlewares/verify");
+const vendorService_1 = require("../controllers/vendorService");
+const upload_1 = require("../middlewares/upload");
+const router = (0, express_1.Router)();
+router.post("/", verify_1.verifySupabaseToken, upload_1.upload.single("image"), vendorService_1.createVendorService);
+router.get("/", vendorService_1.getAllVendorServices);
+router.get("/vendor/:vendorId", vendorService_1.getVendorServicesByVendor);
+router.get("/:id", vendorService_1.getVendorServiceById);
+router.patch("/:id", upload_1.upload.single("image"), vendorService_1.updateVendorService);
+router.patch("/:id/status", vendorService_1.toggleVendorServiceStatus);
+router.delete("/:id", vendorService_1.deleteVendorService);
+exports.default = router;

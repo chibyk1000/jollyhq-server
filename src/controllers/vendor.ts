@@ -11,10 +11,10 @@ export class VendorsController {
    */
   static async create(req: Request, res: Response) {
     try {
-      console.log(req);
-      
+   
+      const userId = req.user?.id
       const {
-        userId,
+     businessName,
         contactName,
         contactEmail,
         contactPhone,  
@@ -36,7 +36,8 @@ export class VendorsController {
       const [vendor] = await db
         .insert(vendors)
         .values({
-          userId,
+          userId:userId as string,
+businessName,
           contactName,
           contactEmail,
           contactPhone,
@@ -46,13 +47,13 @@ export class VendorsController {
           priceRange,
           location,
           city,
-          responseTime,
+          responseTime,    
         })
         .returning();
       // Create wallet for the new event planner
       await db.insert(wallets).values({
         ownerId: vendor.id,
-        ownerType: "event-planner",
+        ownerType: "vendor",
         balance: 0,
         currency: "NGN",
         isActive: true,
@@ -180,4 +181,43 @@ export class VendorsController {
       return res.status(500).json({ message: "Failed to delete vendor" });
     }
   }
+
+
+  static async getByProfile(req: Request, res: Response) {
+  try {
+    const { id } = req.params; // profileId OR userId (see note below)
+
+    const data = await db
+      .select({
+        vendor: vendors,
+        wallet: wallets,
+      })
+      .from(vendors)
+      .leftJoin(wallets, eq(wallets.ownerId, vendors.id))
+      .where(
+        and(
+          eq(vendors.userId, id), // 👈 vendor belongs to this user/profile
+          isNull(vendors.deletedAt)
+        )
+      );
+
+    if (data.length === 0) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+
+    return res.status(200).json({
+      vendor: {
+        ...data[0].vendor,
+        wallet: data[0].wallet ?? null,
+      },
+    });
+  } catch (error: any) {
+    console.error("Get vendor error:", error);
+    return res.status(500).json({
+      message: "Failed to get vendor",
+      error: error.message,
+    });
+  }
+}
+
 }
