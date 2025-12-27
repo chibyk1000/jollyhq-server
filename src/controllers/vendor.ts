@@ -4,6 +4,7 @@ import { vendors } from "../db/schema/vendors";
 import { eq, and, isNull } from "drizzle-orm";
 import { uploadToSupabase } from "../utils/upload";
 import { wallets } from "../db/schema/wallet";
+import { vendorServices } from "../db/schema/vendorServices";
 
 export class VendorsController {
   /**
@@ -11,15 +12,14 @@ export class VendorsController {
    */
   static async create(req: Request, res: Response) {
     try {
-   
-      const userId = req.user?.id
+      const userId = req.user?.id;
       const {
-     businessName,
+        businessName,
         contactName,
         contactEmail,
-        contactPhone,  
+        contactPhone,
         category,
-        description,  
+        description,
         priceRange,
         location,
         city,
@@ -36,8 +36,8 @@ export class VendorsController {
       const [vendor] = await db
         .insert(vendors)
         .values({
-          userId:userId as string,
-businessName,
+          userId: userId as string,
+          businessName,
           contactName,
           contactEmail,
           contactPhone,
@@ -47,7 +47,7 @@ businessName,
           priceRange,
           location,
           city,
-          responseTime,    
+          responseTime,
         })
         .returning();
       // Create wallet for the new event planner
@@ -89,6 +89,7 @@ businessName,
     try {
       const { id } = req.params;
 
+      // Fetch vendor
       const [vendor] = await db
         .select()
         .from(vendors)
@@ -98,7 +99,16 @@ businessName,
         return res.status(404).json({ message: "Vendor not found" });
       }
 
-      return res.json(vendor);
+      // Fetch vendor services
+      const services = await db
+        .select()
+        .from(vendorServices)
+        .where(eq(vendorServices.vendorId, vendor.id));
+
+      return res.json({
+        ...vendor,
+        services,
+      });
     } catch (error) {
       console.error("Get vendor error:", error);
       return res.status(500).json({ message: "Failed to fetch vendor" });
@@ -182,42 +192,40 @@ businessName,
     }
   }
 
-
   static async getByProfile(req: Request, res: Response) {
-  try {
-    const { id } = req.params; // profileId OR userId (see note below)
+    try {
+      const { id } = req.params; // profileId OR userId (see note below)
 
-    const data = await db
-      .select({
-        vendor: vendors,
-        wallet: wallets,
-      })
-      .from(vendors)
-      .leftJoin(wallets, eq(wallets.ownerId, vendors.id))
-      .where(
-        and(
-          eq(vendors.userId, id), // 👈 vendor belongs to this user/profile
-          isNull(vendors.deletedAt)
-        )
-      );
+      const data = await db
+        .select({
+          vendor: vendors,
+          wallet: wallets,
+        })
+        .from(vendors)
+        .leftJoin(wallets, eq(wallets.ownerId, vendors.id))
+        .where(
+          and(
+            eq(vendors.userId, id), // 👈 vendor belongs to this user/profile
+            isNull(vendors.deletedAt)
+          )
+        );
 
-    if (data.length === 0) {
-      return res.status(404).json({ message: "Vendor not found" });
+      if (data.length === 0) {
+        return res.status(404).json({ message: "Vendor not found" });
+      }
+
+      return res.status(200).json({
+        vendor: {
+          ...data[0].vendor,
+          wallet: data[0].wallet ?? null,
+        },
+      });
+    } catch (error: any) {
+      console.error("Get vendor error:", error);
+      return res.status(500).json({
+        message: "Failed to get vendor",
+        error: error.message,
+      });
     }
-
-    return res.status(200).json({
-      vendor: {
-        ...data[0].vendor,
-        wallet: data[0].wallet ?? null,
-      },
-    });
-  } catch (error: any) {
-    console.error("Get vendor error:", error);
-    return res.status(500).json({
-      message: "Failed to get vendor",
-      error: error.message,
-    });
   }
-}
-
 }

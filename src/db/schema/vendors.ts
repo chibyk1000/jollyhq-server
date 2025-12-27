@@ -20,7 +20,7 @@ export const vendors = pgTable("vendors", {
   userId: uuid("user_id")
     .references(() => profiles.id, { onDelete: "cascade" })
     .notNull(),
-  businessName: varchar("business_name", { length: 255 }),
+  businessName: varchar("business_name", { length: 255 }).default(""),
   contactName: varchar("name", { length: 255 }).notNull(),
   contactEmail: varchar("email", { length: 255 }).notNull(),
   contactPhone: varchar("phone", { length: 255 }).notNull(),

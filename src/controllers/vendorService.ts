@@ -73,7 +73,26 @@ export const createVendorService = async (req: Request, res: Response) => {
  */
 export const getAllVendorServices = async (_req: Request, res: Response) => {
   try {
-    const services = await db.select().from(vendorServices);
+    const rows = await db
+      .select({
+        service: vendorServices,
+        vendor: {
+          id: vendors.id,
+          businessName: vendors.businessName,
+          logo: vendors.image,
+            phone: vendors.contactPhone,
+          
+        },
+      })
+      .from(vendorServices)
+      .innerJoin(vendors, eq(vendorServices.vendorId, vendors.id));
+
+    // flatten response
+    const services = rows.map((row) => ({
+      ...row.service,
+      vendor: row.vendor,
+    }));
+console.log(services);
 
     res.json({ services });
   } catch (error) {

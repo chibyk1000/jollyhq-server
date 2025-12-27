@@ -56,7 +56,24 @@ exports.createVendorService = createVendorService;
  */
 const getAllVendorServices = async (_req, res) => {
     try {
-        const services = await db_1.db.select().from(vendorServices_1.vendorServices);
+        const rows = await db_1.db
+            .select({
+            service: vendorServices_1.vendorServices,
+            vendor: {
+                id: vendors_1.vendors.id,
+                businessName: vendors_1.vendors.businessName,
+                logo: vendors_1.vendors.image,
+                phone: vendors_1.vendors.contactPhone,
+            },
+        })
+            .from(vendorServices_1.vendorServices)
+            .innerJoin(vendors_1.vendors, (0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.vendorId, vendors_1.vendors.id));
+        // flatten response
+        const services = rows.map((row) => ({
+            ...row.service,
+            vendor: row.vendor,
+        }));
+        console.log(services);
         res.json({ services });
     }
     catch (error) {

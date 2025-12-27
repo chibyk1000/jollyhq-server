@@ -6,6 +6,7 @@ const vendors_1 = require("../db/schema/vendors");
 const drizzle_orm_1 = require("drizzle-orm");
 const upload_1 = require("../utils/upload");
 const wallet_1 = require("../db/schema/wallet");
+const vendorServices_1 = require("../db/schema/vendorServices");
 class VendorsController {
     /**
      * CREATE vendor
@@ -73,6 +74,7 @@ class VendorsController {
     static async getById(req, res) {
         try {
             const { id } = req.params;
+            // Fetch vendor
             const [vendor] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
@@ -80,7 +82,15 @@ class VendorsController {
             if (!vendor) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
-            return res.json(vendor);
+            // Fetch vendor services
+            const services = await db_1.db
+                .select()
+                .from(vendorServices_1.vendorServices)
+                .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.vendorId, vendor.id));
+            return res.json({
+                ...vendor,
+                services,
+            });
         }
         catch (error) {
             console.error("Get vendor error:", error);

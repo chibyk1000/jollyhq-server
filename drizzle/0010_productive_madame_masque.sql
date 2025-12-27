@@ -1,0 +1,1 @@
+ALTER TABLE "vendors" ALTER COLUMN "business_name" SET DEFAULT '';
