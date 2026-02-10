@@ -6,7 +6,7 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 import { events } from "./events";
-import { profiles } from "./profiles";
+// import { userprofiles } from "./profiles";
 import { relations } from "drizzle-orm";
 import { chatMembers } from "./chatMembers";
 import { messages } from "./messages";
@@ -24,6 +24,8 @@ export const chats = pgTable("chats", {
   vendorId: uuid("vendor_id").references(() => vendors.id, {
     onDelete: "cascade",
   }),
+  lastMessageAt: timestamp("last_message_at"),
+  lastMessagePreview: varchar("last_message_preview", { length: 100 }),
 
   name: varchar("name", { length: 150 }), // Optional custom chat name
   isGroup: boolean("is_group").default(true),

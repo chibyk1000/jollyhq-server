@@ -7,10 +7,14 @@ import vendor from "./vendor"
 import eventRoutes from "./event"
 import ticketsRoutes from "./tickets"
 import settingsRoutes from "./settings"
+import authRoutes from "./auth"
+import walletRoutes from "./payments"
 
 const router = Router()
 
 router.use("/users",   usersRoutes)
+router.use("/auth",   authRoutes)
+router.use("/payments",   walletRoutes)
 router.use("/vendors",   vendor)
 router.use("/vendor-services",   vendorServicesRoutes)
 router.use("/settings",   settingsRoutes)

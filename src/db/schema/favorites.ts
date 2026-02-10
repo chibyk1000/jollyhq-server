@@ -1,7 +1,7 @@
 // db/schema/favoriteEvents.ts
 import { pgTable, uuid, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { InferModel, relations } from "drizzle-orm";
-import { profiles } from "./profiles";
+import {user as profiles } from "./profiles";
 import { events } from "./events";
 
 export const favoriteEvents = pgTable(

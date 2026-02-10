@@ -7,15 +7,17 @@ import {
   uuid,
   real,
 } from "drizzle-orm/pg-core";
+import { user as  profiles } from "./profiles";
 
 export const wallets = pgTable("wallets", {
   id: uuid("id").defaultRandom().primaryKey(),
 
   // polymorphic owner
-  ownerId: uuid("owner_id").notNull(),
-  ownerType: varchar("owner_type", { length: 50 }).notNull(),
-  // "user" | "vendor" | "event_planner"
+userId: uuid("user_id")
+    .references(() => profiles.id, { onDelete: "cascade" })
+    .notNull(),
 
+accountId:varchar("account_id"),
   balance: real("balance").default(0).notNull(),
   currency: varchar("currency", { length: 10 }).default("NGN"),
 

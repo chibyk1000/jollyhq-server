@@ -9,7 +9,7 @@ import {
   varchar,
   text,
 } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles";
+import { user as profiles } from "./profiles";
 import { vendorServices } from "./vendorServices";
 import { wallets } from "./wallet";
 
@@ -58,10 +58,7 @@ export const vendors = pgTable("vendors", {
 
 export const vendorRelations = relations(vendors, ({ many, one }) => ({
   services: many(vendorServices),
-  wallet: one(wallets, {
-    fields: [vendors.id],
-    references: [wallets.ownerId],
-  }),
+
 }));
 
 

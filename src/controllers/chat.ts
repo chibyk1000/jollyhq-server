@@ -4,7 +4,7 @@ import { and, eq, desc, sql } from "drizzle-orm";
 import { chats } from "../db/schema/chats";
 import { chatMembers } from "../db/schema/chatMembers";
 import { messages } from "../db/schema/messages";
-import { events, messageReads, profiles } from "../db/schema";
+import { events, messageReads, user as profiles } from "../db/schema";
 
 
 /* ---------------------------------------------------
@@ -102,7 +102,7 @@ export class ChatController {
       firstName: profiles.firstName,
       lastName: profiles.lastName,
       username: profiles.username,
-      avatarUrl: profiles.avatarUrl,
+   
     })
     .from(chatMembers)
     .innerJoin(profiles, eq(profiles.id, chatMembers.profileId))

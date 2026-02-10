@@ -1,1 +1,0 @@
-ALTER TABLE "user_settings" ADD COLUMN "has_seen_onboarding" boolean DEFAULT false;

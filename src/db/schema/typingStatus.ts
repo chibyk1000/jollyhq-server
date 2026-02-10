@@ -1,6 +1,6 @@
 import { boolean, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { chats } from "./chats";
-import { profiles } from "./profiles";
+import {user as  profiles } from "./profiles";
 
 export const typingStatus = pgTable("typing_status", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -9,7 +9,6 @@ export const typingStatus = pgTable("typing_status", {
   profileId: uuid("profile_id").references(
     () => profiles.id
   ),
-
   isTyping: boolean("is_typing").default(false),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

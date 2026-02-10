@@ -16,13 +16,16 @@ router.get(
   verifySupabaseToken,
   VendorsController.getByProfile
 );
+
+router.get("/:vendorId/chats", VendorsController.getVendorChats);
+
 router.get(
   "/dashboard/:vendorId",
   verifySupabaseToken,
   DashboardController.getVendorDashboard
 );
 router.get("/user/:userId",verifySupabaseToken , VendorsController.getByUser);
-router.patch("/:id",verifySupabaseToken , VendorsController.update);
+router.patch("/:id",verifySupabaseToken , upload.single("image"), VendorsController.update);
 router.delete("/:id",verifySupabaseToken , VendorsController.delete);
 
 export default router;

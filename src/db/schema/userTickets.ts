@@ -1,6 +1,6 @@
 // src/db/schema/userTickets.ts
 import { pgTable, uuid, timestamp, integer } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles";
+import {user as profiles } from "./profiles";
 import { eventTickets } from "./eventTickets";
 import { sql } from "drizzle-orm";
 

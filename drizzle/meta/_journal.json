@@ -5,85 +5,43 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1764909103901,
-      "tag": "0000_mysterious_pride",
+      "when": 1769220963670,
+      "tag": "0000_great_shaman",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1765313835505,
-      "tag": "0001_common_phalanx",
+      "when": 1769221894421,
+      "tag": "0001_brave_karma",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1766124290993,
-      "tag": "0002_wandering_apocalypse",
+      "when": 1769222043202,
+      "tag": "0002_noisy_speedball",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1766127842904,
-      "tag": "0003_special_fallen_one",
+      "when": 1769222836924,
+      "tag": "0003_confused_captain_cross",
       "breakpoints": true
     },
     {
       "idx": 4,
       "version": "7",
-      "when": 1766133640608,
-      "tag": "0004_polite_gravity",
+      "when": 1769241309134,
+      "tag": "0004_fuzzy_proteus",
       "breakpoints": true
     },
     {
       "idx": 5,
       "version": "7",
-      "when": 1766203620742,
-      "tag": "0005_tense_bromley",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1766385913715,
-      "tag": "0006_curvy_micromacro",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1766394967197,
-      "tag": "0007_square_earthquake",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1766783867362,
-      "tag": "0008_quick_warpath",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1766808612279,
-      "tag": "0009_numerous_gamma_corps",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1766854312134,
-      "tag": "0010_productive_madame_masque",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1766869235961,
-      "tag": "0011_mute_satana",
+      "when": 1769582568308,
+      "tag": "0005_nappy_medusa",
       "breakpoints": true
     }
   ]

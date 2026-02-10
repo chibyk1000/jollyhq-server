@@ -326,7 +326,7 @@ export class EventController {
         })
         .from(transactions)
         .leftJoin(wallets, eq(transactions.walletId, wallets.id))
-        .where(eq(wallets.ownerId, event.plannerId));
+        
 
       const totalPaid = payments
         .filter((p) => p.status === "completed")

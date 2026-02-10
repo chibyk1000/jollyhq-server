@@ -7,7 +7,7 @@ import {
   boolean,
   uuid,
 } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles"; // ensure correct import path
+import { user as profiles } from "./profiles"; // ensure correct import path
 import { events } from "./events";
 import { wallets } from "./wallet";
 
@@ -63,10 +63,7 @@ export const eventPlannerRelations = relations(eventPlanners, ({ one, many }) =>
     fields: [eventPlanners.profileId],
     references: [profiles.id],
   }),
-  wallet: one(wallets, {
-    fields: [eventPlanners.id],
-    references: [wallets.ownerId],
-  }),
+
   events: many(events), // 👈 EventPlanner has many events
 }));
 

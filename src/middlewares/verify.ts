@@ -2,7 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { supabase } from "../utils/supabase";
 
-import { User } from "@supabase/supabase-js"; // or your own user type
+
+import { auth } from "../utils/auth";
+import { fromNodeHeaders } from "better-auth/node";
+import { User } from "better-auth/types";
 
 declare global {
   namespace Express {
@@ -11,16 +14,16 @@ declare global {
     }
   }
 }
-export async function verifySupabaseToken(req:Request, res:Response, next:NextFunction) {
-  const token = req.headers.authorization?.replace("Bearer ", "");
+export async function verifySupabaseToken(req: Request, res: Response, next: NextFunction) {
 
-  if (!token) return res.status(401).json({ message: "No token" });
+  
+  	const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
 
-  const { data, error } = await supabase.auth.getUser(token);
+   
 
-  if (error) return res.status(403).json({ message: "Invalid token" });
-
-  req.user = data.user;
+  req.user = session?.user;
 
   next();
 }

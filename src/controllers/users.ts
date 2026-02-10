@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
-import { NewProfile, profiles } from "../db/schema/profiles";
+import { NewUser as NewProfile, user as profiles } from "../db/schema/profiles";
 import { supabase } from "../utils/supabase";
 import { db } from "../db";
 import { uploadToSupabase } from "../utils/upload";
-import { eq, or } from "drizzle-orm";
+import { and, desc, eq, inArray, or } from "drizzle-orm";
 import { eventPlanners } from "../db/schema/eventPlanners";
 import { vendors } from "../db/schema/vendors";
 import { wallets } from "../db/schema/wallet";
+import { WALLET_OWNER_TYPES } from "../utils/constants";
+import { transactions } from "../db/schema";
+import { auth } from "../utils/auth";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
@@ -18,7 +21,7 @@ export class UserControllers {
         lastName,
         username,
         agreedToTerms,
-        phone,
+        phoneNumber,
         googleId,
         facebookId,
         instagramId,
@@ -89,7 +92,7 @@ export class UserControllers {
 
       // ----- OPTIONAL VALUES -----
 
-      if (phone && typeof phone !== "string") {
+      if (phoneNumber && typeof phoneNumber !== "string") {
         return res
           .status(400)
           .json({ error: "Phone number must be a string." });
@@ -116,25 +119,46 @@ export class UserControllers {
       const avatarUrl = await uploadToSupabase(avatarFile, "avatars");
 
       // ----- INSERT INTO DATABASE -----
-      const newUser: NewProfile = {
-        id: id, // Or generate a UUID here if needed
-        email,
-        firstName,
-        lastName,
-        username,
-        agreedToTerms,
-        phone: phone || null,
-        googleId: googleId || null,
-        facebookId: facebookId || null,
-        instagramId: instagramId || null,
-        avatarUrl,
-      };
+      // const newUser: NewProfile = {
+      //   id: id, // Or generate a UUID here if needed
+      //   email,
+      //   firstName,
+      //   lastName,
+      //   username,
+      //   agreedToTerms,
 
-      const result = await db.insert(profiles).values(newUser).returning();
-      return res.status(201).json(result[0]);
+      //   phone: phone || null,
+      //   googleId: googleId || null,
+      //   facebookId: facebookId || null,
+      //   instagramId: instagramId || null,
+      //   avatarUrl,
+      // };
+
+      // const result = await db.insert(profiles).values(newUser).returning();
+      // return res.status(201).json(result[0]);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Server error" });
+    }
+  }
+  static async verifyEmail(req: Request, res: Response) {
+    try {
+      if (!req.body.otp) {
+        return res.status(400).json({ message: "otp is required" });
+      }
+      if (!req.body.email) {
+        return res.status(400).json({ message: "otp is required" });
+      }
+      const data = await auth.api.checkVerificationOTP({
+        body: {
+          email: req.body.email, // required
+          type: "email-verification", // required
+          otp: req.body.otp, // required
+        },
+      });
+      return res.json({ message: "success" });
+    } catch (err) {
+      return res.status(500).json({ message: "internal server error" });
     }
   }
 
@@ -172,25 +196,24 @@ export class UserControllers {
       const hasPlannerProfile = Boolean(plannerProfile);
 
       // Check for wallet
-const conditions = [];
+      const conditions = [];
 
-if (plannerProfile?.id) {
-  conditions.push(eq(wallets.ownerId, plannerProfile.id));
-}
+      if (plannerProfile?.id) {
+        conditions.push(eq(wallets.userId, plannerProfile.id));
+      }
 
-if (vendorProfile?.id) {
-  conditions.push(eq(wallets.ownerId, vendorProfile.id));
-}
+      if (vendorProfile?.id) {
+        conditions.push(eq(wallets.userId, vendorProfile.id));
+      }
 
-let wallet = null;
+      let wallet = null;
 
-if (conditions.length > 0) {
-  [wallet] = await db
-    .select()
-    .from(wallets)
-    .where(or(...conditions));
-}
-
+      if (conditions.length > 0) {
+        [wallet] = await db
+          .select()
+          .from(wallets)
+          .where(or(...conditions));
+      }
 
       const hasWallet = Boolean(wallet);
       return res.status(200).json({
@@ -208,73 +231,61 @@ if (conditions.length > 0) {
   static async updateProfile(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { firstName, lastName, password } = req.body;
+      const { firstName, lastName, password, username } = req.body;
 
       if (!id || typeof id !== "string") {
         return res.status(400).json({ error: "User ID is required." });
       }
 
       // ---------- VALIDATION ----------
-      if (firstName && typeof firstName !== "string") {
+      if (firstName !== undefined && typeof firstName !== "string") {
         return res.status(400).json({ error: "First name must be a string." });
       }
 
-      if (lastName && typeof lastName !== "string") {
+      if (lastName !== undefined && typeof lastName !== "string") {
         return res.status(400).json({ error: "Last name must be a string." });
       }
-
-      if (password && typeof password !== "string") {
-        return res.status(400).json({ error: "Password must be a string." });
+      if (username !== undefined && typeof username !== "string") {
+        return res.status(400).json({ error: "Username must be a string." });
       }
 
-      if (password && password.length < 8) {
-        return res
-          .status(400)
-          .json({ error: "Password must be at least 8 characters long." });
+      if (password !== undefined) {
+        if (typeof password !== "string") {
+          return res.status(400).json({ error: "Password must be a string." });
+        }
+
+        if (password.length < 8) {
+          return res
+            .status(400)
+            .json({ error: "Password must be at least 8 characters long." });
+        }
       }
+
+      // ---------- BUILD UPDATE DATA ----------
+      const updateData: Partial<NewProfile> = {};
+
+      if (firstName !== undefined) updateData.firstName = firstName;
+      if (lastName !== undefined) updateData.lastName = lastName;
+      if (username !== undefined) updateData.username = username;
 
       // ---------- AVATAR UPLOAD ----------
-      let avatarUrl: string | undefined;
-      const avatarFile = req.file;
+      if (req.file) {
+        const avatarUrl = await uploadToSupabase(req.file, "avatars");
+        updateData.image = avatarUrl;
+      }
 
-      if (avatarFile) {
-        avatarUrl = await uploadToSupabase(avatarFile, "avatars");
+      if (Object.keys(updateData).length === 0 && !password) {
+        return res.status(400).json({ error: "Nothing to update." });
       }
 
       // ---------- UPDATE LOCAL DB ----------
-      const updateData: Partial<NewProfile> = {};
-
-      if (firstName) updateData.firstName = firstName;
-      if (lastName) updateData.lastName = lastName;
-      if (avatarUrl) updateData.avatarUrl = avatarUrl;
-
       if (Object.keys(updateData).length > 0) {
         await db.update(profiles).set(updateData).where(eq(profiles.id, id));
       }
 
-      // ---------- UPDATE SUPABASE AUTH ----------
-      const authUpdatePayload: any = {
-        user_metadata: {
-          firstName,
-          lastName,
-        },
-      };
-
-      if (password) {
-        authUpdatePayload.password = password;
-      }
-
-      const { error: supabaseError } = await supabase.auth.admin.updateUserById(
-        id,
-        authUpdatePayload
-      );
-
-      if (supabaseError) {
-        console.error("Supabase update error:", supabaseError.message);
-        return res
-          .status(500)
-          .json({ error: "Failed to update Supabase auth user." });
-      }
+      // ---------- UPDATE AUTH PASSWORD (if needed) ----------
+      // TODO: Update Supabase Auth password here
+      // await supabase.auth.admin.updateUserById(id, { password });
 
       // ---------- FETCH UPDATED USER ----------
       const [updatedUser] = await db
@@ -284,8 +295,81 @@ if (conditions.length > 0) {
 
       return res.status(200).json(updatedUser);
     } catch (error) {
-      console.error(error);
+      console.error("Update profile error:", error);
       return res.status(500).json({ error: "Server error" });
+    }
+  }
+
+  static async getMyWallet(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id as string;
+
+
+      /* =========================
+       1️⃣ Fetch user's wallet
+    ========================= */
+      const wallet = await db.query.wallets.findFirst({
+        where: and(eq(wallets.userId, userId)),
+      });
+
+      /* =========================
+       2️⃣ If no wallet → ask to create
+    ========================= */
+      if (!wallet) {
+        return res.json({
+          wallet: null,
+          transactions: [],
+          needsWallet: true,
+          message: "User does not have a wallet. Prompt wallet creation.",
+        });
+      }
+
+      /* =========================
+       3️⃣ Fetch wallet transactions
+    ========================= */
+      const transactionsRecords = await db.query.transactions.findMany({
+        where: eq(transactions.walletId, wallet.id),
+        orderBy: (t) => desc(t.createdAt),
+        limit: 20,
+      });
+
+      /* =========================
+       4️⃣ Serialize
+    ========================= */
+      const serializedWallet = {
+        id: wallet.id,
+        balance: wallet.balance,
+        currency: wallet.currency,
+        ownerId: wallet.userId,
+      };
+
+      const serializedTransactions = transactionsRecords.map((tx) => ({
+        id: tx.id,
+        walletId: tx.walletId,
+        amount: tx.amount,
+        description: tx.description,
+        status: tx.status,
+        createdAt: tx.createdAt,
+      }));
+
+      /* =========================
+       5️⃣ Response
+    ========================= */
+      return res.json({
+        wallet: serializedWallet,
+        transactions: serializedTransactions,
+        needsWallet: false,
+        summary: {
+          balance: wallet.balance,
+          currency: wallet.currency,
+          transactionCount: transactionsRecords.length,
+        },
+      });
+    } catch (error) {
+      console.error("GET MY WALLET ERROR:", error);
+      return res.status(500).json({
+        message: "Failed to fetch wallet",
+      });
     }
   }
 }

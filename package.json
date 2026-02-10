@@ -17,6 +17,7 @@
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.10.1",
+    "@types/nodemailer": "^7.0.5",
     "@types/pg": "^8.15.6",
     "drizzle-kit": "^0.31.7",
     "nodemon": "^3.1.11",
@@ -25,7 +26,11 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@better-auth/expo": "^1.4.17",
+    "@hixbe/otp-pass-kit": "^2.0.2",
     "@supabase/supabase-js": "^2.86.0",
+    "better-auth": "^1.4.17",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
@@ -33,8 +38,13 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
+    "nanoid": "^5.1.6",
+    "nodemailer": "^7.0.12",
+    "nodemailer-otp": "^1.0.8",
     "pg": "^8.16.3",
     "react-native-reanimated-skeleton": "^1.6.0",
+    "socket.io": "^4.8.3",
+    "twilio": "^5.12.0",
     "winston": "^3.18.3"
   }
 }

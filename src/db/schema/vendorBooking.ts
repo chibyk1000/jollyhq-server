@@ -12,7 +12,7 @@ import {
 
 import { vendors } from "./vendors";
 import { vendorServices } from "./vendorServices";
-import { profiles } from "./profiles";
+import {user as profiles } from "./profiles";
 import { events } from "./events"; // optional but recommended
 
 export const vendorBookings = pgTable("vendor_bookings", {

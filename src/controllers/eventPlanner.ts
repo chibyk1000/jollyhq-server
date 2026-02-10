@@ -3,7 +3,7 @@ import { uploadToSupabase } from "../utils/upload";
 import { db } from "../db";
 import { eventPlanners } from "../db/schema/eventPlanners";
 import { eq } from "drizzle-orm";
-import { WalletController } from "./wallletController";
+import { WalletController } from "./walletController";
 import { logger } from "../utils/logger";
 import { wallets } from "../db/schema/wallet";
 
@@ -58,13 +58,13 @@ export class EventPlannerControllers {
       if (files?.idDocument?.[0])
         idDocumentUrl = await uploadToSupabase(
           files.idDocument[0],
-          "kyc/user-id"
+          "kyc/user-id",
         );
 
       if (files?.businessDocument?.[0])
         businessDocumentUrl = await uploadToSupabase(
           files.businessDocument[0],
-          "kyc/business-docs"
+          "kyc/business-docs",
         );
 
       // Insert Event Planner into DB
@@ -93,13 +93,6 @@ export class EventPlannerControllers {
         .returning();
 
       // Create wallet for the new event planner
-      await db.insert(wallets).values({
-        ownerId: planner.id,
-        ownerType: "event-planner",
-        balance: 0,
-        currency: "NGN",
-        isActive: true,
-      });
 
       return res.status(200).json({
         message: "Event planner profile created",
@@ -125,20 +118,19 @@ export class EventPlannerControllers {
           wallet: wallets,
         })
         .from(eventPlanners)
-        .leftJoin(wallets, eq(wallets.ownerId, eventPlanners.id))
+        .leftJoin(wallets, eq(wallets.userId, eventPlanners.profileId))
         .where(eq(eventPlanners.profileId, id));
 
       if (data.length === 0) {
         return res.status(404).json({ message: "Event planner not found" });
       }
 
-
       return res.status(200).json({
         event_planner: {
           ...data[0].eventPlanner,
           wallet: data[0].wallet ?? null,
         },
-      }); 
+      });
     } catch (error: any) {
       return res.status(500).json({
         message: "Failed to get event planner",
@@ -175,13 +167,13 @@ export class EventPlannerControllers {
       if (files?.idDocument?.[0])
         idDocumentUrl = await uploadToSupabase(
           files.idDocument[0],
-          "kyc/user-id"
+          "kyc/user-id",
         );
 
       if (files?.businessDocument?.[0])
         businessDocumentUrl = await uploadToSupabase(
           files.businessDocument[0],
-          "kyc/business-docs"
+          "kyc/business-docs",
         );
 
       const [updated] = await db

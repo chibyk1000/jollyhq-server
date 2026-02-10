@@ -10,6 +10,7 @@ const router = Router()
 router.post("/", verifySupabaseToken, upload.single("avatar"), UserControllers.createUser)
 router.get("/events/trending",  TrendingEventsController.getTrendingEvents)
 router.get("/events/favorites/", verifySupabaseToken,  FavoriteController.getFavorites)
+router.get("/wallets", verifySupabaseToken,  UserControllers.getMyWallet)
 router.get("/events/tickets", verifySupabaseToken, TicketController.getTicketsByUser)
 router.post("/favorites/:eventId/", verifySupabaseToken, FavoriteController.toggleFavorite);
 

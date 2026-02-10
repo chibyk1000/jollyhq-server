@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { db } from "../db";
-import { profiles } from "../db/schema/profiles";
+import { user as profiles } from "../db/schema/profiles";
 import { eq } from "drizzle-orm";
 import { supabase } from "../utils/supabase";
 
@@ -105,17 +105,17 @@ export class UserControllers {
       const newUser = await db
         .insert(profiles)
         .values({
-          id,
+          
           firstName,
           lastName,
           email,
           username,
-          phone: phone || null,
+          phoneNumber: phone || null,
           agreedToTerms: true,
           googleId: googleId || null,
           facebookId: facebookId || null,
           instagramId: instagramId || null,
-          avatarUrl,
+          image:avatarUrl,
         })
         .returning();
 

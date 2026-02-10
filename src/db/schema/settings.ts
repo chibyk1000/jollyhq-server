@@ -6,7 +6,7 @@ import {
   varchar,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { profiles } from "./profiles";
+import { user as profiles } from "./profiles";
 
 
 export const userSettings = pgTable("user_settings", {

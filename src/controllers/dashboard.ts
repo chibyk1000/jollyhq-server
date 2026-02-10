@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "../db";
-import { eventPlanners, events, profiles } from "../db/schema";
+import { eventPlanners, events, user as profiles } from "../db/schema";
 import { wallets } from "../db/schema/wallet";
 import { userTickets } from "../db/schema/userTickets";
 import { eventTickets } from "../db/schema/eventTickets";
@@ -19,6 +19,7 @@ export class DashboardController {
       const [planner] = await db
         .select({
           id: eventPlanners.id,
+          userid:eventPlanners.profileId,
           businessName: eventPlanners.businessName,
           logoUrl: eventPlanners.logoUrl,
           isVerified: eventPlanners.isVerified,
@@ -33,7 +34,7 @@ export class DashboardController {
       const [wallet] = await db
         .select({ balance: wallets.balance })
         .from(wallets)
-        .where(eq(wallets.ownerId, plannerId));
+        .where(eq(wallets.userId, planner.userid));
 
       // 2️⃣ Metrics
       const [ticketsSoldResult] = await db
@@ -198,6 +199,7 @@ export class DashboardController {
       const [vendor] = await db
         .select({
           id: vendors.id,
+          userid:vendors.userId,
           contactName: vendors.contactName,
           category: vendors.category,
           image: vendors.image,
@@ -214,7 +216,7 @@ export class DashboardController {
       const [wallet] = await db
         .select({ balance: wallets.balance })
         .from(wallets)
-        .where(eq(wallets.ownerId, vendorId));
+        .where(eq(wallets.userId, vendor.userid));
 
       /* =========================
          2️⃣ Metrics
