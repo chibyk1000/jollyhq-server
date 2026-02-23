@@ -25,18 +25,22 @@ export class ChatController {
           joinedAt: chatMembers.joinedAt,
           eventName: events.name,
           eventLogo: events.imageUrl, // adjust to your column
+
           membersCount: sql<number>`(
           SELECT COUNT(*)
           FROM ${chatMembers}
           WHERE ${chatMembers.chatId} = ${chats.id}
+
         )`,
+          lastMessage: chats.lastMessagePreview,
+          lastMessageTime: chats.lastMessageAt,
+
         })
         .from(chatMembers)
         .innerJoin(chats, eq(chatMembers.chatId, chats.id))
         .leftJoin(events, eq(chats.eventId, events.id))
         .where(eq(chatMembers.profileId, userId))
         .orderBy(desc(chatMembers.joinedAt));
-
       return res.json(userChats);
     } catch (error: any) {
       console.log(error);

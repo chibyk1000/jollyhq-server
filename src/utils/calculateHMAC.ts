@@ -24,7 +24,9 @@ export async function hooksCron2(payload:string) {
 }
 
 export function generateSignature(payload: string, secret: string, timeStamp: string) {
-  const requestPayload = JSON.parse(payload);
+console.log("Generating signature with payload:", payload);
+
+  const requestPayload = payload as any;
 
   const data = requestPayload.data || {};
   const merchant = data.merchant || {};

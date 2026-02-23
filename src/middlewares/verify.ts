@@ -4,7 +4,7 @@ import { supabase } from "../utils/supabase";
 
 
 import { auth } from "../utils/auth";
-import { fromNodeHeaders } from "better-auth/node";
+import { fromNodeHeaders,  } from "better-auth/node";
 import { User } from "better-auth/types";
 
 declare global {
@@ -14,7 +14,7 @@ declare global {
     }
   }
 }
-export async function verifySupabaseToken(req: Request, res: Response, next: NextFunction) {
+export async function verifyToken(req: Request, res: Response, next: NextFunction) {
 
   
   	const session = await auth.api.getSession({

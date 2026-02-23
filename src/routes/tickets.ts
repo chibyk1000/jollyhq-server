@@ -1,23 +1,22 @@
 import { Router } from "express";
 import { TicketController } from "../controllers/tickets";
-import { verifySupabaseToken } from "../middlewares/verify";
-
+import { verifyToken } from "../middlewares/verify";
 
 const router = Router();
 
 // Create 1 or many
-router.post("/", verifySupabaseToken,  TicketController.createTicket);
+router.post("/", verifyToken, TicketController.createTicket);
 
 // List tickets of an event
-router.get("/event/:eventId",  verifySupabaseToken, TicketController.getTicketsByEvent);
+router.get("/event/:eventId", verifyToken, TicketController.getTicketsByEvent);
 
 // Get single ticket
-router.get("/:ticketId", verifySupabaseToken,  TicketController.getTicket);
+router.get("/:ticketId", verifyToken, TicketController.getTicket);
 
 // Update
-router.put("/:ticketId", verifySupabaseToken,  TicketController.updateTicket);
+router.put("/:ticketId", verifyToken, TicketController.updateTicket);
 
 // Delete
-router.delete("/:ticketId", verifySupabaseToken,  TicketController.deleteTicket);
+router.delete("/:ticketId", verifyToken, TicketController.deleteTicket);
 
 export default router;

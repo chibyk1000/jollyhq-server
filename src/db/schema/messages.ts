@@ -1,6 +1,14 @@
-import { pgTable, uuid, text, timestamp, varchar, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  varchar,
+  index,
+} from "drizzle-orm/pg-core";
 import { chats } from "./chats";
 import { user as profiles } from "./profiles";
+import { relations } from "drizzle-orm";
 
 export const messages = pgTable(
   "messages",
@@ -26,5 +34,12 @@ export const messages = pgTable(
   (table) => ({
     chatIdx: index("messages_chat_id_idx").on(table.chatId),
     createdAtIdx: index("messages_created_at_idx").on(table.createdAt),
-  })
+  }),
 );
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  sender: one(profiles, {
+    fields: [messages.senderId],
+    references: [profiles.id],
+  }),
+}));

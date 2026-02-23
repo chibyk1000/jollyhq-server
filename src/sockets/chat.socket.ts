@@ -22,13 +22,15 @@ export function chatSocket(io: Server, socket: Socket) {
 
     socket.join(chatId);
 
-    // ✅ FETCH CHAT MESSAGES
-    const msgs = await db.query.messages.findMany({
-      where: eq(messages.chatId, chatId),
-      orderBy: asc(messages.createdAt),
-      limit: 50, // 👈 important
-    });
-    console.log(msgs);
+const msgs = await db.query.messages.findMany({
+  where: eq(messages.chatId, chatId),
+  orderBy: asc(messages.createdAt),
+  limit: 50,
+  with: {
+    sender: true, // 🔥 includes full sender profile
+  },
+});
+ 
 
     // ✅ SEND ONLY TO THIS SOCKET
     socket.emit("chat_history", {
@@ -57,7 +59,7 @@ export function chatSocket(io: Server, socket: Socket) {
           eq(chatMembers.isBanned, false)
         ),
       });
-      console.log("mem", chatId, socket.user.id);
+      console.log("mem", socket);
 
       if (!member) return;
 
@@ -124,6 +126,9 @@ async function fetchChatHistory(chatId: string) {
     where: eq(messages.chatId, chatId),
     orderBy: asc(messages.createdAt),
     limit: 50,
+    with: {
+      sender: true, // 🔥 includes full sender profile
+    },
   });
 
   return {

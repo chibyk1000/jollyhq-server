@@ -9,10 +9,11 @@ import ticketsRoutes from "./tickets"
 import settingsRoutes from "./settings"
 import authRoutes from "./auth"
 import walletRoutes from "./payments"
-
+import ordersRoutes from "./orders"
 const router = Router()
 
 router.use("/users",   usersRoutes)
+router.use("/orders",   ordersRoutes)
 router.use("/auth",   authRoutes)
 router.use("/payments",   walletRoutes)
 router.use("/vendors",   vendor)

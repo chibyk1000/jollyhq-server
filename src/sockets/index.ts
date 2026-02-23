@@ -1,15 +1,15 @@
 import { Server } from "socket.io";
-import { supabaseSocketAuth } from "./socketAuth";
+import { verifySocket } from "./socketAuth";
 import { chatSocket } from "./chat.socket";
-import { User } from "@supabase/supabase-js";
+
 
 declare module "socket.io" {
   interface Socket {
-    user: User;
+
   }
 }
 export function registerSocketHandlers(io: Server) {
-  io.use(supabaseSocketAuth);
+  io.use(verifySocket);
 
   io.on("connection", (socket) => {
     console.log("🔌 Connected:", socket.user.id);

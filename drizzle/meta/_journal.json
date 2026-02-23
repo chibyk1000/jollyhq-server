@@ -43,6 +43,13 @@
       "when": 1769582568308,
       "tag": "0005_nappy_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771675945698,
+      "tag": "0006_opposite_ultimates",
+      "breakpoints": true
     }
   ]
 }
