@@ -9,5 +9,6 @@ router.post("/credit-card", verifyToken, WalletController.addCard);
 router.post("/webhook", WalletController.handleWebhook);
 
 router.post("/checkout", verifyToken, WalletController.createCheckoutOrder);
+router.post("/payment-intent", verifyToken, WalletController.paymentIntent);
 
 export default router;

@@ -10978,3 +10978,58 @@
 {"level":"info","message":"::ffff:127.0.0.1 - - [23/Feb/2026:10:23:55 +0000] \"GET /api/chats HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-23T10:23:55.250Z"}
 {"level":"info","message":"::1 - - [23/Feb/2026:10:24:25 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-23T10:24:25.296Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [23/Feb/2026:10:24:25 +0000] \"GET /api/chats HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-23T10:24:25.332Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-24T23:38:40.522Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-24T23:50:56.929Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-24T23:51:09.891Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-24T23:51:52.077Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-24T23:52:32.469Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:07:19.399Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:08:02.994Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:08:36 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:36.809Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:08:39 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:39.920Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:08:39 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:39.931Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:08:39 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:39.952Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:08:40 +0000] \"GET /api/events HTTP/1.1\" 200 780 \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:40.106Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:08:40 +0000] \"GET /api/users/events/trending HTTP/1.1\" 200 878 \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:40.171Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:08:40 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 200 16 \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:40.185Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:08:53 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:53.997Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:08:54 +0000] \"GET /api/users/wallets HTTP/1.1\" 200 234 \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:08:54.040Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:15:07 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:15:07.957Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:15:08 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:15:08.005Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:17:17 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:17:17.121Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:17:17 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:17:17.128Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:17:17 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:17:17.131Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:17:17 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:17:17.307Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:17:17 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:17:17.315Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:17:17 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:17:17.324Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:20:58 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:20:58.801Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:20:58 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:20:58.836Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:22:06.867Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:27:49.855Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:28:14.735Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:30:34.294Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:32:45.501Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-02-25T00:38:17.825Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:46:05 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:05.652Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:46:05 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:05.703Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:46:16 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:16.991Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:46:16 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:16.996Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:00:46:16 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:17.000Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:46:17 +0000] \"GET /api/users/events/trending HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:17.204Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:46:17 +0000] \"GET /api/events HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:17.208Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:00:46:17 +0000] \"GET /api/users/events/favorites/ HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T00:46:17.211Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:01:11:16 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T01:11:16.285Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:01:11:16 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T01:11:16.365Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:01:11:22 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T01:11:22.084Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:01:11:25 +0000] \"POST /api/payments/payment-intent HTTP/1.1\" 200 622 \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T01:11:25.372Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:03:02:48 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:02:48.789Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:03:02:48 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:02:48.824Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:03:04:17 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:04:17.978Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:03:04:18 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:04:18.063Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:03:05:25 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:05:25.727Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:03:05:25 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:05:25.758Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:03:06:27 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:06:27.797Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:03:06:27 +0000] \"GET /api/users/wallets HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:06:27.844Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:03:06:36 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:06:36.363Z"}
+{"level":"info","message":"::ffff:127.0.0.1 - - [25/Feb/2026:03:06:37 +0000] \"POST /api/payments/payment-intent HTTP/1.1\" 200 620 \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-02-25T03:06:37.154Z"}
+{"level":"info","message":"::1 - - [25/Feb/2026:03:08:19 +0000] \"POST /api/payments/webhook HTTP/1.1\" 200 17 \"-\" \"Jersey/2.35 (HttpUrlConnection 17.0.2)\"","timestamp":"2026-02-25T03:08:19.335Z"}

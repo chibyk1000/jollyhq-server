@@ -5,7 +5,7 @@ import nombaApi from "../services/nomba.service";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { chatMembers, chats, eventTickets, orders } from "../db/schema";
+import { chatMembers, chats, eventPlanners, eventTickets, orders, user, wallets } from "../db/schema";
 
 export class WalletController {
   static async addCard(req: Request, res: Response) {
@@ -78,29 +78,32 @@ export class WalletController {
       // Handle events
       switch (event) {
         case "payment_success":
-       
-        const order =   await db
+          const order = await db
             .update(orders)
             .set({
               status: "PAID",
               isPaid: true,
-              transactionId:data.transaction.transactionId,
+              transactionId: data.transaction.transactionId,
               paidAt: new Date(),
             })
-          .where(eq(orders.orderReference, data.order.orderReference)).returning();
-          const chat = await db.query.chats.findFirst({
-            where: eq(chats.eventId, order[0].eventId),
-          });
-
-          if (chat) {
-            await db
-              .insert(chatMembers)
-              .values({
-                profileId: order[0].userId,
-
-                chatId: chat.id,
-              })
-              .onConflictDoNothing();
+            .where(eq(orders.orderReference, data.order.orderReference))
+            .returning();
+          if (order[0].eventId) {
+            
+            const chat = await db.query.chats.findFirst({
+              where: eq(chats.eventId, order[0].eventId as string),
+            });
+  
+            if (chat) {
+              await db
+                .insert(chatMembers)
+                .values({
+                  profileId: order[0].userId,
+  
+                  chatId: chat.id,
+                })
+                .onConflictDoNothing();
+            }
           }
           break;
 
@@ -126,9 +129,8 @@ export class WalletController {
   static async createCheckoutOrder(req: Request, res: Response) {
     try {
       const { ticketId, quantity, email, userId } = req.body;
-     
-      
-      const user = req?.user
+
+      const user = req?.user;
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -147,12 +149,12 @@ export class WalletController {
         });
       }
 
-            if (ticket?.quantity < 1) {
-              return res.status(400).json({
-                success: false,
-                message: "Ticket is sold out",
-              });
-            }
+      if (ticket?.quantity < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Ticket is sold out",
+        });
+      }
 
       // 2️⃣ Calculate total from DB (NEVER trust frontend amount)
       const totalAmount = Number(ticket.price) * Number(quantity);
@@ -162,7 +164,7 @@ export class WalletController {
 
       // 4️⃣ Create order in DB (PENDING)
       await db.insert(orders).values({
-        userId:user?.id,
+        userId: user?.id,
         eventId: ticket.eventId,
         ticketId,
         quantity: quantity.toString(),
@@ -184,7 +186,7 @@ export class WalletController {
         order: {
           orderReference,
           callbackUrl: `jollyhq://payment-success?ref=${orderReference}`,
-          customerEmail:email,
+          customerEmail: email,
           amount: totalAmount.toFixed(2),
           currency: "NGN",
           accountId: process.env.NOMBA_ACCOUNT_ID,
@@ -196,7 +198,95 @@ export class WalletController {
         checkoutUrl: response.data?.data?.checkoutLink,
         orderReference,
       });
+    } catch (error: any) {
+      console.error(
+        "Nomba Checkout Error:",
+        error.response?.data || error.message,
+      );
 
+      return res.status(500).json({
+        success: false,
+        message: error.response?.data || "Checkout failed",
+      });
+    }
+  }
+
+  static async paymentIntent(req: Request, res: Response) {
+    try {
+      const {  amount, userId } = req.body;
+
+      const authUser = req?.user;
+      if (!authUser) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+      }
+
+      const userInDb = await db.query.user.findFirst({
+        where: eq(user.id, userId),
+      });
+
+      if (!userInDb) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+      // 2️⃣ Validate amount
+      if (!amount || isNaN(amount) || amount <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid amount",
+        });
+      }
+      // 3️⃣ Generate order reference
+      const orderReference = uuidv4();
+  
+
+  
+      const eventPlannerWallet  = await db.query.wallets.findFirst({
+        where: eq(wallets.userId, userId),
+      });
+
+
+      if(!eventPlannerWallet){
+        return res.status(404).json({
+          success: false,
+          message: "Event planner wallet not found",
+        });
+      }
+
+      // 4️⃣ Create order in DB (PENDING)
+      await db.insert(orders).values({
+        userId: userInDb?.id,
+        quantity: "0",
+        totalAmount: amount.toString(),
+        currency: "NGN",
+        orderReference,
+        status: "PENDING",
+        isPaid: false,
+        
+      });
+
+   
+      // 5️⃣ Create Nomba checkout
+      const response = await nombaApi.post("/v1/checkout/order", {
+        order: {
+          orderReference,
+          callbackUrl: `jollyhq://payment-success?ref=${orderReference}`,
+          customerEmail: userInDb.email,
+          amount: amount.toFixed(2),
+          currency: "NGN",
+          accountId: eventPlannerWallet.accountId || process.env.NOMBA_ACCOUNT_ID,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        checkoutUrl: response.data?.data?.checkoutLink,
+        orderReference,
+      });
     } catch (error: any) {
       console.error(
         "Nomba Checkout Error:",

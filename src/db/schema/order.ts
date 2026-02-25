@@ -30,12 +30,11 @@ export const orders = pgTable("orders", {
 
   // FK → events.id
   eventId: uuid("event_id")
-    .notNull()
+  
     .references(() => events.id, { onDelete: "cascade" }),
 
   // FK → event_tickets.id
   ticketId: uuid("ticket_id")
-    .notNull()
     .references(() => eventTickets.id, { onDelete: "cascade" }),
 
   quantity: numeric("quantity").notNull().default("1"),

@@ -7,17 +7,17 @@ import {
   uuid,
   real,
 } from "drizzle-orm/pg-core";
-import { user as  profiles } from "./profiles";
+import { user as profiles } from "./profiles";
 
 export const wallets = pgTable("wallets", {
   id: uuid("id").defaultRandom().primaryKey(),
 
   // polymorphic owner
-userId: uuid("user_id")
+  userId: uuid("user_id")
     .references(() => profiles.id, { onDelete: "cascade" })
     .notNull(),
 
-accountId:varchar("account_id"),
+  accountId: varchar("account_id"),
   balance: real("balance").default(0).notNull(),
   currency: varchar("currency", { length: 10 }).default("NGN"),
 
@@ -31,3 +31,9 @@ accountId:varchar("account_id"),
 export type Wallet = InferModel<typeof wallets>;
 export type NewWallet = InferModel<typeof wallets, "insert">;
 
+export const walletsRelations = relations(wallets, ({ one }) => ({
+  user: one(profiles, {
+    fields: [wallets.userId],
+    references: [profiles.id],
+  }),
+}));
