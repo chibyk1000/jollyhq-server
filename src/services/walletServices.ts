@@ -1,237 +1,226 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from "axios";
+import { db } from "../db";
+import { wallets, walletTransactions, withdrawalRequests } from "../db/schema";
+import { and, desc, eq } from "drizzle-orm";
 
-/* ======================================================
- * Types
- * ===================================================== */
+export type WalletOwnerType = "event_planner" | "vendor";
+export type CreditSource = "ticket_sale" | "vendor_payment";
+export type DebitSource = "withdrawal_payout" | "refund_reversal";
 
-export interface WalletAccessTokenResponse {
-  code: string;
-  description: string;
-  data: AccessTokenData;
-}
-
-export interface AccessTokenData {
-  businessId: string;
-  access_token: string;
-  refresh_token: string;
-  expiresAt: string;
-}
-
-export interface BankAccountResponse {
-  code: string;
-  description: string;
-  message: string;
-  status: boolean;
-  data: BankAccountData;
-}
-
-export interface BankAccountData {
-  createdAt: string;
-  bankAccountNumber: string;
-  bankAccountName: string;
-  bankName: string;
-  accountRef: string;
-  accountHolderId: string;
-  accountName: string;
-  currency: "NGN" | string;
-  bvn: string;
-  expired: boolean;
-}
-
-export interface SecureAuthenticationData {
-  jwt: string;
-  md: string;
-  acsUrl: string;
-  termUrl: string;
-}
-
-export interface TransactionResponseData {
-  status: string; // "true" or "false" as string
-  message: string;
-  responseCode: string;
-  transactionId: string;
-  secureAuthenticationData: SecureAuthenticationData;
-}
-
-export interface TransactionResponse {
-  code: string; // e.g., "00"
-  description: string; // e.g., "Success"
-  data: TransactionResponseData;
-}
-
-declare module "axios" {
-  export interface AxiosRequestConfig {
-    skipAuth?: boolean;
-  }
-}
-
-/* ======================================================
- * Wallet Service
- * ===================================================== */
-
-class WalletService {
-  private readonly apiKey: string;
-  private readonly accountId: string;
-  private readonly clientId: string;
-  private readonly baseUrl = "https://sandbox.nomba.com";
-
-  private accessToken: string | null = null;
-  private refreshToken: string | null = null;
-  private expiresAt: number | null = null;
-
-  private http: AxiosInstance;
-
-  constructor() {
-    this.apiKey = process.env.NOMBA_PRIVATE_KEY ?? "";
-    this.accountId = process.env.NOMBA_ACCOUNT_ID ?? "";
-    this.clientId = process.env.NOMBA_CLIENT_ID ?? "";
-
-    if (!this.apiKey || !this.accountId || !this.clientId) {
-      throw new Error("Missing NOMBA environment variables");
-    }
-
-    this.http = axios.create({
-      baseURL: this.baseUrl,
-      headers: {
-        accountId: this.accountId,
-      },
+export default class WalletService {
+  // ── Get or create ─────────────────────────────────────────────────────────
+  static async getOrCreate(userId: string, ownerType: WalletOwnerType) {
+    const existing = await db.query.wallets.findFirst({
+      where: and(eq(wallets.userId, userId), eq(wallets.ownerType, ownerType)),
     });
 
-    this.setupInterceptors();
+    if (existing) return existing;
+
+    const [wallet] = await db
+      .insert(wallets)
+      .values({ userId, ownerType, balance: 0, currency: "NGN" })
+      .returning();
+
+    return wallet;
   }
 
-  /* ======================================================
-   * Interceptors
-   * ===================================================== */
-
-  private setupInterceptors() {
-    this.http.interceptors.request.use(async (config) => {
-      if (!config.skipAuth) {
-        await this.ensureValidToken();
-
-        if (this.accessToken) {
-          config.headers = {
-            ...config.headers,
-            Authorization: `Bearer ${this.accessToken}`,
-          } as any;
-        }
-      }
-
-      return config;
-    });
-
-    this.http.interceptors.response.use(
-      (res) => res,
-      async (error: AxiosError) => {
-        const originalRequest = error.config as AxiosRequestConfig & {
-          _retry?: boolean;
-        };
-
-        if (error.response?.status === 401 && !originalRequest?._retry) {
-          originalRequest._retry = true;
-
-          await this.issueAccessToken();
-
-          originalRequest.headers = {
-            ...originalRequest.headers,
-            Authorization: `Bearer ${this.accessToken}`,
-          };
-
-          return this.http(originalRequest);
-        }
-
-        return Promise.reject(error);
-      },
-    );
-  }
-
-  /* ======================================================
-   * Token helpers
-   * ===================================================== */
-
-  private isTokenExpired() {
-    if (!this.expiresAt) return true;
-    return Date.now() >= this.expiresAt;
-  }
-
-  private async ensureValidToken() {
-    if (this.accessToken && !this.isTokenExpired()) return;
-    await this.issueAccessToken();
-  }
-
-  private saveTokenData(data: AccessTokenData) {
-    this.accessToken = data.access_token;
-    this.refreshToken = data.refresh_token;
-    this.expiresAt = new Date(data.expiresAt).getTime() - 30_000;
-  }
-
-  /* ======================================================
-   * Auth
-   * ===================================================== */
-
-  async issueAccessToken(): Promise<void> {
-    const { data } = await this.http.post<WalletAccessTokenResponse>(
-      "/v1/auth/token/issue",
-      {
-        grant_type: "client_credentials",
-        client_id: this.clientId,
-        client_secret: this.apiKey,
-      },
-      { skipAuth: true },
-    );
-
-    this.saveTokenData(data.data);
-  }
-
-  async revokeAccessToken(): Promise<void> {
-    if (!this.refreshToken || !this.accessToken) return;
-
-    await this.http.post(
-      "/v1/auth/token/revoke",
-      { refresh_token: this.refreshToken },
-      {
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
+  // ── Get single wallet with history ────────────────────────────────────────
+  static async getWithHistory(userId: string, ownerType: WalletOwnerType) {
+    return db.query.wallets.findFirst({
+      where: and(eq(wallets.userId, userId), eq(wallets.ownerType, ownerType)),
+      with: {
+        transactions: {
+          orderBy: (t: any, { desc }: any) => [desc(t.createdAt)],
+          limit: 20,
+        },
+        withdrawals: {
+          orderBy: (w: any, { desc }: any) => [desc(w.createdAt)],
+          limit: 10,
         },
       },
-    );
-
-    this.accessToken = null;
-    this.refreshToken = null;
-    this.expiresAt = null;
+    });
   }
 
-  /* ======================================================
-   * Virtual Accounts
-   * ===================================================== */
-
-  async createVirtualAccount(
-    accountName: string,
-    accountRef: string,
-  ): Promise<BankAccountData> {
-    const { data } = await this.http.post<BankAccountResponse>(
-      "/v1/accounts/virtual",
-      {
-        accountName,
-        accountRef,
+  // ── Get all wallets for a user (planner + vendor if both exist) ───────────
+  static async getAllWallets(userId: string) {
+    return db.query.wallets.findMany({
+      where: eq(wallets.userId, userId),
+      with: {
+        transactions: {
+          orderBy: (t: any, { desc }: any) => [desc(t.createdAt)],
+          limit: 5, // recent snapshot per wallet
+        },
+        withdrawals: {
+          orderBy: (w: any, { desc }: any) => [desc(w.createdAt)],
+          limit: 3,
+        },
       },
-    );
-
-    return data.data;
+    });
   }
 
-  async addCreditCard( card:{
-  cardCVV:number,
-  cardExpiryMonth: number,
-  cardExpiryYear: number,
-  cardNumber: string,
-  cardPin: number
-}
-) {
-    const res = await this.http.post("/v1/checkout/checkout-card-detail", card);
-    return res.data as TransactionResponse;
+  // ── Credit ────────────────────────────────────────────────────────────────
+  static async credit(params: {
+    userId: string;
+    ownerType: WalletOwnerType;
+    amount: number;
+    source: CreditSource;
+    reference: string;
+    narration?: string;
+  }) {
+    const wallet = await db.query.wallets.findFirst({
+      where: and(
+        eq(wallets.userId, params.userId),
+        eq(wallets.ownerType, params.ownerType),
+      ),
+    });
 
+    if (!wallet)
+      throw new Error(
+        `No ${params.ownerType} wallet for user ${params.userId}`,
+      );
+    if (!wallet.isActive) throw new Error("Wallet is inactive");
+
+    const balanceBefore = wallet.balance;
+    const balanceAfter = balanceBefore + params.amount;
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(wallets)
+        .set({ balance: balanceAfter })
+        .where(
+          and(
+            eq(wallets.userId, params.userId),
+            eq(wallets.ownerType, params.ownerType),
+          ),
+        );
+
+      await tx.insert(walletTransactions).values({
+        walletId: wallet.id,
+        type: "credit",
+        source: params.source,
+        amount: params.amount,
+        balanceBefore,
+        balanceAfter,
+        reference: params.reference,
+        narration: params.narration ?? "Credit",
+      });
+    });
+
+    return balanceAfter;
+  }
+
+  // ── Debit ─────────────────────────────────────────────────────────────────
+  static async debit(params: {
+    userId: string;
+    ownerType: WalletOwnerType;
+    amount: number;
+    source: DebitSource;
+    reference: string;
+    narration?: string;
+  }) {
+    const wallet = await db.query.wallets.findFirst({
+      where: and(
+        eq(wallets.userId, params.userId),
+        eq(wallets.ownerType, params.ownerType),
+      ),
+    });
+
+    if (!wallet) throw new Error("Wallet not found");
+    if (!wallet.isActive) throw new Error("Wallet is inactive");
+    if (wallet.balance < params.amount) throw new Error("Insufficient balance");
+
+    const balanceBefore = wallet.balance;
+    const balanceAfter = balanceBefore - params.amount;
+
+    await db.transaction(async (tx) => {
+      await tx
+        .update(wallets)
+        .set({ balance: balanceAfter })
+        .where(
+          and(
+            eq(wallets.userId, params.userId),
+            eq(wallets.ownerType, params.ownerType),
+          ),
+        );
+
+      await tx.insert(walletTransactions).values({
+        walletId: wallet.id,
+        type: "debit",
+        source: params.source,
+        amount: params.amount,
+        balanceBefore,
+        balanceAfter,
+        reference: params.reference,
+        narration: params.narration ?? "Debit",
+      });
+    });
+
+    return balanceAfter;
+  }
+
+  // ── Request withdrawal ────────────────────────────────────────────────────
+  static async requestWithdrawal(params: {
+    userId: string;
+    ownerType: WalletOwnerType;
+    amount: number;
+    bankCode: string;
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+    narration?: string;
+  }) {
+    const wallet = await db.query.wallets.findFirst({
+      where: and(
+        eq(wallets.userId, params.userId),
+        eq(wallets.ownerType, params.ownerType),
+      ),
+    });
+
+    if (!wallet) throw new Error("Wallet not found");
+    if (!wallet.isActive) throw new Error("Wallet is inactive");
+    if (wallet.balance < params.amount) throw new Error("Insufficient balance");
+
+    // Block if a pending withdrawal already exists for this wallet
+    const pending = await db.query.withdrawalRequests.findFirst({
+      where: and(
+        eq(withdrawalRequests.walletId, wallet.id),
+        eq(withdrawalRequests.status, "pending"),
+      ),
+    });
+
+    if (pending) {
+      throw new Error(
+        "A pending withdrawal request already exists for this wallet",
+      );
+    }
+
+    const [request] = await db
+      .insert(withdrawalRequests)
+      .values({
+        walletId: wallet.id,
+        amount: params.amount,
+        status: "pending",
+        bankCode: params.bankCode,
+        bankName: params.bankName,
+        accountNumber: params.accountNumber,
+        accountName: params.accountName,
+        narration: params.narration ?? "Withdrawal request",
+      })
+      .returning();
+
+    return request;
+  }
+
+  // ── Get withdrawal history for one wallet ─────────────────────────────────
+  static async getWithdrawals(userId: string, ownerType: WalletOwnerType) {
+    const wallet = await db.query.wallets.findFirst({
+      where: and(eq(wallets.userId, userId), eq(wallets.ownerType, ownerType)),
+    });
+
+    if (!wallet) throw new Error("Wallet not found");
+
+    return db.query.withdrawalRequests.findMany({
+      where: eq(withdrawalRequests.walletId, wallet.id),
+      orderBy: (w, { desc }) => [desc(w.createdAt)],
+    });
   }
 }
-
-export default WalletService;

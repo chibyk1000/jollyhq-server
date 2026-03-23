@@ -1,0 +1,1 @@
+ALTER TABLE "wallets" ALTER COLUMN "owner_type" DROP NOT NULL;

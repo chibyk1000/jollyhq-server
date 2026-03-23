@@ -10,12 +10,14 @@ import settingsRoutes from "./settings"
 import authRoutes from "./auth"
 import walletRoutes from "./payments"
 import ordersRoutes from "./orders"
+import bookingRoutes from "./bookings";
 const router = Router()
-
+// app.ts / index.ts
+router.use("/bookings", bookingRoutes);
 router.use("/users",   usersRoutes)
 router.use("/orders",   ordersRoutes)
 router.use("/auth",   authRoutes)
-router.use("/payments",   walletRoutes)
+router.use("/wallets",   walletRoutes)
 router.use("/vendors",   vendor)
 router.use("/vendor-services",   vendorServicesRoutes)
 router.use("/settings",   settingsRoutes)

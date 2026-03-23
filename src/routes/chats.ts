@@ -11,6 +11,9 @@ const router = express.Router();
 // Get all chats user belongs to
 router.get("/", verifyToken, ChatController.getMyChats);
 
+// Get single chat by ID
+router.post("/direct", verifyToken, ChatController.findOrCreateDirectChat)
+router.get("/:chatId", verifyToken, ChatController.getChatById);
 /* -------------------------
    CHAT MESSAGES
 -------------------------- */

@@ -57,6 +57,41 @@
       "when": 1771979284088,
       "tag": "0007_cold_dreaming_celestial",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1773929511774,
+      "tag": "0008_chilly_ben_parker",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773960054317,
+      "tag": "0009_condemned_trish_tilby",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774212644227,
+      "tag": "0010_mixed_post",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1774212927615,
+      "tag": "0012_cultured_scourge",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1774213045439,
+      "tag": "0013_unknown_zarda",
+      "breakpoints": true
     }
   ]
 }

@@ -2,18 +2,18 @@ import { Request, Response } from "express";
 import { db } from "../db";
 import { events } from "../db/schema/events";
 import { eventPlanners } from "../db/schema/eventPlanners";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { uploadToSupabase } from "../utils/upload";
 import { eventTickets } from "../db/schema/eventTickets";
 import { chatMembers } from "../db/schema/chatMembers";
 import { chats } from "../db/schema/chats";
-import { userTickets } from "../db/schema/userTickets";
-import { transactions } from "../db/schema/transactions";
+import { walletTransactions } from "../db/schema/transactions";
 import { wallets } from "../db/schema/wallet";
+import { orders } from "../db/schema/order";
 import { logger } from "../utils/logger";
 
 export class EventController {
-  // ---------------- CREATE EVENT ----------------
+  // ── CREATE EVENT ──────────────────────────────────────────────────────────
   static async createEvent(req: Request, res: Response) {
     try {
       const {
@@ -27,12 +27,10 @@ export class EventController {
       } = req.body;
 
       const user = req.user;
-
       if (!user?.id) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // ✅ Ensure user is an Event Planner
       const [planner] = await db
         .select()
         .from(eventPlanners)
@@ -45,15 +43,12 @@ export class EventController {
         });
       }
 
-      // ✅ Upload event image (if provided)
       let imageUrl: string | null = null;
       if (req.file) {
         imageUrl = await uploadToSupabase(req.file, "events/images");
       }
 
-      // ✅ TRANSACTION (Event + Chat + Admin Member)
       const result = await db.transaction(async (tx) => {
-        // 1. Create Event
         const [newEvent] = await tx
           .insert(events)
           .values({
@@ -69,7 +64,6 @@ export class EventController {
           })
           .returning();
 
-        // 2. Create Chat for Event
         const [newChat] = await tx
           .insert(chats)
           .values({
@@ -79,7 +73,6 @@ export class EventController {
           })
           .returning();
 
-        // 3. Add Event Planner as Admin
         await tx.insert(chatMembers).values({
           chatId: newChat.id,
           profileId: user.id,
@@ -96,18 +89,41 @@ export class EventController {
       });
     } catch (error: any) {
       console.error("Create Event Error:", error);
-      return res.status(500).json({
-        message: "Failed to create event",
-        error: error.message,
-      });
+      return res
+        .status(500)
+        .json({ message: "Failed to create event", error: error.message });
     }
   }
 
-  // ---------------- UPDATE EVENT ----------------
+  // ── UPDATE EVENT ──────────────────────────────────────────────────────────
   static async updateEvent(req: Request, res: Response) {
     try {
       const { eventId } = req.params;
       const updateData = req.body;
+
+      // Only the planner who owns this event may update it
+      const user = req.user;
+      if (!user?.id) return res.status(401).json({ message: "Unauthorized" });
+
+      const [planner] = await db
+        .select()
+        .from(eventPlanners)
+        .where(eq(eventPlanners.profileId, user.id));
+
+      if (!planner) {
+        return res.status(403).json({ message: "Not an event planner" });
+      }
+
+      const [existing] = await db
+        .select()
+        .from(events)
+        .where(and(eq(events.id, eventId), eq(events.plannerId, planner.id)));
+
+      if (!existing) {
+        return res
+          .status(404)
+          .json({ message: "Event not found or access denied" });
+      }
 
       if (req.file) {
         updateData.imageUrl = await uploadToSupabase(req.file, "events/images");
@@ -115,40 +131,38 @@ export class EventController {
 
       const [updated] = await db
         .update(events)
-        .set(updateData)
+        .set({ ...updateData, updatedAt: new Date() })
         .where(eq(events.id, eventId))
         .returning();
 
-      if (!updated) return res.status(404).json({ message: "Event not found" });
-
-      res.json(updated);
+      return res.json({ success: true, data: updated });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
-  // ---------------- GET ALL EVENTS ----------------
+  // ── GET ALL EVENTS ────────────────────────────────────────────────────────
   static async getAllEvents(req: Request, res: Response) {
     try {
       const result = await db.execute(sql`
-        SELECT 
-          e.id AS "eventId",
+        SELECT
+          e.id                      AS "eventId",
           e.name,
           e.category,
-          e.event_type AS "eventType",
-          e.image_url AS "imageUrl",
+          e.event_type              AS "eventType",
+          e.image_url               AS "imageUrl",
           e.location,
-          e.event_date AS "eventDate",
-          e.event_time AS "eventTime",
-          e.planner_id AS "plannerId",
+          e.event_date              AS "eventDate",
+          e.event_time              AS "eventTime",
+          e.planner_id              AS "plannerId",
           COALESCE(
             json_agg(
               json_build_object(
                 'ticketId', t.id,
-                'label', t.label,
+                'label',    t.label,
                 'quantity', t.quantity,
-                'price', t.price,
-                'isFree', t.is_free
+                'price',    t.price,
+                'isFree',   t.is_free
               )
             ) FILTER (WHERE t.id IS NOT NULL),
             '[]'
@@ -159,56 +173,64 @@ export class EventController {
         ORDER BY e.event_date DESC;
       `);
 
-      res.json({ result: result.rows });
+      return res.json({ success: true, data: result.rows });
     } catch (error: any) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
-  // ---------------- GET EVENTS BY PLANNER ----------------
+  // ── GET EVENTS BY PLANNER ─────────────────────────────────────────────────
   static async getEventsByPlanner(req: Request, res: Response) {
     try {
       const { plannerId } = req.params;
 
-      const plannerExists = await db
+      const [planner] = await db
         .select()
         .from(eventPlanners)
         .where(eq(eventPlanners.profileId, plannerId));
 
-      if (!plannerExists.length) {
+      if (!planner) {
         return res.status(404).json({ message: "Event planner not found" });
       }
 
-      const [planner] = plannerExists;
+      // Single query — no N+1
+      const result = await db.execute(sql`
+        SELECT
+          e.id                      AS "eventId",
+          e.name,
+          e.category,
+          e.event_type              AS "eventType",
+          e.image_url               AS "imageUrl",
+          e.location,
+          e.event_date              AS "eventDate",
+          e.event_time              AS "eventTime",
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'ticketId', t.id,
+                'label',    t.label,
+                'quantity', t.quantity,
+                'price',    t.price,
+                'isFree',   t.is_free
+              )
+            ) FILTER (WHERE t.id IS NOT NULL),
+            '[]'
+          ) AS tickets
+        FROM events e
+        LEFT JOIN event_tickets t ON t.event_id = e.id
+        WHERE e.planner_id = ${planner.id}
+        GROUP BY e.id
+        ORDER BY e.event_date DESC;
+      `);
 
-      // Get all events by this planner
-      const plannerEvents = await db
-        .select()
-        .from(events)
-        .where(eq(events.plannerId, planner.id));
-
-      // For each event, fetch tickets
-      const eventsWithTickets = await Promise.all(
-        plannerEvents.map(async (event) => {
-          const tickets = await db
-            .select()
-            .from(eventTickets)
-            .where(eq(eventTickets.eventId, event.id));
-
-          return {
-            ...event,
-            tickets, // attach tickets to each event
-          };
-        })
-      );
-
-      res.json({ events: eventsWithTickets });
+      return res.json({ success: true, data: result.rows });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
+  // ── GET EVENT BY ID ───────────────────────────────────────────────────────
   static async getEventById(req: Request, res: Response) {
     try {
       const { eventId } = req.params;
@@ -217,14 +239,13 @@ export class EventController {
         return res.status(400).json({ message: "Event ID is required" });
       }
 
-      // 1️⃣ Get event along with planner
       const [event] = await db
         .select({
           event: events,
           planner: {
             id: eventPlanners.id,
             profileId: eventPlanners.profileId,
-            name: eventPlanners.businessName, // if you have a name column
+            name: eventPlanners.businessName,
             image: eventPlanners.logoUrl,
           },
         })
@@ -236,29 +257,31 @@ export class EventController {
         return res.status(404).json({ message: "Event not found" });
       }
 
-      // 2️⃣ Get tickets for event
       const tickets = await db
         .select()
         .from(eventTickets)
         .where(eq(eventTickets.eventId, eventId));
 
       return res.json({
-        event: {
+        success: true,
+        data: {
           ...event.event,
           planner: event.planner,
+          tickets,
         },
-        tickets,
       });
     } catch (error: any) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
+  // ── GET EVENT OVERVIEW (planner dashboard) ────────────────────────────────
   static async getEventOverview(req: Request, res: Response) {
     try {
       const { eventId } = req.params;
-      /* ---------------- EVENT INFO ---------------- */
+
+      // ── Event ──────────────────────────────────────────────────────────────
       const [event] = await db
         .select({
           id: events.id,
@@ -271,10 +294,12 @@ export class EventController {
         })
         .from(events)
         .where(eq(events.id, eventId));
+
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
       }
-      /* ---------------- TICKETS ---------------- */
+
+      // ── Tickets ────────────────────────────────────────────────────────────
       const tickets = await db
         .select({
           id: eventTickets.id,
@@ -285,87 +310,137 @@ export class EventController {
         })
         .from(eventTickets)
         .where(eq(eventTickets.eventId, eventId));
-      /* ---------------- SOLD TICKETS ---------------- */
-      const soldTickets = await db
-        .select({
-          ticketId: userTickets.ticketId,
-          sold: sql<number>`sum(${userTickets.quantity})`,
-        })
-        .from(userTickets)
-        .groupBy(userTickets.ticketId);
-      const soldMap = Object.fromEntries(
-        soldTickets.map((t) => [t.ticketId, Number(t.sold)])
+
+      // ── Sales via orders table ─────────────────────────────────────────────
+      // Use orders (PAID status) as the source of truth for sales
+      const salesResult = await db.execute(sql`
+        SELECT
+          o.ticket_id                       AS "ticketId",
+          SUM(o.quantity::int)              AS "sold",
+          SUM(o.total_amount::numeric)      AS "revenue"
+        FROM orders o
+        WHERE o.event_id   = ${eventId}
+          AND o.status     = 'PAID'
+        GROUP BY o.ticket_id
+      `);
+
+      const salesMap = Object.fromEntries(
+        (salesResult.rows as any[]).map((r) => [
+          r.ticketId,
+          { sold: Number(r.sold), revenue: Number(r.revenue) },
+        ]),
       );
-      /* ---------------- TICKET PROGRESS ---------------- */
+
+      // ── Ticket progress ────────────────────────────────────────────────────
       const ticketProgress = tickets.map((t) => {
-        const sold = soldMap[t.id] ?? 0;
+        const { sold = 0, revenue = 0 } = salesMap[t.id] ?? {};
         const total = t.quantity;
-        const revenue = t.isFree ? 0 : sold * Number(t.price);
 
         return {
           label: t.label,
           sold,
           available: Math.max(total - sold, 0),
           total,
-          revenue,
+          revenue: t.isFree ? 0 : revenue,
           progress: total > 0 ? sold / total : 0,
         };
       });
-      /* ---------------- TICKET SUMMARY ---------------- */
+
       const ticketSummary = {
         confirmed: ticketProgress.reduce((a, b) => a + b.sold, 0),
         available: ticketProgress.reduce((a, b) => a + b.available, 0),
-        pending: 0, // no pending concept in schema yet
-        cancelled: 0, // no cancelled concept yet
+        pending: 0,
+        cancelled: 0,
       };
-      /* ---------------- PAYMENTS ---------------- */
-      const payments = await db
-        .select({
-          amount: transactions.amount,
-          status: transactions.status,
-        })
-        .from(transactions)
-        .leftJoin(wallets, eq(transactions.walletId, wallets.id))
-        
 
-      const totalPaid = payments
-        .filter((p) => p.status === "completed")
+      // ── Revenue from wallet transactions ───────────────────────────────────
+      // Find the planner's event_planner wallet
+      const plannerWallet = await db.query.wallets.findFirst({
+        where: and(
+          eq(wallets.userId, event.plannerId),
+          eq(wallets.ownerType, "event_planner"),
+        ),
+      });
+
+      const txRows = plannerWallet
+        ? await db
+            .select({
+              amount: walletTransactions.amount,
+              type: walletTransactions.type,
+              source: walletTransactions.source,
+            })
+            .from(walletTransactions)
+            .where(
+              and(
+                eq(walletTransactions.walletId, plannerWallet.id),
+                eq(walletTransactions.source, "ticket_sale"),
+              ),
+            )
+        : [];
+
+      const totalRevenue = txRows
+        .filter((t) => t.type === "credit")
         .reduce((a, b) => a + Number(b.amount), 0);
-      const escrowHeld = payments
-        .filter((p) => p.status === "pending")
-        .reduce((a, b) => a + Number(b.amount), 0);
-      /* ---------------- RESPONSE ---------------- */
+
+      // ── Order payment stats ────────────────────────────────────────────────
+      const orderStats = await db.execute(sql`
+        SELECT
+          status,
+          COUNT(*)            AS count,
+          SUM(total_amount::numeric) AS total
+        FROM orders
+        WHERE event_id = ${eventId}
+        GROUP BY status
+      `);
+
+      const statsMap = Object.fromEntries(
+        (orderStats.rows as any[]).map((r) => [
+          r.status,
+          { count: Number(r.count), total: Number(r.total) },
+        ]),
+      );
+
+      const paid = statsMap["PAID"] ?? { count: 0, total: 0 };
+      const pending = statsMap["PENDING"] ?? { count: 0, total: 0 };
+      const failed = statsMap["FAILED"] ?? { count: 0, total: 0 };
+      const cancelled = statsMap["CANCELLED"] ?? { count: 0, total: 0 };
+
+      // ── Response ───────────────────────────────────────────────────────────
       return res.json({
-        event: {
-          id: event.id,
-          name: event.name,
-          imageUrl: event.imageUrl,
-          date: event.eventDate,
-          time: event.eventTime,
-          location: event.location,
-          status: "Upcoming",
-          revenue: totalPaid,
-        },
-        stats: {
-          totalVendorsBooked: 0, // not in schema yet
-          vendorsPending: 0,
-          totalTickets: ticketSummary.confirmed,
-          payments: payments.length,
-        },
-        ticketSummary,
-        ticketProgress,
-        payment: {
-          totalPaid,
-          escrowHeld,
-          vendorBreakdown: {
-            completed: payments.filter((p) => p.status === "completed").length,
-            pending: payments.filter((p) => p.status === "pending").length,
-            cancelled: payments.filter((p) => p.status === "failed").length,
+        success: true,
+        data: {
+          event: {
+            id: event.id,
+            name: event.name,
+            imageUrl: event.imageUrl,
+            date: event.eventDate,
+            time: event.eventTime,
+            location: event.location,
+            status: "Upcoming",
+            revenue: totalRevenue,
+          },
+          stats: {
+            totalTicketsSold: ticketSummary.confirmed,
+            totalOrders: paid.count + pending.count + failed.count,
+            totalRevenue,
+          },
+          ticketSummary,
+          ticketProgress,
+          payment: {
+            totalPaid: paid.total,
+            totalPending: pending.total,
+            orderBreakdown: {
+              paid: paid.count,
+              pending: pending.count,
+              failed: failed.count,
+              cancelled: cancelled.count,
+            },
           },
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       logger.error(error);
+      return res.status(500).json({ error: error.message });
     }
   }
 }

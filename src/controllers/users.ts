@@ -3,13 +3,14 @@ import { NewUser as NewProfile, user as profiles } from "../db/schema/profiles";
 import { supabase } from "../utils/supabase";
 import { db } from "../db";
 import { uploadToSupabase } from "../utils/upload";
-import { and, desc, eq, inArray, or } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, or, sql } from "drizzle-orm";
 import { eventPlanners } from "../db/schema/eventPlanners";
 import { vendors } from "../db/schema/vendors";
 import { wallets } from "../db/schema/wallet";
 import { WALLET_OWNER_TYPES } from "../utils/constants";
-import { transactions } from "../db/schema";
+
 import { auth } from "../utils/auth";
+import { events, eventTickets, orders, favoriteEvents } from "../db/schema";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
@@ -299,76 +300,183 @@ export class UserControllers {
       return res.status(500).json({ error: "Server error" });
     }
   }
-
-  static async getMyWallet(req: Request, res: Response) {
+  static async getUserDashboard(req: Request, res: Response) {
     try {
-      const userId = req.user?.id as string;
+      const userId = req.user?.id;
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
+      // ── 1. Profile ────────────────────────────────────────────────────────
+      const [user] = await db
+        .select({
+          id: profiles.id,
+          firstName: profiles.firstName,
+          lastName: profiles.lastName,
+          username: profiles.username,
+          image: profiles.image,
+          email: profiles.email,
+        })
+        .from(profiles)
+        .where(eq(profiles.id, userId));
 
-      /* =========================
-       1️⃣ Fetch user's wallet
-    ========================= */
-      const wallet = await db.query.wallets.findFirst({
-        where: and(eq(wallets.userId, userId)),
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      // ── 2. Tickets purchased ──────────────────────────────────────────────
+      const userOrders = await db
+        .select({
+          id: orders.id,
+          quantity: orders.quantity,
+          totalAmount: orders.totalAmount,
+          status: orders.status,
+          createdAt: orders.createdAt,
+          eventId: orders.eventId,
+          ticketId: orders.ticketId,
+          // Event info
+          eventName: events.name,
+          eventDate: events.eventDate,
+          eventImage: events.imageUrl,
+          eventLocation: events.location,
+          // Ticket info
+          ticketLabel: eventTickets.label,
+        })
+        .from(orders)
+        .innerJoin(events, eq(events.id, orders.eventId))
+        .leftJoin(eventTickets, eq(eventTickets.id, orders.ticketId))
+        .where(and(eq(orders.userId, userId), eq(orders.status, "PAID")))
+        .orderBy(desc(orders.createdAt))
+        .limit(20);
+
+      // ── 3. Stats ──────────────────────────────────────────────────────────
+      const [ticketStats] = await db
+        .select({
+          totalTickets: sql<number>`COALESCE(SUM(${orders.quantity}::int), 0)`,
+          totalSpent: sql<number>`COALESCE(SUM(${orders.totalAmount}::numeric), 0)`,
+          totalOrders: sql<number>`COUNT(*)`,
+        })
+        .from(orders)
+        .where(and(eq(orders.userId, userId), eq(orders.status, "PAID")));
+
+      // ── 4. Upcoming events the user has a ticket for ───────────────────────
+      const upcomingUserEvents = userOrders
+        .filter((o) => o.eventDate && new Date(o.eventDate) > new Date())
+        .slice(0, 5)
+        .map((o) => ({
+          orderId: o.id,
+          eventId: o.eventId,
+          eventName: o.eventName,
+          eventDate: o.eventDate,
+          eventImage: o.eventImage,
+          eventLocation: o.eventLocation,
+          ticketLabel: o.ticketLabel,
+          quantity: o.quantity,
+        }));
+
+      // ── 5. Past events attended ───────────────────────────────────────────
+      const pastEvents = userOrders
+        .filter((o) => o.eventDate && new Date(o.eventDate) <= new Date())
+        .slice(0, 5)
+        .map((o) => ({
+          orderId: o.id,
+          eventId: o.eventId,
+          eventName: o.eventName,
+          eventDate: o.eventDate,
+          eventImage: o.eventImage,
+          eventLocation: o.eventLocation,
+          ticketLabel: o.ticketLabel,
+          quantity: o.quantity,
+        }));
+
+      // ── 6. Favourites ─────────────────────────────────────────────────────
+      const userFavourites = await db
+        .select({
+          eventId: events.id,
+          eventName: events.name,
+          eventDate: events.eventDate,
+          eventImage: events.imageUrl,
+          eventLocation: events.location,
+          category: events.category,
+        })
+        .from(favoriteEvents)
+        .innerJoin(events, eq(events.id, favoriteEvents.eventId))
+        .where(eq(favoriteEvents.userId, userId))
+        .orderBy(desc(favoriteEvents.createdAt))
+        .limit(6);
+
+      // ── 7. Recent spend per month (for mini chart) ────────────────────────
+      const spendMonthly = await db
+        .select({
+          month: sql<number>`EXTRACT(MONTH FROM ${orders.createdAt})`,
+          spent: sql<number>`COALESCE(SUM(${orders.totalAmount}::numeric), 0)`,
+          tickets: sql<number>`COALESCE(SUM(${orders.quantity}::int), 0)`,
+        })
+        .from(orders)
+        .where(
+          and(
+            eq(orders.userId, userId),
+            eq(orders.status, "PAID"),
+            gte(orders.createdAt, sql`NOW() - INTERVAL '6 months'`),
+          ),
+        )
+        .groupBy(sql`EXTRACT(MONTH FROM ${orders.createdAt})`)
+        .orderBy(asc(sql`EXTRACT(MONTH FROM ${orders.createdAt})`));
+
+      const MONTHS = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      const spendChart = MONTHS.map((month, i) => {
+        const match = spendMonthly.find((r) => Number(r.month) === i + 1);
+        return {
+          month,
+          spent: Number(match?.spent ?? 0),
+          tickets: Number(match?.tickets ?? 0),
+        };
       });
 
-      /* =========================
-       2️⃣ If no wallet → ask to create
-    ========================= */
-      if (!wallet) {
-        return res.json({
-          wallet: null,
-          transactions: [],
-          needsWallet: true,
-          message: "User does not have a wallet. Prompt wallet creation.",
-        });
-      }
+      // ── 8. Role flags ─────────────────────────────────────────────────────
+      const [vendorProfile] = await db
+        .select({ id: vendors.id })
+        .from(vendors)
+        .where(eq(vendors.userId, userId));
+      const [plannerProfile] = await db
+        .select({ id: eventPlanners.id })
+        .from(eventPlanners)
+        .where(eq(eventPlanners.profileId, userId));
 
-      /* =========================
-       3️⃣ Fetch wallet transactions
-    ========================= */
-      const transactionsRecords = await db.query.transactions.findMany({
-        where: eq(transactions.walletId, wallet.id),
-        orderBy: (t) => desc(t.createdAt),
-        limit: 20,
-      });
-
-      /* =========================
-       4️⃣ Serialize
-    ========================= */
-      const serializedWallet = {
-        id: wallet.id,
-        balance: wallet.balance,
-        currency: wallet.currency,
-        ownerId: wallet.userId,
-      };
-
-      const serializedTransactions = transactionsRecords.map((tx) => ({
-        id: tx.id,
-        walletId: tx.walletId,
-        amount: tx.amount,
-        description: tx.description,
-        status: tx.status,
-        createdAt: tx.createdAt,
-      }));
-
-      /* =========================
-       5️⃣ Response
-    ========================= */
       return res.json({
-        wallet: serializedWallet,
-        transactions: serializedTransactions,
-        needsWallet: false,
-        summary: {
-          balance: wallet.balance,
-          currency: wallet.currency,
-          transactionCount: transactionsRecords.length,
+        user,
+        stats: {
+          totalTickets: Number(ticketStats.totalTickets ?? 0),
+          totalSpent: Number(ticketStats.totalSpent ?? 0),
+          totalOrders: Number(ticketStats.totalOrders ?? 0),
+          eventsAttended: pastEvents.length,
+          upcomingCount: upcomingUserEvents.length,
+          favouritesCount: userFavourites.length,
+        },
+        upcomingEvents: upcomingUserEvents,
+        pastEvents,
+        favourites: userFavourites,
+        spendChart,
+        roles: {
+          isVendor: Boolean(vendorProfile),
+          isPlanner: Boolean(plannerProfile),
         },
       });
-    } catch (error) {
-      console.error("GET MY WALLET ERROR:", error);
+    } catch (error: any) {
+      console.error("User dashboard error:", error);
       return res.status(500).json({
-        message: "Failed to fetch wallet",
+        message: "Failed to load user dashboard",
+        error: error.message,
       });
     }
   }

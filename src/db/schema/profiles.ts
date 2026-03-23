@@ -11,6 +11,7 @@ import {
 import { wallets } from "./wallet";
 import { session } from "./sessions";
 import { account } from "./account";
+import { chats } from "./chats";
 
 /* =========================
    USER TABLE
@@ -71,4 +72,5 @@ export const userRelations = relations(user, ({ one, many }) => ({
   }),
   sessions: many(session),
   accounts: many(account),
+  chats:many(chats)
 }));

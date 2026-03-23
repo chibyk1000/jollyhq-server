@@ -74,27 +74,27 @@ export const auth = betterAuth({
         };
       }
     }),
-    after: createAuthMiddleware(async (ctx) => {
-      // console.log(ctx.headers);
-      try {
-        if (ctx.path === "/sign-up/email") {
-          const returned = ctx.context.returned as any;
-          await db.transaction(async (tx) => {
-            const newWallet = await walletServices.createVirtualAccount(
-              `${ctx.body.name} ${ctx.body.lastName}`,
-              `JOLLYHQ-${Date.now()}`,
-            );
+    // after: createAuthMiddleware(async (ctx) => {
+    //   // console.log(ctx.headers);
+    //   try {
+    //     if (ctx.path === "/sign-up/email") {
+    //       const returned = ctx.context.returned as any;
+    //       await db.transaction(async (tx) => {
+    //         const newWallet = await walletServices.createVirtualAccount(
+    //           `${ctx.body.name} ${ctx.body.lastName}`,
+    //           `JOLLYHQ-${Date.now()}`,
+    //         );
 
-            await tx.insert(wallets).values({
-              userId: returned.user.id,
-              accountId: newWallet.accountHolderId,
-            });
-          });
-        }
-      } catch (error) {
-        console.log("reet", error);
-      }
-    }),
+    //         await tx.insert(wallets).values({
+    //           userId: returned.user.id,
+    //           accountId: newWallet.accountHolderId,
+    //         });
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.log("reet", error);
+    //   }
+    // }),
   },
   trustedOrigins: [
     "jollyhq://",

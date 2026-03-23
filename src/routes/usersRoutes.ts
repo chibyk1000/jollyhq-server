@@ -15,7 +15,7 @@ router.post(
 );
 router.get("/events/trending", TrendingEventsController.getTrendingEvents);
 router.get("/events/favorites/", verifyToken, FavoriteController.getFavorites);
-router.get("/wallets", verifyToken, UserControllers.getMyWallet);
+// router.get("/wallets", verifyToken, UserControllers.getMyWallet);
 router.get("/events/tickets", verifyToken, TicketController.getTicketsByUser);
 router.post(
   "/favorites/:eventId/",

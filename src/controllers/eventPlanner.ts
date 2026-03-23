@@ -2,24 +2,25 @@ import { Request, Response } from "express";
 import { uploadToSupabase } from "../utils/upload";
 import { db } from "../db";
 import { eventPlanners } from "../db/schema/eventPlanners";
-import { eq } from "drizzle-orm";
-import { WalletController } from "./walletController";
+import { and, eq } from "drizzle-orm";
 import { logger } from "../utils/logger";
 import { wallets } from "../db/schema/wallet";
+import WalletService from "../services/walletServices";
 
 export class EventPlannerControllers {
+  // ── CREATE ────────────────────────────────────────────────────────────────
   static async createEventPlanner(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-      // Check if user already has a profile
-      const existingPlanner = await db
+      // Guard: one profile per user
+      const [existing] = await db
         .select()
         .from(eventPlanners)
         .where(eq(eventPlanners.profileId, userId));
 
-      if (existingPlanner.length > 0) {
+      if (existing) {
         return res
           .status(400)
           .json({ message: "Event planner profile already exists" });
@@ -42,64 +43,70 @@ export class EventPlannerControllers {
         twitter,
       } = req.body;
 
-      if (!businessName)
+      if (!businessName) {
         return res.status(400).json({ message: "Business name is required" });
+      }
 
-      // FILES
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-      let logoUrl: string | null = null;
-      let idDocumentUrl: string | null = null;
-      let businessDocumentUrl: string | null = null;
+      const [logoUrl, idDocumentUrl, businessDocumentUrl] = await Promise.all([
+        files?.logo?.[0]
+          ? uploadToSupabase(files.logo[0], "logos")
+          : Promise.resolve(null),
+        files?.idDocument?.[0]
+          ? uploadToSupabase(files.idDocument[0], "kyc/user-id")
+          : Promise.resolve(null),
+        files?.businessDocument?.[0]
+          ? uploadToSupabase(files.businessDocument[0], "kyc/business-docs")
+          : Promise.resolve(null),
+      ]);
 
-      if (files?.logo?.[0])
-        logoUrl = await uploadToSupabase(files.logo[0], "logos");
+      // Create planner profile + wallet atomically
+      const { planner, wallet } = await db.transaction(async (tx) => {
+        const [planner] = await tx
+          .insert(eventPlanners)
+          .values({
+            profileId: userId,
+            businessName,
+            businessEmail,
+            businessPhone,
+            address,
+            city,
+            state,
+            country,
+            postalCode,
+            website,
+            nin,
+            bvn,
+            instagram,
+            facebook,
+            twitter,
+            logoUrl,
+            idDocumentUrl,
+            businessDocumentUrl,
+          })
+          .returning();
 
-      if (files?.idDocument?.[0])
-        idDocumentUrl = await uploadToSupabase(
-          files.idDocument[0],
-          "kyc/user-id",
-        );
+        // Provision event_planner wallet inside the same transaction
+        const [wallet] = await tx
+          .insert(wallets)
+          .values({
+            userId,
+            ownerType: "event_planner",
+            balance: 0,
+            currency: "NGN",
+          })
+          .returning();
 
-      if (files?.businessDocument?.[0])
-        businessDocumentUrl = await uploadToSupabase(
-          files.businessDocument[0],
-          "kyc/business-docs",
-        );
+        return { planner, wallet };
+      });
 
-      // Insert Event Planner into DB
-      const [planner] = await db
-        .insert(eventPlanners)
-        .values({
-          profileId: userId,
-          businessName,
-          businessEmail,
-          businessPhone,
-          address,
-          city,
-          state,
-          country,
-          postalCode,
-          website,
-          nin,
-          bvn,
-          instagram,
-          facebook,
-          twitter,
-          logoUrl,
-          idDocumentUrl,
-          businessDocumentUrl,
-        })
-        .returning();
-
-      // Create wallet for the new event planner
-
-      return res.status(200).json({
+      return res.status(201).json({
         message: "Event planner profile created",
-        data: planner,
+        data: { ...planner, wallet },
       });
     } catch (error: any) {
-      console.error(error);
+      console.error("Create event planner error:", error);
       return res.status(500).json({
         message: "Failed to create event planner profile",
         error: error.message,
@@ -107,28 +114,35 @@ export class EventPlannerControllers {
     }
   }
 
-  // GET ONE
+  // ── GET ONE ───────────────────────────────────────────────────────────────
   static async getEventPlanner(req: Request, res: Response) {
     try {
       const { id } = req.params;
 
-      const data = await db
+      const [data] = await db
         .select({
-          eventPlanner: eventPlanners,
+          planner: eventPlanners,
           wallet: wallets,
         })
         .from(eventPlanners)
-        .leftJoin(wallets, eq(wallets.userId, eventPlanners.profileId))
+        .leftJoin(
+          wallets,
+          and(
+            eq(wallets.userId, eventPlanners.profileId),
+            eq(wallets.ownerType, "event_planner"),
+          ),
+        )
         .where(eq(eventPlanners.profileId, id));
 
-      if (data.length === 0) {
+      if (!data) {
         return res.status(404).json({ message: "Event planner not found" });
       }
 
       return res.status(200).json({
-        event_planner: {
-          ...data[0].eventPlanner,
-          wallet: data[0].wallet ?? null,
+        success: true,
+        data: {
+          ...data.planner,
+          wallet: data.wallet ?? null,
         },
       });
     } catch (error: any) {
@@ -139,69 +153,7 @@ export class EventPlannerControllers {
     }
   }
 
-  // UPDATE
-  static async updateEventPlanner(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      const userId = req.user?.id;
-
-      const body = req.body;
-      const files = req.files as Record<string, Express.Multer.File[]>;
-
-      const current = await db
-        .select()
-        .from(eventPlanners)
-        .where(eq(eventPlanners.id, id));
-
-      if (current.length === 0)
-        return res.status(404).json({ message: "Event planner not found" });
-
-      // Upload new files if provided
-      let logoUrl = current[0].logoUrl;
-      let idDocumentUrl = current[0].idDocumentUrl;
-      let businessDocumentUrl = current[0].businessDocumentUrl;
-
-      if (files?.logo?.[0])
-        logoUrl = await uploadToSupabase(files.logo[0], "logos");
-
-      if (files?.idDocument?.[0])
-        idDocumentUrl = await uploadToSupabase(
-          files.idDocument[0],
-          "kyc/user-id",
-        );
-
-      if (files?.businessDocument?.[0])
-        businessDocumentUrl = await uploadToSupabase(
-          files.businessDocument[0],
-          "kyc/business-docs",
-        );
-
-      const [updated] = await db
-        .update(eventPlanners)
-        .set({
-          ...body,
-          logoUrl,
-          idDocumentUrl,
-          businessDocumentUrl,
-        })
-        .where(eq(eventPlanners.id, id))
-        .returning();
-
-      return res.status(200).json({
-        message: "Event Planner updated",
-        data: updated,
-      });
-    } catch (error: any) {
-      console.log(error);
-
-      logger.error(error.message);
-      return res.status(500).json({
-        message: "Update failed",
-        error: error.message,
-      });
-    }
-  }
-  // GET ALL with wallet
+  // ── GET ALL ───────────────────────────────────────────────────────────────
   static async getEventPlanners(req: Request, res: Response) {
     try {
       const data = await db
@@ -209,9 +161,19 @@ export class EventPlannerControllers {
           planner: eventPlanners,
           wallet: wallets,
         })
-        .from(eventPlanners);
+        .from(eventPlanners)
+        .leftJoin(
+          wallets,
+          and(
+            eq(wallets.userId, eventPlanners.profileId),
+            eq(wallets.ownerType, "event_planner"),
+          ),
+        );
 
-      return res.status(200).json(data);
+      return res.status(200).json({
+        success: true,
+        data: data.map((d) => ({ ...d.planner, wallet: d.wallet ?? null })),
+      });
     } catch (error: any) {
       return res.status(500).json({
         message: "Failed to get event planners",
@@ -220,28 +182,104 @@ export class EventPlannerControllers {
     }
   }
 
-  // DELETE
+  // ── UPDATE ────────────────────────────────────────────────────────────────
+  static async updateEventPlanner(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const userId = req.user?.id;
+      const body = req.body;
+
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      const [current] = await db
+        .select()
+        .from(eventPlanners)
+        .where(eq(eventPlanners.id, id));
+
+      if (!current) {
+        return res.status(404).json({ message: "Event planner not found" });
+      }
+
+      // Only the owner can update their own profile
+      if (current.profileId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const files = req.files as Record<string, Express.Multer.File[]>;
+
+      const [logoUrl, idDocumentUrl, businessDocumentUrl] = await Promise.all([
+        files?.logo?.[0]
+          ? uploadToSupabase(files.logo[0], "logos")
+          : Promise.resolve(current.logoUrl),
+        files?.idDocument?.[0]
+          ? uploadToSupabase(files.idDocument[0], "kyc/user-id")
+          : Promise.resolve(current.idDocumentUrl),
+        files?.businessDocument?.[0]
+          ? uploadToSupabase(files.businessDocument[0], "kyc/business-docs")
+          : Promise.resolve(current.businessDocumentUrl),
+      ]);
+
+      const [updated] = await db
+        .update(eventPlanners)
+        .set({
+          ...body,
+          logoUrl,
+          idDocumentUrl,
+          businessDocumentUrl,
+          updatedAt: new Date(),
+        })
+        .where(eq(eventPlanners.id, id))
+        .returning();
+
+      return res.status(200).json({
+        success: true,
+        message: "Event planner updated",
+        data: updated,
+      });
+    } catch (error: any) {
+      logger.error(error.message);
+      return res
+        .status(500)
+        .json({ message: "Update failed", error: error.message });
+    }
+  }
+
+  // ── DELETE ────────────────────────────────────────────────────────────────
   static async deleteEventPlanner(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const userId = req.user?.id;
+
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      const [current] = await db
+        .select()
+        .from(eventPlanners)
+        .where(eq(eventPlanners.id, id));
+
+      if (!current) {
+        return res.status(404).json({ message: "Event planner not found" });
+      }
+
+      // Only the owner can delete their own profile
+      if (current.profileId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
 
       const [deleted] = await db
         .delete(eventPlanners)
         .where(eq(eventPlanners.id, id))
         .returning();
 
-      if (!deleted)
-        return res.status(404).json({ message: "Event planner not found" });
-
       return res.status(200).json({
+        success: true,
         message: "Event planner deleted",
         data: deleted,
       });
     } catch (error: any) {
-      return res.status(500).json({
-        message: "Delete failed",
-        error: error.message,
-      });
+      return res
+        .status(500)
+        .json({ message: "Delete failed", error: error.message });
     }
   }
 }

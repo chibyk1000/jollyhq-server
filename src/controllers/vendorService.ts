@@ -80,7 +80,8 @@ export const getAllVendorServices = async (_req: Request, res: Response) => {
           id: vendors.id,
           businessName: vendors.businessName,
           logo: vendors.image,
-            phone: vendors.contactPhone,
+          phone: vendors.contactPhone,
+          userId:vendors.userId
           
         },
       })

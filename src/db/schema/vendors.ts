@@ -58,8 +58,10 @@ export const vendors = pgTable("vendors", {
 
 export const vendorRelations = relations(vendors, ({ many, one }) => ({
   services: many(vendorServices),
-
+  wallet: one(wallets, {
+    fields: [vendors.userId],
+    references: [wallets.userId],
+  }),
 }));
-
 
 export type Vendors = InferModel<typeof vendors>;
