@@ -17626,3 +17626,12 @@
 {"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-03-23T06:10:13.953Z"}
 {"level":"info","message":"::1 - - [23/Mar/2026:06:10:15 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-23T06:10:15.326Z"}
 {"level":"info","message":"::ffff:127.0.0.1 - - [23/Mar/2026:06:10:15 +0000] \"GET /api/chats HTTP/1.1\" 304 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-23T06:10:15.384Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-03-24T19:09:21.504Z"}
+{"level":"info","message":"::1 - - [24/Mar/2026:19:09:34 +0000] \"POST /api/auth/sign-up/email HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-24T19:09:34.410Z"}
+{"level":"info","message":"::1 - - [24/Mar/2026:19:09:34 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-24T19:09:34.513Z"}
+{"level":"info","message":"::1 - - [24/Mar/2026:19:16:16 +0000] \"POST /api/auth/email-otp/send-verification-otp HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-24T19:16:16.266Z"}
+{"level":"info","message":"🚀 Server listening on port 8000","timestamp":"2026-03-24T19:17:35.152Z"}
+{"level":"info","message":"::1 - - [24/Mar/2026:19:19:19 +0000] \"POST /api/auth/sign-up/email HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-24T19:19:19.386Z"}
+{"level":"info","message":"::1 - - [24/Mar/2026:19:19:19 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-24T19:19:19.618Z"}
+{"level":"info","message":"::1 - - [24/Mar/2026:19:19:59 +0000] \"POST /api/auth/email-otp/verify-email HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-24T19:19:59.049Z"}
+{"level":"info","message":"::1 - - [24/Mar/2026:19:19:59 +0000] \"GET /api/auth/get-session HTTP/1.1\" 200 - \"-\" \"jollyhq/1 CFNetwork/3860.300.31 Darwin/24.6.0\"","timestamp":"2026-03-24T19:19:59.411Z"}

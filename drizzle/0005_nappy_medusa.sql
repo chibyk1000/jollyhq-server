@@ -1,1 +1,0 @@
-ALTER TABLE "wallets" ADD COLUMN "account_id" varchar;
