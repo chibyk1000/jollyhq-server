@@ -12,8 +12,7 @@ import { user } from "./profiles";
 export const account = pgTable(
   "account",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-
+    id: text("id").primaryKey(),
     accountId: text("account_id").notNull(),
     providerId: text("provider_id").notNull(),
     userId: uuid("user_id")
@@ -28,7 +27,7 @@ export const account = pgTable(
     password: text("password"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
-      .$onUpdate(() => new Date())
+      .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
   (table) => [index("account_userId_idx").on(table.userId)],

@@ -52,6 +52,11 @@ export const user = pgTable("user", {
     .$onUpdate(() => new Date())
     .notNull(),
   deletedAt: timestamp("deleted_at"),
+
+  role: text("role"),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
 });
 
 /* =========================

@@ -8,13 +8,15 @@
     "start": "node dist/server.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "seed": "tsx src/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
@@ -32,6 +34,7 @@
     "@better-auth/expo": "^1.4.17",
     "@hixbe/otp-pass-kit": "^2.0.2",
     "@supabase/supabase-js": "^2.86.0",
+    "bcrypt": "^6.0.0",
     "better-auth": "^1.4.17",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",

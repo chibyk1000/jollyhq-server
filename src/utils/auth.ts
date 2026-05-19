@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db";
 import { expo } from "@better-auth/expo";
 
+
 import { sendVerificationEmail } from "./mail";
 import { createAuthMiddleware } from "better-auth/api";
 import {
@@ -11,13 +12,80 @@ import {
   haveIBeenPwned,
   lastLoginMethod,
   username,
+  admin as adminPlugin,
+  createAccessControl,
 } from "better-auth/plugins";
+import { defaultStatements, adminAc } from "better-auth/plugins/admin/access";
 import { sendVerifyPhoneOTP } from "./twilio";
 import { wallets } from "../db/schema";
 import WalletService from "../services/walletServices";
 import { WalletController } from "../controllers/walletController";
 const walletServices = new WalletService();
 const wallletController = new WalletController();
+
+const statement = {
+  ...defaultStatements,
+  events: ["create", "read", "update", "delete", "share"],
+  tickets: ["create", "read", "update", "delete"],
+  orders: ["create", "read", "update", "delete"],
+  vendors: ["create", "read", "update", "delete"],
+  eventPlanners: ["create", "read", "update", "delete"],
+  wallet: ["read", "update"],
+  transactions: ["read"],
+  chats: ["create", "read", "update", "delete"],
+  messages: ["create", "read", "update", "delete"],
+  favorites: ["create", "read", "delete"],
+  vendorServices: ["create", "read", "update", "delete"],
+  vendorBooking: ["create", "read", "update", "delete"],
+  withdrawalRequests: ["create", "read", "update", "delete"],
+} as const;
+export const ac = createAccessControl(statement);
+
+
+export const user = ac.newRole({
+  events: ["create", "read"],
+  tickets: ["create", "read"],
+  orders: ["create", "read"],
+  wallet: ["read"],
+  transactions: ["read"],
+  chats: ["create", "read"],
+  messages: ["create", "read"],
+  favorites: ["create", "read", "delete"],
+});
+
+export const admin = ac.newRole({
+  ...adminAc.statements,
+  events: ["create", "read", "update", "share"],
+  tickets: ["create", "read", "update"],
+  orders: ["create", "read", "update"],
+  vendors: ["create", "read", "update"],
+  eventPlanners: ["create", "read", "update"],
+  wallet: ["read", "update"],
+  transactions: ["read"],
+  chats: ["create", "read", "update"],
+  messages: ["create", "read", "update"],
+  favorites: ["create", "read", "delete"],
+  vendorServices: ["create", "read", "update"],
+  vendorBooking: ["create", "read", "update"],
+  withdrawalRequests: ["create", "read", "update"],
+} as const);
+
+export const superadmin = ac.newRole({
+  ...adminAc.statements,
+  events: ["create", "read", "update", "delete", "share"],
+  tickets: ["create", "read", "update", "delete"],
+  orders: ["create", "read", "update", "delete"],
+  vendors: ["create", "read", "update", "delete"],
+  eventPlanners: ["create", "read", "update", "delete"],
+  wallet: ["read", "update"],
+  transactions: ["read"],
+  chats: ["create", "read", "update", "delete"],
+  messages: ["create", "read", "update", "delete"],
+  favorites: ["create", "read", "delete"],
+  vendorServices: ["create", "read", "update", "delete"],
+  vendorBooking: ["create", "read", "update", "delete"],
+  withdrawalRequests: ["create", "read", "update", "delete"],
+} as const);
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg", // "mysql" | "sqlite"
@@ -123,6 +191,15 @@ export const auth = betterAuth({
   plugins: [
     expo({ disableOriginOverride: true }),
     haveIBeenPwned({}),
+    adminPlugin({
+      ac,
+      roles: {
+        admin,
+        user,
+        superadmin,
+      },
+     defaultRole:"user"
+    }),
     username({
       usernameValidator: (username) => {
         if (username === "admin") {
@@ -142,8 +219,6 @@ export const auth = betterAuth({
     emailOTP({
       sendVerificationOnSignUp: true,
       sendVerificationOTP: async ({ email, otp, type }) => {
-    
-        
         if (type === "email-verification") {
           await sendVerificationEmail(email, "Verify Email", otp);
         } else if (type === "forget-password") {
