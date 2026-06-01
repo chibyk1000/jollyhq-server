@@ -1,46 +1,41 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { db } from "./db";
 import { user } from "./db/schema/profiles";
 import { account } from "./db/schema/account";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
+import { admin, auth, user as adminuser, superadmin } from "./utils/auth";
 
 const users = [
   {
-    email: "user1@example.com",
-    username: "user1",
-    displayUsername: "user1",
-    password: "password123",
-    firstName: "John",
-    lastName: "Doe",
-    role: "user",
-  },
-  {
-    email: "user2@example.com",
-    username: "user2",
-    displayUsername: "user2",
-    password: "password123",
-    firstName: "Jane",
-    lastName: "Smith",
-    role: "user",
-  },
-  {
-    email: "admin@example.com",
-    username: "admin",
-    displayUsername: "admin",
+    email: "admin@jollyhq.net",
     password: "admin123",
-    firstName: "Admin",
-    lastName: "User",
-    role: "admin",
+    name: "Admin User",
+    role: "superadmin",
+    data: {
+      username: "admin",
+      displayUsername: "admin",
+      firstName: "Admin",
+      lastName: "User",
+      agreedToTerms: true,
+      emailVerified: true,
+    },
   },
   {
-    email: "superadmin@example.com",
-    username: "superadmin",
-    displayUsername: "superadmin",
-    password: "superadmin123",
-    firstName: "Super",
-    lastName: "Admin",
-    role: "superadmin",
+    email: "user1@example.com",
+    password: "password123",
+    name: "John Doe",
+    role: "admin",
+    data: {
+      username: "user1",
+      displayUsername: "user1",
+      firstName: "John",
+      lastName: "Doe",
+      agreedToTerms: true,
+      emailVerified: true,
+    },
   },
 ];
 
@@ -49,7 +44,6 @@ async function seed() {
 
   for (const userData of users) {
     try {
-      // Check if user already exists
       const existingUser = await db
         .select()
         .from(user)
@@ -57,50 +51,28 @@ async function seed() {
         .limit(1);
 
       if (existingUser.length > 0) {
-        console.log(`⏭️  User ${userData.email} already exists, skipping...`);
+        console.log(`⏭️ ${userData.email} already exists`);
         continue;
       }
 
-      // Hash password
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-      const userId = uuidv4();
-
-      // Insert user and account in transaction
-      await db.transaction(async (tx) => {
-        // Insert user
-        await tx.insert(user).values({
-          id: userId,
+      await auth.api.createUser({
+        body: {
           email: userData.email,
-          username: userData.username,
-          displayUsername: userData.displayUsername,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
+          password: userData.password,
+          name: userData.name,
           role: userData.role,
-          agreedToTerms: true,
-          emailVerified: true,
-        });
-
-        // Insert account with password
-        await tx.insert(account).values({
-          id: uuidv4(),
-          accountId: userId,
-          providerId: "credential",
-          userId: userId,
-          password: hashedPassword,
-        });
+          data: userData.data,
+        },
       });
 
       console.log(`✅ Created ${userData.role}: ${userData.email}`);
     } catch (error) {
-      console.error(`❌ Error creating user ${userData.email}:`, error);
+      console.error(`❌ Failed: ${userData.email}`, error);
     }
   }
 
-  console.log("🎉 Seed completed!");
+  console.log("🎉 Seed completed");
   process.exit(0);
 }
 
-seed().catch((error) => {
-  console.error("❌ Seed failed:", error);
-  process.exit(1);
-});
+seed();

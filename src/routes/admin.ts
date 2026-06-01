@@ -50,7 +50,9 @@ router.use(adminMiddleware);
 /**
  * Dashboard & Statistics
  */
+router.get("/dashboard", AdminController.getDashboard);
 router.get("/dashboard/stats", AdminController.getDashboardStats);
+router.get("/transactions/summary", AdminController.getTransactionSummary);
 
 /**
  * User Management

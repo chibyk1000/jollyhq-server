@@ -1578,4 +1578,124 @@ export class AdminController {
       });
     }
   }
+
+  /**
+   * Get admin dashboard
+   */
+  static async getDashboard(req: Request, res: Response) {
+    try {
+      const now = new Date();
+
+      // Get total events count
+      const totalEventsResult = await db
+        .select({ count: sql`count(*)` })
+        .from(events);
+      const totalEvents = parseInt((totalEventsResult[0].count as any).toString());
+
+      // Get upcoming events (eventDate > now)
+      const upcomingEvents = await db
+        .select()
+        .from(events)
+        .where(gte(events.eventDate, now))
+        .orderBy(asc(events.eventDate))
+        .limit(10);
+
+      // Get recent events (orderBy createdAt desc)
+      const recentEvents = await db
+        .select()
+        .from(events)
+        .orderBy(desc(events.createdAt))
+        .limit(10);
+
+      // Get all tickets
+      const tickets = await db.select().from(eventTickets);
+
+      // Get active events count (events with eventDate >= now)
+      const activeEventsResult = await db
+        .select({ count: sql`count(*)` })
+        .from(events)
+        .where(gte(events.eventDate, now));
+      const activeEvents = parseInt((activeEventsResult[0].count as any).toString());
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalEvents,
+          upcomingEvents,
+          upcomingList: upcomingEvents,
+          tickets,
+          recentEvents,
+          activeEvents,
+        },
+      });
+    } catch (error) {
+      logger.error("Error fetching dashboard:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to fetch dashboard",
+      });
+    }
+  }
+
+  /**
+   * Get transaction summary
+   */
+  static async getTransactionSummary(req: Request, res: Response) {
+    try {
+      // Get total transactions count
+      const totalResult = await db
+        .select({ count: sql`count(*)` })
+        .from(orders);
+      const total = parseInt((totalResult[0].count as any).toString());
+
+      // Get total revenue from paid orders
+      const revenueResult = await db.execute(sql`
+        SELECT COALESCE(SUM(CAST(total_amount AS FLOAT)), 0) as total 
+        FROM "orders" 
+        WHERE status = ${"PAID"}
+      `);
+      const revenue = (revenueResult.rows[0] as any).total || 0;
+
+      // Get average order value
+      const avgResult = await db.execute(sql`
+        SELECT COALESCE(AVG(CAST(total_amount AS FLOAT)), 0) as avg 
+        FROM "orders" 
+        WHERE status = ${"PAID"}
+      `);
+      const average = (avgResult.rows[0] as any).avg || 0;
+
+      // Get refunds (cancelled orders)
+      const refundsResult = await db
+        .select({ count: sql`count(*)` })
+        .from(orders)
+        .where(eq(orders.status, "CANCELLED"));
+      const refunds = parseInt((refundsResult[0].count as any).toString());
+
+      // Calculate percentages (simplified - you may want to compare with previous period)
+      const totalPercentage = 0;
+      const revenuePercentage = 0;
+      const averagePercentage = 0;
+      const refundsPercentage = total > 0 ? (refunds / total) * 100 : 0;
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          total,
+          totalPercentage,
+          revenue,
+          revenuePercentage,
+          average,
+          averagePercentage,
+          refunds,
+          refundsPercentage,
+        },
+      });
+    } catch (error) {
+      logger.error("Error fetching transaction summary:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to fetch transaction summary",
+      });
+    }
+  }
 }

@@ -2,10 +2,11 @@
 import { Request, Response } from "express";
 import { db } from "../db";
 import { eventTickets } from "../db/schema/eventTickets";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { eventDiscounts } from "../db/schema/eventDiscounts";
 import { userTickets } from "../db/schema/userTickets";
 import { events } from "../db/schema";
+import { orders } from "../db/schema/order";
 
 export class TicketController {
   /**
@@ -211,6 +212,61 @@ export class TicketController {
     } catch (err: any) {
       console.error(err);
       return res.status(500).json({ error: err.message });
+    }
+  }
+
+  /**
+   * GET all tickets
+   */
+  static async getAllTickets(req: Request, res: Response) {
+    try {
+      const tickets = await db.select().from(eventTickets);
+      return res.json(tickets);
+    } catch (e: any) {
+      console.log(e);
+      res.status(500).json({ error: e.message });
+    }
+  }
+
+  /**
+   * GET tickets stats
+   */
+  static async getTicketsStats(req: Request, res: Response) {
+    try {
+      // Get total tickets quantity
+      const totalTicketsResult = await db.execute(sql`
+        SELECT COALESCE(SUM(CAST(quantity AS INTEGER)), 0) as total 
+        FROM event_tickets
+      `);
+      const totalTickets = (totalTicketsResult.rows[0] as any).total || 0;
+
+      // Get sold tickets (sum of quantities from user_tickets)
+      const soldTicketsResult = await db.execute(sql`
+        SELECT COALESCE(SUM(CAST(quantity AS INTEGER)), 0) as total 
+        FROM user_tickets
+      `);
+      const soldTickets = (soldTicketsResult.rows[0] as any).total || 0;
+
+      // Available tickets = total - sold
+      const availableTickets = Math.max(0, totalTickets - soldTickets);
+
+      // Get total revenue from orders
+      const revenueResult = await db.execute(sql`
+        SELECT COALESCE(SUM(CAST(total_amount AS FLOAT)), 0) as total 
+        FROM orders 
+        WHERE status = ${"PAID"}
+      `);
+      const totalRevenue = (revenueResult.rows[0] as any).total || 0;
+
+      return res.json({
+        totalTickets,
+        soldTickets,
+        availableTickets,
+        totalRevenue,
+      });
+    } catch (e: any) {
+      console.log(e);
+      res.status(500).json({ error: e.message });
     }
   }
 }

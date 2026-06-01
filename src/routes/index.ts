@@ -12,6 +12,7 @@ import walletRoutes from "./payments";
 import ordersRoutes from "./orders";
 import bookingRoutes from "./bookings";
 import adminRoutes from "./admin";
+import discountCodesRoutes from "./discount-codes";
 const router = Router();
 // app.ts / index.ts
 router.use("/bookings", bookingRoutes);
@@ -27,4 +28,5 @@ router.use("/tickets", ticketsRoutes);
 router.use("/events", eventRoutes);
 router.use("/event-planners", plannerRoutes);
 router.use("/admin", adminRoutes);
+router.use("/discount-codes", discountCodesRoutes);
 export default router;

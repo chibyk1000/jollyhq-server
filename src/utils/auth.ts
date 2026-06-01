@@ -166,12 +166,14 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     "jollyhq://",
+    "http://localhost:5173",
     ...(process.env.NODE_ENV === "development"
       ? [
           "exp://", // Trust all Expo URLs (prefix matching)
           "exp://**", // Trust all Expo URLs (wildcard matching)
           "exp://192.168.*.*:*/**", // Trust 192.168.x.x IP range with any port and path
           "jollyhq://",
+          "http://localhost:5173",
         ]
       : []),
   ],
@@ -198,7 +200,7 @@ export const auth = betterAuth({
         user,
         superadmin,
       },
-     defaultRole:"user"
+      defaultRole: "user",
     }),
     username({
       usernameValidator: (username) => {

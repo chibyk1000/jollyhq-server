@@ -4,6 +4,12 @@ import { verifyToken } from "../middlewares/verify";
 
 const router = Router();
 
+// Get all tickets
+router.get("/", TicketController.getAllTickets);
+
+// Get tickets stats
+router.get("/stats", TicketController.getTicketsStats);
+
 // Create 1 or many
 router.post("/", verifyToken, TicketController.createTicket);
 
