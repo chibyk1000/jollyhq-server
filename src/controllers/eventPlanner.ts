@@ -18,7 +18,7 @@ export class EventPlannerControllers {
       const [existing] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, userId));
+        .where(eq(eventPlanners.profileId, parseInt(userId)));
 
       if (existing) {
         return res
@@ -66,7 +66,7 @@ export class EventPlannerControllers {
         const [planner] = await tx
           .insert(eventPlanners)
           .values({
-            profileId: userId,
+            profileId: parseInt(userId),
             businessName,
             businessEmail,
             businessPhone,
@@ -91,7 +91,7 @@ export class EventPlannerControllers {
         const [wallet] = await tx
           .insert(wallets)
           .values({
-            userId,
+            userId: parseInt(userId),
             ownerType: "event_planner",
             balance: 0,
             currency: "NGN",
@@ -118,6 +118,7 @@ export class EventPlannerControllers {
   static async getEventPlanner(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
 
       const [data] = await db
         .select({
@@ -132,7 +133,7 @@ export class EventPlannerControllers {
             eq(wallets.ownerType, "event_planner"),
           ),
         )
-        .where(eq(eventPlanners.profileId, id));
+        .where(eq(eventPlanners.profileId, parseInt(idStr)));
 
       if (!data) {
         return res.status(404).json({ message: "Event planner not found" });
@@ -186,6 +187,7 @@ export class EventPlannerControllers {
   static async updateEventPlanner(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
       const userId = req.user?.id;
       const body = req.body;
 
@@ -194,14 +196,14 @@ export class EventPlannerControllers {
       const [current] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.id, id));
+        .where(eq(eventPlanners.id, parseInt(idStr)));
 
       if (!current) {
         return res.status(404).json({ message: "Event planner not found" });
       }
 
       // Only the owner can update their own profile
-      if (current.profileId !== userId) {
+      if (current.profileId !== parseInt(userId)) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -228,7 +230,7 @@ export class EventPlannerControllers {
           businessDocumentUrl,
           updatedAt: new Date(),
         })
-        .where(eq(eventPlanners.id, id))
+        .where(eq(eventPlanners.id, parseInt(idStr)))
         .returning();
 
       return res.status(200).json({
@@ -248,6 +250,7 @@ export class EventPlannerControllers {
   static async deleteEventPlanner(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
       const userId = req.user?.id;
 
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
@@ -255,20 +258,20 @@ export class EventPlannerControllers {
       const [current] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.id, id));
+        .where(eq(eventPlanners.id, parseInt(idStr)));
 
       if (!current) {
         return res.status(404).json({ message: "Event planner not found" });
       }
 
       // Only the owner can delete their own profile
-      if (current.profileId !== userId) {
+      if (current.profileId !== parseInt(userId)) {
         return res.status(403).json({ message: "Access denied" });
       }
 
       const [deleted] = await db
         .delete(eventPlanners)
-        .where(eq(eventPlanners.id, id))
+        .where(eq(eventPlanners.id, parseInt(idStr)))
         .returning();
 
       return res.status(200).json({

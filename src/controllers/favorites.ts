@@ -9,6 +9,7 @@ export class FavoriteController {
   static async toggleFavorite(req: Request, res: Response) {
     const { eventId } = req.params;
     const userId = req.user?.id;
+    const eventIdStr = Array.isArray(eventId) ? eventId[0] : eventId;
 
     try {
       // 1️⃣ Check if favorite exists
@@ -17,8 +18,8 @@ export class FavoriteController {
         .from(favoriteEvents)
         .where(
           and(
-            eq(favoriteEvents.eventId, eventId),
-            eq(favoriteEvents.userId, userId as string)
+            eq(favoriteEvents.eventId, parseInt(eventIdStr)),
+            eq(favoriteEvents.userId, parseInt(userId as string))
           )
         )
         .limit(1);
@@ -37,8 +38,8 @@ export class FavoriteController {
 
       // 3️⃣ Insert new favorite → Favorite
       await db.insert(favoriteEvents).values({
-        userId: userId as string,
-        eventId,
+        userId: parseInt(userId as string),
+        eventId: parseInt(eventIdStr),
       });
 console.log("success");
 
@@ -68,7 +69,7 @@ console.log("success");
         })
         .from(favoriteEvents)
         .innerJoin(events, eq(favoriteEvents.eventId, events.id))
-        .where(eq(favoriteEvents.userId, userId as string));
+        .where(eq(favoriteEvents.userId, parseInt(userId as string)));
 
       res.status(200).json({ favorites });
     } catch (err) {

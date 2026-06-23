@@ -1,15 +1,14 @@
-import { pgTable, uuid, varchar, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, varchar, timestamp, text } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { eventPlanners } from "./eventPlanners";
 import { eventTickets } from "./eventTickets";
 import { eventDiscounts } from "./eventDiscounts";
 
-
 export const events = pgTable("events", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
   // FK → event_planners.id
-  plannerId: uuid("planner_id")
+  plannerId: integer("planner_id")
     .notNull()
     .references(() => eventPlanners.id, { onDelete: "cascade" }),
 
@@ -26,7 +25,7 @@ export const events = pgTable("events", {
   description: text("description"),
 
   createdAt: timestamp("created_at").default(sql`NOW()`),
-  updatedAt: timestamp("updated_at").$onUpdate(()=>sql`NOW()`),
+  updatedAt: timestamp("updated_at").$onUpdate(() => sql`NOW()`),
 });
 
 export const eventRelations = relations(events, ({ one, many }) => ({

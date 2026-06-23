@@ -10,12 +10,13 @@ class FavoriteController {
     static async toggleFavorite(req, res) {
         const { eventId } = req.params;
         const userId = req.user?.id;
+        const eventIdStr = Array.isArray(eventId) ? eventId[0] : eventId;
         try {
             // 1️⃣ Check if favorite exists
             const existing = await db_1.db
                 .select()
                 .from(favorites_1.favoriteEvents)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.eventId, eventId), (0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, userId)))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.eventId, parseInt(eventIdStr)), (0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, parseInt(userId))))
                 .limit(1);
             if (existing.length > 0) {
                 // 2️⃣ Remove if exists → Unfavorite
@@ -29,8 +30,8 @@ class FavoriteController {
             }
             // 3️⃣ Insert new favorite → Favorite
             await db_1.db.insert(favorites_1.favoriteEvents).values({
-                userId: userId,
-                eventId,
+                userId: parseInt(userId),
+                eventId: parseInt(eventIdStr),
             });
             console.log("success");
             return res.status(201).json({
@@ -58,7 +59,7 @@ class FavoriteController {
             })
                 .from(favorites_1.favoriteEvents)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.eventId, schema_1.events.id))
-                .where((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, userId));
+                .where((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, parseInt(userId)));
             res.status(200).json({ favorites });
         }
         catch (err) {

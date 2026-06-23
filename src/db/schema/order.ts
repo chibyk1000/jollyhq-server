@@ -1,6 +1,7 @@
 import {
   pgTable,
-  uuid,
+  serial,
+  integer,
   varchar,
   timestamp,
   numeric,
@@ -21,21 +22,22 @@ export const orderStatusEnum = pgEnum("order_status", [
 ]);
 
 export const orders = pgTable("orders", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
   // FK → users.id
-  userId: uuid("user_id")
+  userId: integer("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 
   // FK → events.id
-  eventId: uuid("event_id")
-  
-    .references(() => events.id, { onDelete: "cascade" }),
+  eventId: integer("event_id").references(() => events.id, {
+    onDelete: "cascade",
+  }),
 
   // FK → event_tickets.id
-  ticketId: uuid("ticket_id")
-    .references(() => eventTickets.id, { onDelete: "cascade" }),
+  ticketId: integer("ticket_id").references(() => eventTickets.id, {
+    onDelete: "cascade",
+  }),
 
   quantity: numeric("quantity").notNull().default("1"),
 

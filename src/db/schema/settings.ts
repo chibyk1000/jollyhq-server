@@ -1,18 +1,17 @@
-
 import {
   pgTable,
-  uuid,
+  serial,
+  integer,
   boolean,
   varchar,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { user as profiles } from "./profiles";
 
-
 export const userSettings = pgTable("user_settings", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
-  userId: uuid("user_id")
+  userId: integer("user_id")
     .notNull()
     .references(() => profiles.id, { onDelete: "cascade" })
     .unique(),
@@ -37,6 +36,6 @@ export const userSettings = pgTable("user_settings", {
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
-    .defaultNow() 
+    .defaultNow()
     .$onUpdate(() => new Date()),
 });

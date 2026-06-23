@@ -72,10 +72,11 @@ class TicketController {
     static async getTicketsByEvent(req, res) {
         try {
             const { eventId } = req.params;
+            const eventIdStr = Array.isArray(eventId) ? eventId[0] : eventId;
             const result = await db_1.db
                 .select()
                 .from(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, eventId));
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, parseInt(eventIdStr)));
             return res.json(result);
         }
         catch (e) {
@@ -89,10 +90,11 @@ class TicketController {
     static async getTicket(req, res) {
         try {
             const { ticketId } = req.params;
+            const ticketIdStr = Array.isArray(ticketId) ? ticketId[0] : ticketId;
             const [ticket] = await db_1.db
                 .select()
                 .from(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, ticketId));
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, parseInt(ticketIdStr)));
             if (!ticket) {
                 return res.status(404).json({ message: "Ticket not found" });
             }
@@ -108,12 +110,13 @@ class TicketController {
     static async updateTicket(req, res) {
         try {
             const { ticketId } = req.params;
+            const ticketIdStr = Array.isArray(ticketId) ? ticketId[0] : ticketId;
             const data = req.body;
             delete data.id; // Keep ID immutable
             const [updated] = await db_1.db
                 .update(eventTickets_1.eventTickets)
                 .set(data)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, ticketId))
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, parseInt(ticketIdStr)))
                 .returning();
             if (!updated) {
                 return res.status(404).json({ message: "Ticket not found" });
@@ -130,9 +133,10 @@ class TicketController {
     static async deleteTicket(req, res) {
         try {
             const { ticketId } = req.params;
+            const ticketIdStr = Array.isArray(ticketId) ? ticketId[0] : ticketId;
             const [deleted] = await db_1.db
                 .delete(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, ticketId))
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, parseInt(ticketIdStr)))
                 .returning();
             if (!deleted) {
                 return res.status(404).json({ message: "Ticket not found" });
@@ -176,13 +180,64 @@ class TicketController {
                 .from(userTickets_1.userTickets)
                 .innerJoin(eventTickets_1.eventTickets, (0, drizzle_orm_1.eq)(userTickets_1.userTickets.ticketId, eventTickets_1.eventTickets.id))
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, schema_1.events.id))
-                .where((0, drizzle_orm_1.eq)(userTickets_1.userTickets.userId, userId))
+                .where((0, drizzle_orm_1.eq)(userTickets_1.userTickets.userId, parseInt(userId)))
                 .orderBy((0, drizzle_orm_1.desc)(userTickets_1.userTickets.purchasedAt));
             return res.json({ tickets });
         }
         catch (err) {
             console.error(err);
             return res.status(500).json({ error: err.message });
+        }
+    }
+    /**
+     * GET all tickets
+     */
+    static async getAllTickets(req, res) {
+        try {
+            const tickets = await db_1.db.select().from(eventTickets_1.eventTickets);
+            return res.json(tickets);
+        }
+        catch (e) {
+            console.log(e);
+            res.status(500).json({ error: e.message });
+        }
+    }
+    /**
+     * GET tickets stats
+     */
+    static async getTicketsStats(req, res) {
+        try {
+            // Get total tickets quantity
+            const totalTicketsResult = await db_1.db.execute((0, drizzle_orm_1.sql) `
+        SELECT COALESCE(SUM(CAST(quantity AS INTEGER)), 0) as total 
+        FROM event_tickets
+      `);
+            const totalTickets = totalTicketsResult.rows[0].total || 0;
+            // Get sold tickets (sum of quantities from user_tickets)
+            const soldTicketsResult = await db_1.db.execute((0, drizzle_orm_1.sql) `
+        SELECT COALESCE(SUM(CAST(quantity AS INTEGER)), 0) as total 
+        FROM user_tickets
+      `);
+            const soldTickets = soldTicketsResult.rows[0].total || 0;
+            // Available tickets = total - sold
+            const availableTickets = Math.max(0, totalTickets - soldTickets);
+            // Get total revenue from orders
+            const revenueResult = await db_1.db.execute((0, drizzle_orm_1.sql) `
+        SELECT COALESCE(SUM(CAST(total_amount AS FLOAT)), 0) as total 
+        FROM orders 
+        WHERE status = ${"PAID"}
+      `);
+            const totalRevenue = revenueResult.rows[0].total || 0;
+            return res.json({
+                totalTickets,
+                soldTickets,
+                availableTickets,
+                totalRevenue,
+            });
+        }
+        catch (e) {
+            console.log(e);
+            res.status(500).json({ error: e.message });
         }
     }
 }

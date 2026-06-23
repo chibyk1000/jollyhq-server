@@ -2,10 +2,10 @@ import { InferModel, relations, sql } from "drizzle-orm";
 import {
   boolean,
   integer,
+  serial,
   pgTable,
   real,
   timestamp,
-  uuid,
   varchar,
   text,
 } from "drizzle-orm/pg-core";
@@ -15,9 +15,9 @@ import { wallets } from "./wallet";
 
 export const vendors = pgTable("vendors", {
   // ---------- IDs ----------
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
-  userId: uuid("user_id")
+  userId: integer("user_id")
     .references(() => profiles.id, { onDelete: "cascade" })
     .notNull(),
   businessName: varchar("business_name", { length: 255 }).default(""),

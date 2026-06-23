@@ -18,7 +18,7 @@ export class VendorsController {
       const [existing] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.userId, userId), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, parseInt(userId)), isNull(vendors.deletedAt)));
 
       if (existing) {
         return res
@@ -62,7 +62,7 @@ export class VendorsController {
         const [vendor] = await tx
           .insert(vendors)
           .values({
-            userId,
+            userId: parseInt(userId),
             businessName,
             contactName,
             contactEmail,
@@ -80,7 +80,7 @@ export class VendorsController {
         const [wallet] = await tx
           .insert(wallets)
           .values({
-            userId,
+            userId: parseInt(userId),
             ownerType: "vendor",
             balance: 0,
             currency: "NGN",
@@ -123,11 +123,12 @@ export class VendorsController {
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
 
       const [vendor] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.id, id), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)));
 
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -151,11 +152,12 @@ export class VendorsController {
   static async getByUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
 
       const [vendor] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.userId, userId), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, parseInt(userIdStr)), isNull(vendors.deletedAt)));
 
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -174,6 +176,7 @@ export class VendorsController {
   static async getByProfile(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
 
       const [data] = await db
         .select({
@@ -184,11 +187,11 @@ export class VendorsController {
         .leftJoin(
           wallets,
           and(
-            eq(wallets.userId, id),
+            eq(wallets.userId, parseInt(idStr)),
             eq(wallets.ownerType, "vendor"), // ← scoped to vendor wallet only
           ),
         )
-        .where(and(eq(vendors.userId, id), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, parseInt(idStr)), isNull(vendors.deletedAt)));
 
       if (!data) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -213,6 +216,7 @@ export class VendorsController {
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
       const userId = req.user?.id;
 
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
@@ -220,14 +224,14 @@ export class VendorsController {
       const [current] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.id, id), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)));
 
       if (!current) {
         return res.status(404).json({ message: "Vendor not found" });
       }
 
       // Only the owner can update
-      if (current.userId !== userId) {
+      if (current.userId !== parseInt(userId)) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -268,7 +272,7 @@ export class VendorsController {
       const [updated] = await db
         .update(vendors)
         .set(updateData)
-        .where(and(eq(vendors.id, id), isNull(vendors.deletedAt)))
+        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)))
         .returning();
 
       return res.json({ success: true, data: updated });
@@ -284,6 +288,7 @@ export class VendorsController {
   static async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
       const userId = req.user?.id;
 
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
@@ -291,21 +296,21 @@ export class VendorsController {
       const [current] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.id, id), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)));
 
       if (!current) {
         return res.status(404).json({ message: "Vendor not found" });
       }
 
       // Only the owner can delete
-      if (current.userId !== userId) {
+      if (current.userId !== parseInt(userId)) {
         return res.status(403).json({ message: "Access denied" });
       }
 
       await db
         .update(vendors)
         .set({ deletedAt: new Date(), isActive: false })
-        .where(eq(vendors.id, id));
+        .where(eq(vendors.id, parseInt(idStr)));
 
       return res.json({
         success: true,
@@ -323,12 +328,13 @@ export class VendorsController {
   static async getVendorChats(req: Request, res: Response) {
     try {
       const { vendorId } = req.params;
+      const vendorIdStr = Array.isArray(vendorId) ? vendorId[0] : vendorId;
 
       // 1. Verify vendor exists
       const [vendor] = await db
         .select({ id: vendors.id })
         .from(vendors)
-        .where(and(eq(vendors.id, vendorId), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, parseInt(vendorIdStr)), isNull(vendors.deletedAt)));
 
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -350,7 +356,7 @@ export class VendorsController {
           createdAt: chats.createdAt,
         })
         .from(chats)
-        .where(eq(chats.vendorId, vendorId))
+        .where(eq(chats.vendorId, parseInt(vendorIdStr)))
         .orderBy(desc(chats.lastMessageAt));
 
       if (vendorChats.length === 0) {
@@ -408,10 +414,11 @@ export class VendorsController {
       // 5. Build lookup maps for O(1) assembly
       const membersByChatId = new Map<string, any[]>();
       for (const m of allMembers) {
-        if (!membersByChatId.has(m.chatId)) {
-          membersByChatId.set(m.chatId, []);
+        const chatIdStr = String(m.chatId);
+        if (!membersByChatId.has(chatIdStr)) {
+          membersByChatId.set(chatIdStr, []);
         }
-        membersByChatId.get(m.chatId)!.push({
+        membersByChatId.get(chatIdStr)!.push({
           memberId: m.memberId,
           profileId: m.profileId,
           role: m.role,
@@ -427,15 +434,19 @@ export class VendorsController {
 
       const lastMessageByChatId = new Map<string, any>();
       for (const msg of lastMessages.rows as any[]) {
-        lastMessageByChatId.set(msg.chatId, msg);
+        const chatIdStr = String(msg.chatId);
+        lastMessageByChatId.set(chatIdStr, msg);
       }
 
       // 6. Assemble final response
-      const data = vendorChats.map((chat) => ({
-        ...chat,
-        members: membersByChatId.get(chat.id) ?? [],
-        lastMessage: lastMessageByChatId.get(chat.id) ?? null,
-      }));
+      const data = vendorChats.map((chat) => {
+        const chatIdStr = String(chat.id);
+        return {
+          ...chat,
+          members: membersByChatId.get(chatIdStr) ?? [],
+          lastMessage: lastMessageByChatId.get(chatIdStr) ?? null,
+        };
+      });
 
       return res.status(200).json({ success: true, data });
     } catch (error: any) {

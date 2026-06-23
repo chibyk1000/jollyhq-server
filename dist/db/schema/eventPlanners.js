@@ -5,12 +5,12 @@ const drizzle_orm_1 = require("drizzle-orm");
 const pg_core_1 = require("drizzle-orm/pg-core");
 const profiles_1 = require("./profiles"); // ensure correct import path
 const events_1 = require("./events");
-const wallet_1 = require("./wallet");
 exports.eventPlanners = (0, pg_core_1.pgTable)("event_planners", {
-    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
-    profileId: (0, pg_core_1.uuid)("profile_id")
+    id: (0, pg_core_1.serial)("id").primaryKey(),
+    profileId: (0, pg_core_1.integer)("profile_id")
         .notNull()
-        .references(() => profiles_1.profiles.id, { onDelete: "cascade" }).unique(), // FK to base user profile
+        .references(() => profiles_1.user.id, { onDelete: "cascade" })
+        .unique(), // FK to base user profile
     // BASIC COMPANY INFO
     businessName: (0, pg_core_1.varchar)("business_name", { length: 255 }).notNull(),
     businessEmail: (0, pg_core_1.varchar)("business_email", { length: 255 }),
@@ -41,13 +41,9 @@ exports.eventPlanners = (0, pg_core_1.pgTable)("event_planners", {
     updatedAt: (0, pg_core_1.timestamp)("updated_at").$onUpdate(() => new Date()),
 });
 exports.eventPlannerRelations = (0, drizzle_orm_1.relations)(exports.eventPlanners, ({ one, many }) => ({
-    profile: one(profiles_1.profiles, {
+    profile: one(profiles_1.user, {
         fields: [exports.eventPlanners.profileId],
-        references: [profiles_1.profiles.id],
-    }),
-    wallet: one(wallet_1.wallets, {
-        fields: [exports.eventPlanners.id],
-        references: [wallet_1.wallets.ownerId],
+        references: [profiles_1.user.id],
     }),
     events: many(events_1.events), // 👈 EventPlanner has many events
 }));

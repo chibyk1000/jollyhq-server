@@ -5,18 +5,20 @@ import {
   text,
   timestamp,
   boolean,
-  uuid,
+  serial,
+  integer,
 } from "drizzle-orm/pg-core";
 import { user as profiles } from "./profiles"; // ensure correct import path
 import { events } from "./events";
 import { wallets } from "./wallet";
 
 export const eventPlanners = pgTable("event_planners", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
-  profileId: uuid("profile_id",)
+  profileId: integer("profile_id")
     .notNull()
-    .references(() => profiles.id, { onDelete: "cascade" }).unique(), // FK to base user profile
+    .references(() => profiles.id, { onDelete: "cascade" })
+    .unique(), // FK to base user profile
 
   // BASIC COMPANY INFO
   businessName: varchar("business_name", { length: 255 }).notNull(),
@@ -58,12 +60,14 @@ export const eventPlanners = pgTable("event_planners", {
 export type EventPlanner = InferModel<typeof eventPlanners>;
 export type NewEventPlanner = InferModel<typeof eventPlanners, "insert">;
 
-export const eventPlannerRelations = relations(eventPlanners, ({ one, many }) => ({
-  profile: one(profiles, {
-    fields: [eventPlanners.profileId],
-    references: [profiles.id],
+export const eventPlannerRelations = relations(
+  eventPlanners,
+  ({ one, many }) => ({
+    profile: one(profiles, {
+      fields: [eventPlanners.profileId],
+      references: [profiles.id],
+    }),
+
+    events: many(events), // 👈 EventPlanner has many events
   }),
-
-  events: many(events), // 👈 EventPlanner has many events
-}));
-
+);

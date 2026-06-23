@@ -4,7 +4,8 @@ import {
   pgTable,
   varchar,
   timestamp,
-  uuid,
+  serial,
+  integer,
   real,
   pgEnum,
 } from "drizzle-orm/pg-core";
@@ -20,8 +21,8 @@ export const txSourceEnum = pgEnum("wallet_tx_source", [
 ]);
 
 export const walletTransactions = pgTable("wallet_transactions", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  walletId: uuid("wallet_id")
+  id: serial("id").primaryKey(),
+  walletId: integer("wallet_id")
     .references(() => wallets.id, { onDelete: "cascade" })
     .notNull(),
 

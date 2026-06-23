@@ -90,7 +90,38 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg", // "mysql" | "sqlite"
   }),
-
+  baseURL: process.env.BETTER_AUTH_URL,
+  socialProviders: {
+    google: {
+      prompt: "select_account",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      mapProfileToUser: (profile) => {
+        console.log("google profile", profile);
+        return {
+          name: profile.family_name ?? "nil",
+          lastName: profile.given_name ?? "nil",
+          username: `${profile.email.split("@")[0]}-${profile.sub.slice(-6)}`,
+          google_id: profile.sub,
+          agreed_to_terms: true, // or whatever default makes sense
+        };
+      },
+    },
+    facebook: {
+      clientId: process.env.FACEBOOK_CLIENT_ID as string,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
+      mapProfileToUser: (profile) => {
+     
+        return {
+          name: profile.name.split(" ")[0] ?? "nil",
+          lastName: profile.name.split(" ")[1] ?? "nil",
+          username: `${profile.name.split(" ")[0]}-${profile.id.slice(-6)}`,
+          facebook_id: profile.id,
+          agreed_to_terms: true, // or whatever default makes sense
+        };
+      }
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,

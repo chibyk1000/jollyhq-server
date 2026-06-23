@@ -12,7 +12,7 @@ export function chatSocket(io: Server, socket: Socket) {
 
     const member = await db.query.chatMembers.findFirst({
       where: and(
-        eq(chatMembers.chatId, chatId),
+        eq(chatMembers.chatId, parseInt(chatId)),
         eq(chatMembers.profileId, userId),
         eq(chatMembers.isBanned, false),
       ),
@@ -49,7 +49,7 @@ export function chatSocket(io: Server, socket: Socket) {
     }) => {
       try {
         const { chatId, isNew } = await findOrCreateDirectChat(
-          socket.user.id,
+          String(socket.user.id),
           targetUserId,
           directType,
         );
@@ -94,7 +94,7 @@ console.log("chatId",chatId)
     }) => {
       const member = await db.query.chatMembers.findFirst({
         where: and(
-          eq(chatMembers.chatId, chatId),
+          eq(chatMembers.chatId, parseInt(chatId)),
           eq(chatMembers.profileId, socket.user.id),
           eq(chatMembers.isBanned, false),
         ),
@@ -105,7 +105,7 @@ console.log("chatId",chatId)
       const [message] = await db
         .insert(messages)
         .values({
-          chatId,
+          chatId: parseInt(chatId),
           senderId: socket.user.id,
           content,
           type,
@@ -120,7 +120,7 @@ console.log("chatId",chatId)
           lastMessageAt: message.createdAt,
           lastMessagePreview: content?.slice(0, 100),
         })
-        .where(eq(chats.id, chatId));
+        .where(eq(chats.id, parseInt(chatId)));
 
       io.to(chatId).emit("new_message", message);
     },
@@ -180,7 +180,7 @@ async function findOrCreateDirectChat(
         eq(chats.directType, directType),
       ),
     )
-    .where(eq(chatMembers.profileId, userAId));
+    .where(eq(chatMembers.profileId, parseInt(userAId)));
 
   const candidateChatIds = userAMemberships.map((m) => m.chatId);
 
@@ -191,14 +191,14 @@ async function findOrCreateDirectChat(
       .from(chatMembers)
       .where(
         and(
-          eq(chatMembers.profileId, userBId),
+          eq(chatMembers.profileId, parseInt(userBId)),
           inArray(chatMembers.chatId, candidateChatIds),
         ),
       )
       .limit(1);
 
     if (shared.length > 0) {
-      return { chatId: shared[0].chatId, isNew: false };
+      return { chatId: String(shared[0].chatId), isNew: false };
     }
   }
 
@@ -210,14 +210,14 @@ async function findOrCreateDirectChat(
       .returning();
 
     await tx.insert(chatMembers).values([
-      { chatId: chat.id, profileId: userAId, role: "member" },
-      { chatId: chat.id, profileId: userBId, role: "member" },
+      { chatId: chat.id, profileId: parseInt(userAId), role: "member" },
+      { chatId: chat.id, profileId: parseInt(userBId), role: "member" },
     ]);
 
     return chat.id;
   });
 
-  return { chatId, isNew: true };
+  return { chatId: String(chatId), isNew: true };
 }
 
 /**
@@ -225,7 +225,7 @@ async function findOrCreateDirectChat(
  */
 async function fetchChatHistory(chatId: string) {
   const msgs = await db.query.messages.findMany({
-    where: eq(messages.chatId, chatId),
+    where: eq(messages.chatId, parseInt(chatId)),
     orderBy: asc(messages.createdAt),
     limit: 50,
     with: { sender: true },

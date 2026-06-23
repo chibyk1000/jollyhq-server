@@ -88,11 +88,12 @@ export class TicketController {
   static async getTicketsByEvent(req: Request, res: Response) {
     try {
       const { eventId } = req.params;
+      const eventIdStr = Array.isArray(eventId) ? eventId[0] : eventId;
 
       const result = await db
         .select()
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, eventId));
+        .where(eq(eventTickets.eventId, parseInt(eventIdStr)));
 
       return res.json(result);
     } catch (e: any) {
@@ -107,11 +108,12 @@ export class TicketController {
   static async getTicket(req: Request, res: Response) {
     try {
       const { ticketId } = req.params;
+      const ticketIdStr = Array.isArray(ticketId) ? ticketId[0] : ticketId;
 
       const [ticket] = await db
         .select()
         .from(eventTickets)
-        .where(eq(eventTickets.id, ticketId));
+        .where(eq(eventTickets.id, parseInt(ticketIdStr)));
 
       if (!ticket) {
         return res.status(404).json({ message: "Ticket not found" });
@@ -129,6 +131,7 @@ export class TicketController {
   static async updateTicket(req: Request, res: Response) {
     try {
       const { ticketId } = req.params;
+      const ticketIdStr = Array.isArray(ticketId) ? ticketId[0] : ticketId;
 
       const data = req.body;
       delete data.id; // Keep ID immutable
@@ -136,7 +139,7 @@ export class TicketController {
       const [updated] = await db
         .update(eventTickets)
         .set(data)
-        .where(eq(eventTickets.id, ticketId))
+        .where(eq(eventTickets.id, parseInt(ticketIdStr)))
         .returning();
 
       if (!updated) {
@@ -155,10 +158,11 @@ export class TicketController {
   static async deleteTicket(req: Request, res: Response) {
     try {
       const { ticketId } = req.params;
+      const ticketIdStr = Array.isArray(ticketId) ? ticketId[0] : ticketId;
 
       const [deleted] = await db
         .delete(eventTickets)
-        .where(eq(eventTickets.id, ticketId))
+        .where(eq(eventTickets.id, parseInt(ticketIdStr)))
         .returning();
 
       if (!deleted) {
@@ -205,7 +209,7 @@ export class TicketController {
         .from(userTickets)
         .innerJoin(eventTickets, eq(userTickets.ticketId, eventTickets.id))
         .innerJoin(events, eq(eventTickets.eventId, events.id))
-        .where(eq(userTickets.userId, userId))
+        .where(eq(userTickets.userId, parseInt(userId)))
         .orderBy(desc(userTickets.purchasedAt));
 
       return res.json({ tickets });

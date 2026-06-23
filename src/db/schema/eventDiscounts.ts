@@ -1,11 +1,17 @@
-import { integer, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  integer,
+  serial,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { events } from "./events";
 import { relations, sql } from "drizzle-orm";
 
 export const eventDiscounts = pgTable("event_discounts", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
-  eventId: uuid("event_id")
+  eventId: integer("event_id")
     .notNull()
     .references(() => events.id, { onDelete: "cascade" }),
 
@@ -18,7 +24,6 @@ export const eventDiscounts = pgTable("event_discounts", {
 
   createdAt: timestamp("created_at").default(sql`now()`),
 });
-
 
 export const eventDiscountRelations = relations(eventDiscounts, ({ one }) => ({
   event: one(events, {

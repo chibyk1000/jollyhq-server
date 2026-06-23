@@ -25,7 +25,7 @@ const createVendorService = async (req, res) => {
         const [vendor] = await db_1.db
             .select()
             .from(vendors_1.vendors)
-            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, userId), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(userId)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
         const [service] = await db_1.db
             .insert(vendorServices_1.vendorServices)
             .values({
@@ -64,6 +64,7 @@ const getAllVendorServices = async (_req, res) => {
                 businessName: vendors_1.vendors.businessName,
                 logo: vendors_1.vendors.image,
                 phone: vendors_1.vendors.contactPhone,
+                userId: vendors_1.vendors.userId
             },
         })
             .from(vendorServices_1.vendorServices)
@@ -88,10 +89,11 @@ exports.getAllVendorServices = getAllVendorServices;
 const getVendorServicesByVendor = async (req, res) => {
     try {
         const { vendorId } = req.params;
+        const vendorIdStr = Array.isArray(vendorId) ? vendorId[0] : vendorId;
         const services = await db_1.db
             .select()
             .from(vendorServices_1.vendorServices)
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.vendorId, vendorId));
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.vendorId, parseInt(vendorIdStr)));
         res.json({ services });
     }
     catch (error) {
@@ -106,10 +108,11 @@ exports.getVendorServicesByVendor = getVendorServicesByVendor;
 const getVendorServiceById = async (req, res) => {
     try {
         const { id } = req.params;
+        const idStr = Array.isArray(id) ? id[0] : id;
         const [service] = await db_1.db
             .select()
             .from(vendorServices_1.vendorServices)
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, id));
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)));
         if (!service) {
             return res.status(404).json({ message: "Service not found" });
         }
@@ -127,6 +130,7 @@ exports.getVendorServiceById = getVendorServiceById;
 const updateVendorService = async (req, res) => {
     try {
         const { id } = req.params;
+        const idStr = Array.isArray(id) ? id[0] : id;
         console.log(req.body, req.file);
         let image = req.body.image;
         if (req.file) {
@@ -139,7 +143,7 @@ const updateVendorService = async (req, res) => {
         const [service] = await db_1.db
             .update(vendorServices_1.vendorServices)
             .set(updateData)
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, id))
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)))
             .returning();
         if (!service) {
             return res.status(404).json({ message: "Service not found" });
@@ -161,11 +165,12 @@ exports.updateVendorService = updateVendorService;
 const toggleVendorServiceStatus = async (req, res) => {
     try {
         const { id } = req.params;
+        const idStr = Array.isArray(id) ? id[0] : id;
         const { isActive } = req.body;
         const [service] = await db_1.db
             .update(vendorServices_1.vendorServices)
             .set({ isActive })
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, id))
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)))
             .returning();
         res.json({
             message: "Service status updated",
@@ -184,7 +189,8 @@ exports.toggleVendorServiceStatus = toggleVendorServiceStatus;
 const deleteVendorService = async (req, res) => {
     try {
         const { id } = req.params;
-        await db_1.db.delete(vendorServices_1.vendorServices).where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, id));
+        const idStr = Array.isArray(id) ? id[0] : id;
+        await db_1.db.delete(vendorServices_1.vendorServices).where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)));
         res.json({ message: "Service deleted successfully" });
     }
     catch (error) {

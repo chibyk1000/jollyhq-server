@@ -2,9 +2,9 @@ import { relations, sql } from "drizzle-orm";
 import { InferModel } from "drizzle-orm";
 import {
   pgTable,
-  uuid,
-  varchar,
+  serial,
   integer,
+  varchar,
   boolean,
   timestamp,
   text,
@@ -12,26 +12,26 @@ import {
 
 import { vendors } from "./vendors";
 import { vendorServices } from "./vendorServices";
-import {user as profiles } from "./profiles";
+import { user as profiles } from "./profiles";
 import { events } from "./events"; // optional but recommended
 
 export const vendorBookings = pgTable("vendor_bookings", {
   /* ---------- IDS ---------- */
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
-  vendorId: uuid("vendor_id")
+  vendorId: integer("vendor_id")
     .references(() => vendors.id, { onDelete: "cascade" })
     .notNull(),
 
-  serviceId: uuid("service_id").references(() => vendorServices.id, {
+  serviceId: integer("service_id").references(() => vendorServices.id, {
     onDelete: "set null",
   }),
 
-  userId: uuid("user_id")
+  userId: integer("user_id")
     .references(() => profiles.id, { onDelete: "cascade" })
     .notNull(),
 
-  eventId: uuid("event_id").references(() => events.id, {
+  eventId: integer("event_id").references(() => events.id, {
     onDelete: "set null",
   }),
 
@@ -59,14 +59,13 @@ export const vendorBookings = pgTable("vendor_bookings", {
   cancelledAt: timestamp("cancelled_at"),
 });
 
-
 export const vendorBookingRelations = relations(vendorBookings, ({ one }) => ({
   vendor: one(vendors, {
     fields: [vendorBookings.vendorId],
     references: [vendors.id],
   }),
 
-  service: one(vendorServices, { 
+  service: one(vendorServices, {
     fields: [vendorBookings.serviceId],
     references: [vendorServices.id],
   }),
@@ -81,8 +80,6 @@ export const vendorBookingRelations = relations(vendorBookings, ({ one }) => ({
     references: [events.id],
   }),
 }));
-
-
 
 export type VendorBooking = InferModel<typeof vendorBookings>;
 export type NewVendorBooking = InferModel<typeof vendorBookings, "insert">;

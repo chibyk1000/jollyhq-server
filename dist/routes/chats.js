@@ -1,9 +1,7 @@
 "use strict";
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const chat_1 = require("../controllers/chat");
@@ -14,15 +12,14 @@ const router = express_1.default.Router();
 -------------------------- */
 // Get all chats user belongs to
 router.get("/", verify_1.verifyToken, chat_1.ChatController.getMyChats);
+// Get single chat by ID
+router.post("/direct", verify_1.verifyToken, chat_1.ChatController.findOrCreateDirectChat);
+router.get("/:chatId", verify_1.verifyToken, chat_1.ChatController.getChatById);
 /* -------------------------
    CHAT MESSAGES
 -------------------------- */
 // Fetch all messages in a chat
-router.get(
-  "/:chatId/messages",
-  verify_1.verifyToken,
-  chat_1.ChatController.getChatMessages,
-);
+router.get("/:chatId/messages", verify_1.verifyToken, chat_1.ChatController.getChatMessages);
 // Send message
 router.post("/send", verify_1.verifyToken, chat_1.ChatController.sendMessage);
 // Mark message as read
@@ -31,21 +28,9 @@ router.post("/read", verify_1.verifyToken, chat_1.ChatController.markAsRead);
    ADMIN CONTROLS
 -------------------------- */
 // Add a user to group
-router.post(
-  "/add-member",
-  verify_1.verifyToken,
-  chat_1.ChatController.addMember,
-);
+router.post("/add-member", verify_1.verifyToken, chat_1.ChatController.addMember);
 // Remove a user
-router.delete(
-  "/remove-member",
-  verify_1.verifyToken,
-  chat_1.ChatController.removeMember,
-);
+router.delete("/remove-member", verify_1.verifyToken, chat_1.ChatController.removeMember);
 // Promote to admin
-router.post(
-  "/promote",
-  verify_1.verifyToken,
-  chat_1.ChatController.promoteToAdmin,
-);
+router.post("/promote", verify_1.verifyToken, chat_1.ChatController.promoteToAdmin);
 exports.default = router;

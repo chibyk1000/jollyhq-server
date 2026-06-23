@@ -41,7 +41,7 @@ export const createVendorService = async (req: Request, res: Response) => {
    const [vendor] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.userId, userId as string), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, parseInt(userId as string)), isNull(vendors.deletedAt)));
 
     const [service] = await db
       .insert(vendorServices)
@@ -111,11 +111,12 @@ export const getVendorServicesByVendor = async (
 ) => {
   try {
     const { vendorId } = req.params;
+    const vendorIdStr = Array.isArray(vendorId) ? vendorId[0] : vendorId;
 
     const services = await db
       .select()
       .from(vendorServices)  
-      .where(eq(vendorServices.vendorId, vendorId));
+      .where(eq(vendorServices.vendorId, parseInt(vendorIdStr)));
 
     res.json({ services });  
   } catch (error) {
@@ -130,11 +131,12 @@ export const getVendorServicesByVendor = async (
 export const getVendorServiceById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const idStr = Array.isArray(id) ? id[0] : id;
 
     const [service] = await db
       .select()
       .from(vendorServices)
-      .where(eq(vendorServices.id, id));
+      .where(eq(vendorServices.id, parseInt(idStr)));
 
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
@@ -153,6 +155,7 @@ export const getVendorServiceById = async (req: Request, res: Response) => {
 export const updateVendorService = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const idStr = Array.isArray(id) ? id[0] : id;
 console.log(req.body, req.file);
 
     let image = req.body.image;
@@ -169,7 +172,7 @@ console.log(req.body, req.file);
     const [service] = await db
       .update(vendorServices)
       .set(updateData)
-      .where(eq(vendorServices.id, id))
+      .where(eq(vendorServices.id, parseInt(idStr)))
       .returning();
 
     if (!service) {
@@ -195,12 +198,13 @@ export const toggleVendorServiceStatus = async (
 ) => {
   try {
     const { id } = req.params;
+    const idStr = Array.isArray(id) ? id[0] : id;
     const { isActive } = req.body;
 
     const [service] = await db
       .update(vendorServices)
       .set({ isActive })
-      .where(eq(vendorServices.id, id))
+      .where(eq(vendorServices.id, parseInt(idStr)))
       .returning();
 
     res.json({
@@ -219,8 +223,9 @@ export const toggleVendorServiceStatus = async (
 export const deleteVendorService = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const idStr = Array.isArray(id) ? id[0] : id;
 
-    await db.delete(vendorServices).where(eq(vendorServices.id, id));
+    await db.delete(vendorServices).where(eq(vendorServices.id, parseInt(idStr)));
 
     res.json({ message: "Service deleted successfully" });
   } catch (error) {

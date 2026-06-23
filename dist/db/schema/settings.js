@@ -4,10 +4,10 @@ exports.userSettings = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 const profiles_1 = require("./profiles");
 exports.userSettings = (0, pg_core_1.pgTable)("user_settings", {
-    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
-    userId: (0, pg_core_1.uuid)("user_id")
+    id: (0, pg_core_1.serial)("id").primaryKey(),
+    userId: (0, pg_core_1.integer)("user_id")
         .notNull()
-        .references(() => profiles_1.profiles.id, { onDelete: "cascade" })
+        .references(() => profiles_1.user.id, { onDelete: "cascade" })
         .unique(),
     // ===== Preferences =====
     notificationsEnabled: (0, pg_core_1.boolean)("notifications_enabled")

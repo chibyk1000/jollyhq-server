@@ -1,9 +1,9 @@
 import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
-  uuid,
-  varchar,
+  serial,
   integer,
+  varchar,
   boolean,
   timestamp,
   text,
@@ -11,9 +11,9 @@ import {
 import { vendors } from "./vendors";
 
 export const vendorServices = pgTable("vendor_services", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
-  vendorId: uuid("vendor_id")
+  vendorId: integer("vendor_id")
     .references(() => vendors.id, { onDelete: "cascade" })
     .notNull(),
 
@@ -45,12 +45,9 @@ export const vendorServices = pgTable("vendor_services", {
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
 
-
-
 export const vendorServiceRelations = relations(vendorServices, ({ one }) => ({
   vendor: one(vendors, {
     fields: [vendorServices.vendorId],
     references: [vendors.id],
   }),
 }));
- 

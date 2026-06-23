@@ -12,7 +12,7 @@ export class VendorBookingController {
       const userId = req.user!.id;
 
       const bookings = await db.query.vendorBookings.findMany({
-        where: eq(vendorBookings.userId, userId),
+        where: eq(vendorBookings.userId, parseInt(userId)),
         orderBy: [desc(vendorBookings.createdAt)],
         with: {
           service: {
@@ -64,10 +64,11 @@ export class VendorBookingController {
     try {
       const userId = req.user!.id;
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
 
       const booking = await db.query.vendorBookings.findFirst({
         where: and(
-          eq(vendorBookings.id, id),
+          eq(vendorBookings.id, parseInt(idStr)),
         //   eq(vendorBookings.userId, userId), // ensure ownership
         ),
         with: {
@@ -99,7 +100,7 @@ export class VendorBookingController {
 
       // Resolve vendor from userId
       const vendor = await db.query.vendors.findFirst({
-        where: eq(vendors.userId, userId),
+        where: eq(vendors.userId, parseInt(userId)),
         columns: { id: true },
       });
 
@@ -157,6 +158,7 @@ export class VendorBookingController {
     try {
       const userId = req.user!.id;
       const { id } = req.params;
+      const idStr = Array.isArray(id) ? id[0] : id;
       const { status } = req.body;
 
       const allowed = ["accepted", "completed", "rejected", "cancelled"];
@@ -169,7 +171,7 @@ export class VendorBookingController {
 
       // Resolve vendor
       const vendor = await db.query.vendors.findFirst({
-        where: eq(vendors.userId, userId),
+        where: eq(vendors.userId, parseInt(userId)),
         columns: { id: true },
       });
 
@@ -182,7 +184,7 @@ export class VendorBookingController {
       // Verify booking belongs to this vendor
       const booking = await db.query.vendorBookings.findFirst({
         where: and(
-          eq(vendorBookings.id, id),
+          eq(vendorBookings.id, parseInt(idStr)),
           eq(vendorBookings.vendorId, vendor.id),
         ),
       });
@@ -203,7 +205,7 @@ export class VendorBookingController {
               : undefined,
           updatedAt: new Date(),
         })
-        .where(eq(vendorBookings.id, id))
+        .where(eq(vendorBookings.id, parseInt(idStr)))
         .returning();
 
       return res.json({ success: true, data: updated });

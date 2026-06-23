@@ -1,3 +1,4 @@
+"src/db/schema/index.ts";
 export * from "./profiles";
 export * from "./eventPlanners";
 export * from "./events";

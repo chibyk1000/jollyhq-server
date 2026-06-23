@@ -1,9 +1,9 @@
 import {
   pgTable,
-  uuid,
+  serial,
+  integer,
   varchar,
   text,
-  integer,
   numeric,
   boolean,
   timestamp,
@@ -12,9 +12,9 @@ import { events } from "./events";
 import { relations, sql } from "drizzle-orm";
 
 export const eventTickets = pgTable("event_tickets", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
 
-  eventId: uuid("event_id")
+  eventId: integer("event_id")
     .notNull()
     .references(() => events.id, { onDelete: "cascade" }),
 

@@ -4,30 +4,18 @@ const express_1 = require("express");
 const tickets_1 = require("../controllers/tickets");
 const verify_1 = require("../middlewares/verify");
 const router = (0, express_1.Router)();
+// Get all tickets
+router.get("/", tickets_1.TicketController.getAllTickets);
+// Get tickets stats
+router.get("/stats", tickets_1.TicketController.getTicketsStats);
 // Create 1 or many
 router.post("/", verify_1.verifyToken, tickets_1.TicketController.createTicket);
 // List tickets of an event
-router.get(
-  "/event/:eventId",
-  verify_1.verifyToken,
-  tickets_1.TicketController.getTicketsByEvent,
-);
+router.get("/event/:eventId", verify_1.verifyToken, tickets_1.TicketController.getTicketsByEvent);
 // Get single ticket
-router.get(
-  "/:ticketId",
-  verify_1.verifyToken,
-  tickets_1.TicketController.getTicket,
-);
+router.get("/:ticketId", verify_1.verifyToken, tickets_1.TicketController.getTicket);
 // Update
-router.put(
-  "/:ticketId",
-  verify_1.verifyToken,
-  tickets_1.TicketController.updateTicket,
-);
+router.put("/:ticketId", verify_1.verifyToken, tickets_1.TicketController.updateTicket);
 // Delete
-router.delete(
-  "/:ticketId",
-  verify_1.verifyToken,
-  tickets_1.TicketController.deleteTicket,
-);
+router.delete("/:ticketId", verify_1.verifyToken, tickets_1.TicketController.deleteTicket);
 exports.default = router;

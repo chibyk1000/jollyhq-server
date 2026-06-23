@@ -4,7 +4,8 @@ import {
   varchar,
   timestamp,
   boolean,
-  uuid,
+  serial,
+  integer,
   real,
   pgEnum,
   uniqueIndex,
@@ -21,8 +22,8 @@ export const walletOwnerTypeEnum = pgEnum("wallet_owner_type", [
 export const wallets = pgTable(
   "wallets",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id")
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
       .references(() => profiles.id, { onDelete: "cascade" })
       .notNull(),
 

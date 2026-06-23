@@ -180,7 +180,7 @@ export class WalletController {
 
       await db.transaction(async (tx) => {
         await tx.insert(orders).values({
-          userId: authUser.id,
+          userId: parseInt(authUser.id),
           eventId: ticket.eventId,
           ticketId,
           quantity: quantity.toString(),
@@ -264,7 +264,7 @@ export class WalletController {
       }
 
       // 3. Block vendor from paying for their own service
-      if (vendor.userId === authUser.id) {
+      if (vendor.userId === parseInt(authUser.id)) {
         return res.status(400).json({
           success: false,
           message: "You cannot pay for your own service",
@@ -280,7 +280,7 @@ export class WalletController {
         .values({
           vendorId: vendor.id,
           serviceId: service.id,
-          userId: authUser.id,
+          userId: parseInt(authUser.id),
           eventId: eventId && eventId.trim() !== "" ? eventId : null,
           quantity: 1,
           amount: totalAmount,
@@ -382,7 +382,7 @@ export class WalletController {
 
                 if (plannerWallet) {
                   await WalletService.credit({
-                    userId: event.plannerId,
+                    userId: event.plannerId.toString(),
                     ownerType: "event_planner",
                     amount: Number(paidOrder.totalAmount),
                     source: "ticket_sale",
@@ -436,7 +436,7 @@ export class WalletController {
 
               if (vendorWallet) {
                 await WalletService.credit({
-                  userId: vendor.userId,
+                  userId: vendor.userId.toString(),
                   ownerType: "vendor",
                   amount: paidBooking.amount,
                   source: "vendor_payment",

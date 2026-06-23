@@ -1,6 +1,7 @@
 import {
   pgTable,
-  uuid,
+  serial,
+  integer,
   varchar,
   timestamp,
   boolean,
@@ -24,14 +25,14 @@ export const chatDirectTypeEnum = pgEnum("chat_direct_type", [
 export const chats = pgTable(
   "chats",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    eventId: uuid("event_id").references(() => events.id, {
+    id: serial("id").primaryKey(),
+    eventId: integer("event_id").references(() => events.id, {
       onDelete: "cascade",
     }),
-    vendorId: uuid("vendor_id").references(() => vendors.id, {
+    vendorId: integer("vendor_id").references(() => vendors.id, {
       onDelete: "cascade",
     }),
-    userId: uuid("user_id").references(() => user.id, {
+    userId: integer("user_id").references(() => user.id, {
       onDelete: "cascade",
     }),
     // NEW — marks this as a DM and describes who's talking
@@ -50,7 +51,6 @@ export const chats = pgTable(
   }),
 );
 
-
 export const chatRelations = relations(chats, ({ many, one }) => ({
   members: many(chatMembers),
   messages: many(messages),
@@ -68,4 +68,3 @@ export const chatRelations = relations(chats, ({ many, one }) => ({
     references: [user.id],
   }),
 }));
-

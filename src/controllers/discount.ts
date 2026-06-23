@@ -20,11 +20,12 @@ export class DiscountController {
   static async getDiscountById(req: Request, res: Response) {
     try {
       const { discountId } = req.params;
+      const discountIdStr = Array.isArray(discountId) ? discountId[0] : discountId;
 
       const [discount] = await db
         .select()
         .from(eventDiscounts)
-        .where(eq(eventDiscounts.id, discountId));
+        .where(eq(eventDiscounts.id, parseInt(discountIdStr)));
 
       if (!discount) {
         return res.status(404).json({ message: "Discount not found" });
@@ -54,6 +55,7 @@ export class DiscountController {
   static async updateDiscount(req: Request, res: Response) {
     try {
       const { discountId } = req.params;
+      const discountIdStr = Array.isArray(discountId) ? discountId[0] : discountId;
 
       const data = req.body;
       delete data.id;
@@ -61,7 +63,7 @@ export class DiscountController {
       const [updated] = await db
         .update(eventDiscounts)
         .set(data)
-        .where(eq(eventDiscounts.id, discountId))
+        .where(eq(eventDiscounts.id, parseInt(discountIdStr)))
         .returning();
 
       if (!updated) {
@@ -77,10 +79,11 @@ export class DiscountController {
   static async deleteDiscount(req: Request, res: Response) {
     try {
       const { discountId } = req.params;
+      const discountIdStr = Array.isArray(discountId) ? discountId[0] : discountId;
 
       const [deleted] = await db
         .delete(eventDiscounts)
-        .where(eq(eventDiscounts.id, discountId))
+        .where(eq(eventDiscounts.id, parseInt(discountIdStr)))
         .returning();
 
       if (!deleted) {

@@ -60,7 +60,12 @@ async function seed() {
           email: userData.email,
           password: userData.password,
           name: userData.name,
-          role: userData.role,
+          role: userData.role as
+            | "user"
+            | "admin"
+            | "superadmin"
+            | ("user" | "admin" | "superadmin")[]
+            | undefined,
           data: userData.data,
         },
       });

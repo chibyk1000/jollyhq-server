@@ -77,19 +77,18 @@ class UserControllers {
             }
             // -------- SAVE USER IN DB --------
             const newUser = await db_1.db
-                .insert(profiles_1.profiles)
+                .insert(profiles_1.user)
                 .values({
-                id,
                 firstName,
                 lastName,
                 email,
                 username,
-                phone: phone || null,
+                phoneNumber: phone || null,
                 agreedToTerms: true,
                 googleId: googleId || null,
                 facebookId: facebookId || null,
                 instagramId: instagramId || null,
-                avatarUrl,
+                image: avatarUrl,
             })
                 .returning();
             return res

@@ -14,8 +14,11 @@ export class OrderController {
         });
       }
 
+      const { orderReference } = req.params;
+      const orderReferenceStr = Array.isArray(orderReference) ? orderReference[0] : orderReference;
+
       const order = await db.query.orders.findFirst({
-        where: eq(orders.orderReference, req.params.orderReference),
+        where: eq(orders.orderReference, orderReferenceStr),
         with: {
           event: true,
           ticket: true,
@@ -24,7 +27,7 @@ export class OrderController {
         
      
           const chat = await db.query.chats.findFirst({
-            where: eq(chats.eventId, order?.eventId || ""),
+            where: order?.eventId ? eq(chats.eventId, order.eventId) : undefined,
           });
         if (!chat) {
             return res.status(404).json({
@@ -36,7 +39,7 @@ export class OrderController {
           const member = await db.query.chatMembers.findFirst({
             where: and(
               eq(chatMembers.chatId, chat?.id),
-              eq(chatMembers.profileId, order?.userId as string),
+              ...(order?.userId ? [eq(chatMembers.profileId, order.userId)] : []),
               eq(chatMembers.isBanned, false),
             ),
           });

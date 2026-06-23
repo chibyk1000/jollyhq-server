@@ -155,6 +155,7 @@ export class AdminController {
   static async getUserDetails(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
 
       if (!userId) {
         return res.status(400).json({
@@ -166,7 +167,7 @@ export class AdminController {
       const userData = await db
         .select()
         .from(user)
-        .where(eq(user.id, userId))
+        .where(eq(user.id, parseInt(userIdStr)))
         .limit(1);
 
       if (!userData || userData.length === 0) {
@@ -179,7 +180,7 @@ export class AdminController {
       const userWallets = await db
         .select()
         .from(wallets)
-        .where(eq(wallets.userId, userId));
+        .where(eq(wallets.userId, parseInt(userIdStr)));
 
       return res.status(200).json({
         success: true,
@@ -203,6 +204,7 @@ export class AdminController {
   static async banUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
       const { reason, duration } = req.body;
 
       if (!userId) {
@@ -233,7 +235,7 @@ export class AdminController {
           banExpires,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, userId))
+        .where(eq(user.id, parseInt(userIdStr)))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -265,6 +267,7 @@ export class AdminController {
   static async unbanUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
 
       if (!userId) {
         return res.status(400).json({
@@ -281,7 +284,7 @@ export class AdminController {
           banExpires: null,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, userId))
+        .where(eq(user.id, parseInt(userIdStr)))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -313,6 +316,7 @@ export class AdminController {
   static async updateUserRole(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
       const { role } = req.body;
 
       if (!userId) {
@@ -335,7 +339,7 @@ export class AdminController {
           role,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, userId))
+        .where(eq(user.id, parseInt(userIdStr)))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -367,6 +371,7 @@ export class AdminController {
   static async deleteUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
 
       if (!userId) {
         return res.status(400).json({
@@ -381,7 +386,7 @@ export class AdminController {
           deletedAt: new Date(),
           updatedAt: new Date(),
         })
-        .where(eq(user.id, userId))
+        .where(eq(user.id, parseInt(userIdStr)))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -413,6 +418,7 @@ export class AdminController {
   static async restoreUser(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
 
       if (!userId) {
         return res.status(400).json({
@@ -427,7 +433,7 @@ export class AdminController {
           deletedAt: null,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, userId))
+        .where(eq(user.id, parseInt(userIdStr)))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -537,6 +543,7 @@ export class AdminController {
   static async toggleVendorVerification(req: Request, res: Response) {
     try {
       const { vendorId } = req.params;
+      const vendorIdStr = Array.isArray(vendorId) ? vendorId[0] : vendorId;
       const { verified } = req.body;
 
       if (!vendorId) {
@@ -559,7 +566,7 @@ export class AdminController {
           verified,
           updatedAt: new Date(),
         })
-        .where(eq(vendors.id, vendorId))
+        .where(eq(vendors.id, parseInt(vendorIdStr)))
         .returning();
 
       if (!updatedVendor || updatedVendor.length === 0) {
@@ -593,6 +600,7 @@ export class AdminController {
   static async toggleVendorActivity(req: Request, res: Response) {
     try {
       const { vendorId } = req.params;
+      const vendorIdStr = Array.isArray(vendorId) ? vendorId[0] : vendorId;
       const { isActive } = req.body;
 
       if (!vendorId) {
@@ -615,7 +623,7 @@ export class AdminController {
           isActive,
           updatedAt: new Date(),
         })
-        .where(eq(vendors.id, vendorId))
+        .where(eq(vendors.id, parseInt(vendorIdStr)))
         .returning();
 
       if (!updatedVendor || updatedVendor.length === 0) {
@@ -786,6 +794,7 @@ export class AdminController {
   static async updateOrderStatus(req: Request, res: Response) {
     try {
       const { orderId } = req.params;
+      const orderIdStr = Array.isArray(orderId) ? orderId[0] : orderId;
       const { status } = req.body;
 
       if (!orderId) {
@@ -808,7 +817,7 @@ export class AdminController {
           status,
           updatedAt: new Date(),
         })
-        .where(eq(orders.id, orderId))
+        .where(eq(orders.id, parseInt(orderIdStr)))
         .returning();
 
       if (!updatedOrder || updatedOrder.length === 0) {
@@ -907,6 +916,7 @@ export class AdminController {
   static async approveWithdrawal(req: Request, res: Response) {
     try {
       const { withdrawalId } = req.params;
+      const withdrawalIdStr = Array.isArray(withdrawalId) ? withdrawalId[0] : withdrawalId;
       const adminId = (req as any).user?.id;
 
       if (!withdrawalId) {
@@ -930,7 +940,7 @@ export class AdminController {
           reviewedBy: adminId,
           updatedAt: new Date(),
         })
-        .where(eq(withdrawalRequests.id, withdrawalId))
+        .where(eq(withdrawalRequests.id, parseInt(withdrawalIdStr)))
         .returning();
 
       if (!updatedRequest || updatedRequest.length === 0) {
@@ -962,6 +972,7 @@ export class AdminController {
   static async rejectWithdrawal(req: Request, res: Response) {
     try {
       const { withdrawalId } = req.params;
+      const withdrawalIdStr = Array.isArray(withdrawalId) ? withdrawalId[0] : withdrawalId;
       const { reason } = req.body;
       const adminId = (req as any).user?.id;
 
@@ -992,7 +1003,7 @@ export class AdminController {
       const updatedRequest = await db
         .update(withdrawalRequests)
         .set(updateData)
-        .where(eq(withdrawalRequests.id, withdrawalId))
+        .where(eq(withdrawalRequests.id, parseInt(withdrawalIdStr)))
         .returning();
 
       if (!updatedRequest || updatedRequest.length === 0) {
@@ -1105,6 +1116,7 @@ export class AdminController {
   static async toggleEventPlannerVerification(req: Request, res: Response) {
     try {
       const { plannerId } = req.params;
+      const plannerIdStr = Array.isArray(plannerId) ? plannerId[0] : plannerId;
       const { isVerified } = req.body;
 
       if (!plannerId) {
@@ -1127,7 +1139,7 @@ export class AdminController {
           isVerified,
           updatedAt: new Date(),
         })
-        .where(eq(eventPlanners.id, plannerId))
+        .where(eq(eventPlanners.id, parseInt(plannerIdStr)))
         .returning();
 
       if (!updatedPlanner || updatedPlanner.length === 0) {
@@ -1180,7 +1192,7 @@ export class AdminController {
         const userWallets = await db
           .select({ id: wallets.id })
           .from(wallets)
-          .where(eq(wallets.userId, userId as string));
+          .where(eq(wallets.userId, parseInt(userId as string)));
 
         if (userWallets.length > 0) {
           const walletIds = userWallets.map((w) => w.id);
@@ -1262,7 +1274,7 @@ export class AdminController {
       let whereConditions: any[] = [];
 
       if (eventId) {
-        whereConditions.push(eq(eventDiscounts.eventId, eventId as string));
+        whereConditions.push(eq(eventDiscounts.eventId, parseInt(eventId as string)));
       }
 
       if (search) {
@@ -1356,6 +1368,7 @@ export class AdminController {
   static async deleteDiscountCode(req: Request, res: Response) {
     try {
       const { codeId } = req.params;
+      const codeIdStr = Array.isArray(codeId) ? codeId[0] : codeId;
 
       if (!codeId) {
         return res.status(400).json({
@@ -1366,7 +1379,7 @@ export class AdminController {
 
       const deleted = await db
         .delete(eventDiscounts)
-        .where(eq(eventDiscounts.id, codeId))
+        .where(eq(eventDiscounts.id, parseInt(codeIdStr)))
         .returning();
 
       if (!deleted || deleted.length === 0) {
@@ -1398,6 +1411,7 @@ export class AdminController {
   static async getUserTransactions(req: Request, res: Response) {
     try {
       const { userId } = req.params;
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
       const { page = "1", limit = "20" } = req.query;
 
       if (!userId) {
@@ -1414,7 +1428,7 @@ export class AdminController {
       const userWallets = await db
         .select()
         .from(wallets)
-        .where(eq(wallets.userId, userId));
+        .where(eq(wallets.userId, parseInt(userIdStr)));
 
       if (userWallets.length === 0) {
         return res.status(200).json({
@@ -1491,14 +1505,14 @@ export class AdminController {
       const tickets = await db
         .select()
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, eventId))
+        .where(eq(eventTickets.eventId, parseInt(eventId as string)))
         .limit(limitNum)
         .offset(offset);
 
       const countResult = await db
         .select({ count: sql`count(*)` })
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, eventId));
+        .where(eq(eventTickets.eventId, parseInt(eventId as string)));
 
       const total = parseInt((countResult[0].count as any).toString());
 

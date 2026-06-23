@@ -9,17 +9,17 @@ const profiles_1 = require("./profiles");
 const events_1 = require("./events"); // optional but recommended
 exports.vendorBookings = (0, pg_core_1.pgTable)("vendor_bookings", {
     /* ---------- IDS ---------- */
-    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
-    vendorId: (0, pg_core_1.uuid)("vendor_id")
+    id: (0, pg_core_1.serial)("id").primaryKey(),
+    vendorId: (0, pg_core_1.integer)("vendor_id")
         .references(() => vendors_1.vendors.id, { onDelete: "cascade" })
         .notNull(),
-    serviceId: (0, pg_core_1.uuid)("service_id").references(() => vendorServices_1.vendorServices.id, {
+    serviceId: (0, pg_core_1.integer)("service_id").references(() => vendorServices_1.vendorServices.id, {
         onDelete: "set null",
     }),
-    userId: (0, pg_core_1.uuid)("user_id")
-        .references(() => profiles_1.profiles.id, { onDelete: "cascade" })
+    userId: (0, pg_core_1.integer)("user_id")
+        .references(() => profiles_1.user.id, { onDelete: "cascade" })
         .notNull(),
-    eventId: (0, pg_core_1.uuid)("event_id").references(() => events_1.events.id, {
+    eventId: (0, pg_core_1.integer)("event_id").references(() => events_1.events.id, {
         onDelete: "set null",
     }),
     /* ---------- BOOKING INFO ---------- */
@@ -48,9 +48,9 @@ exports.vendorBookingRelations = (0, drizzle_orm_1.relations)(exports.vendorBook
         fields: [exports.vendorBookings.serviceId],
         references: [vendorServices_1.vendorServices.id],
     }),
-    user: one(profiles_1.profiles, {
+    user: one(profiles_1.user, {
         fields: [exports.vendorBookings.userId],
-        references: [profiles_1.profiles.id],
+        references: [profiles_1.user.id],
     }),
     event: one(events_1.events, {
         fields: [exports.vendorBookings.eventId],

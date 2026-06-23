@@ -5,8 +5,8 @@ const pg_core_1 = require("drizzle-orm/pg-core");
 const events_1 = require("./events");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.eventDiscounts = (0, pg_core_1.pgTable)("event_discounts", {
-    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
-    eventId: (0, pg_core_1.uuid)("event_id")
+    id: (0, pg_core_1.serial)("id").primaryKey(),
+    eventId: (0, pg_core_1.integer)("event_id")
         .notNull()
         .references(() => events_1.events.id, { onDelete: "cascade" }),
     code: (0, pg_core_1.varchar)("code", { length: 50 }).notNull(),

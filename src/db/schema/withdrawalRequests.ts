@@ -4,7 +4,8 @@ import {
   pgTable,
   varchar,
   timestamp,
-  uuid,
+  serial,
+  integer,
   real,
   pgEnum,
 } from "drizzle-orm/pg-core";
@@ -18,8 +19,8 @@ export const withdrawalStatusEnum = pgEnum("withdrawal_status", [
 ]);
 
 export const withdrawalRequests = pgTable("withdrawal_requests", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  walletId: uuid("wallet_id")
+  id: serial("id").primaryKey(),
+  walletId: integer("wallet_id")
     .references(() => wallets.id, { onDelete: "cascade" })
     .notNull(),
 
@@ -39,7 +40,7 @@ export const withdrawalRequests = pgTable("withdrawal_requests", {
   // filled when rejected
   rejectionReason: varchar("rejection_reason", { length: 255 }),
   reviewedAt: timestamp("reviewed_at"),
-  reviewedBy: uuid("reviewed_by"), // admin user id
+  reviewedBy: integer("reviewed_by"), // admin user id
 
   narration: varchar("narration", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),

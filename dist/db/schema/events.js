@@ -7,9 +7,9 @@ const eventPlanners_1 = require("./eventPlanners");
 const eventTickets_1 = require("./eventTickets");
 const eventDiscounts_1 = require("./eventDiscounts");
 exports.events = (0, pg_core_1.pgTable)("events", {
-    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    id: (0, pg_core_1.serial)("id").primaryKey(),
     // FK → event_planners.id
-    plannerId: (0, pg_core_1.uuid)("planner_id")
+    plannerId: (0, pg_core_1.integer)("planner_id")
         .notNull()
         .references(() => eventPlanners_1.eventPlanners.id, { onDelete: "cascade" }),
     imageUrl: (0, pg_core_1.text)("image_url"),

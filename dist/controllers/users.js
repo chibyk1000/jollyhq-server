@@ -2,17 +2,18 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserControllers = void 0;
 const profiles_1 = require("../db/schema/profiles");
-const supabase_1 = require("../utils/supabase");
 const db_1 = require("../db");
 const upload_1 = require("../utils/upload");
 const drizzle_orm_1 = require("drizzle-orm");
 const eventPlanners_1 = require("../db/schema/eventPlanners");
 const vendors_1 = require("../db/schema/vendors");
 const wallet_1 = require("../db/schema/wallet");
+const auth_1 = require("../utils/auth");
+const schema_1 = require("../db/schema");
 class UserControllers {
     static async createUser(req, res) {
         try {
-            const { id, email, firstName, lastName, username, agreedToTerms, phone, googleId, facebookId, instagramId, } = req.body;
+            const { id, email, firstName, lastName, username, agreedToTerms, phoneNumber, googleId, facebookId, instagramId, } = req.body;
             // ----- REQUIRED FIELDS -----
             if (!email || typeof email !== "string") {
                 return res
@@ -67,7 +68,7 @@ class UserControllers {
                 });
             }
             // ----- OPTIONAL VALUES -----
-            if (phone && typeof phone !== "string") {
+            if (phoneNumber && typeof phoneNumber !== "string") {
                 return res
                     .status(400)
                     .json({ error: "Phone number must be a string." });
@@ -88,25 +89,46 @@ class UserControllers {
             }
             const avatarUrl = await (0, upload_1.uploadToSupabase)(avatarFile, "avatars");
             // ----- INSERT INTO DATABASE -----
-            const newUser = {
-                id: id, // Or generate a UUID here if needed
-                email,
-                firstName,
-                lastName,
-                username,
-                agreedToTerms,
-                phone: phone || null,
-                googleId: googleId || null,
-                facebookId: facebookId || null,
-                instagramId: instagramId || null,
-                avatarUrl,
-            };
-            const result = await db_1.db.insert(profiles_1.profiles).values(newUser).returning();
-            return res.status(201).json(result[0]);
+            // const newUser: NewProfile = {
+            //   id: id, // Or generate a UUID here if needed
+            //   email,
+            //   firstName,
+            //   lastName,
+            //   username,
+            //   agreedToTerms,
+            //   phone: phone || null,
+            //   googleId: googleId || null,
+            //   facebookId: facebookId || null,
+            //   instagramId: instagramId || null,
+            //   avatarUrl,
+            // };
+            // const result = await db.insert(profiles).values(newUser).returning();
+            // return res.status(201).json(result[0]);
         }
         catch (error) {
             console.error(error);
             return res.status(500).json({ error: "Server error" });
+        }
+    }
+    static async verifyEmail(req, res) {
+        try {
+            if (!req.body.otp) {
+                return res.status(400).json({ message: "otp is required" });
+            }
+            if (!req.body.email) {
+                return res.status(400).json({ message: "otp is required" });
+            }
+            const data = await auth_1.auth.api.checkVerificationOTP({
+                body: {
+                    email: req.body.email, // required
+                    type: "email-verification", // required
+                    otp: req.body.otp, // required
+                },
+            });
+            return res.json({ message: "success" });
+        }
+        catch (err) {
+            return res.status(500).json({ message: "internal server error" });
         }
     }
     static async getProfile(req, res) {
@@ -118,8 +140,8 @@ class UserControllers {
             // Check if user exists
             const [user] = await db_1.db
                 .select()
-                .from(profiles_1.profiles)
-                .where((0, drizzle_orm_1.eq)(profiles_1.profiles.id, id));
+                .from(profiles_1.user)
+                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(id)));
             if (!user) {
                 return res.status(404).json({ error: "User not found." });
             }
@@ -127,21 +149,21 @@ class UserControllers {
             const [vendorProfile] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, id));
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(id)));
             // Check if user has an event planner profile
             const [plannerProfile] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, id));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(id)));
             const hasVendorProfile = Boolean(vendorProfile);
             const hasPlannerProfile = Boolean(plannerProfile);
             // Check for wallet
             const conditions = [];
             if (plannerProfile?.id) {
-                conditions.push((0, drizzle_orm_1.eq)(wallet_1.wallets.ownerId, plannerProfile.id));
+                conditions.push((0, drizzle_orm_1.eq)(wallet_1.wallets.userId, plannerProfile.id));
             }
             if (vendorProfile?.id) {
-                conditions.push((0, drizzle_orm_1.eq)(wallet_1.wallets.ownerId, vendorProfile.id));
+                conditions.push((0, drizzle_orm_1.eq)(wallet_1.wallets.userId, vendorProfile.id));
             }
             let wallet = null;
             if (conditions.length > 0) {
@@ -166,69 +188,228 @@ class UserControllers {
     static async updateProfile(req, res) {
         try {
             const { id } = req.params;
-            const { firstName, lastName, password } = req.body;
+            const { firstName, lastName, password, username } = req.body;
             if (!id || typeof id !== "string") {
                 return res.status(400).json({ error: "User ID is required." });
             }
             // ---------- VALIDATION ----------
-            if (firstName && typeof firstName !== "string") {
+            if (firstName !== undefined && typeof firstName !== "string") {
                 return res.status(400).json({ error: "First name must be a string." });
             }
-            if (lastName && typeof lastName !== "string") {
+            if (lastName !== undefined && typeof lastName !== "string") {
                 return res.status(400).json({ error: "Last name must be a string." });
             }
-            if (password && typeof password !== "string") {
-                return res.status(400).json({ error: "Password must be a string." });
+            if (username !== undefined && typeof username !== "string") {
+                return res.status(400).json({ error: "Username must be a string." });
             }
-            if (password && password.length < 8) {
-                return res
-                    .status(400)
-                    .json({ error: "Password must be at least 8 characters long." });
+            if (password !== undefined) {
+                if (typeof password !== "string") {
+                    return res.status(400).json({ error: "Password must be a string." });
+                }
+                if (password.length < 8) {
+                    return res
+                        .status(400)
+                        .json({ error: "Password must be at least 8 characters long." });
+                }
             }
+            // ---------- BUILD UPDATE DATA ----------
+            const updateData = {};
+            if (firstName !== undefined)
+                updateData.firstName = firstName;
+            if (lastName !== undefined)
+                updateData.lastName = lastName;
+            if (username !== undefined)
+                updateData.username = username;
             // ---------- AVATAR UPLOAD ----------
-            let avatarUrl;
-            const avatarFile = req.file;
-            if (avatarFile) {
-                avatarUrl = await (0, upload_1.uploadToSupabase)(avatarFile, "avatars");
+            if (req.file) {
+                const avatarUrl = await (0, upload_1.uploadToSupabase)(req.file, "avatars");
+                updateData.image = avatarUrl;
+            }
+            if (Object.keys(updateData).length === 0 && !password) {
+                return res.status(400).json({ error: "Nothing to update." });
             }
             // ---------- UPDATE LOCAL DB ----------
-            const updateData = {};
-            if (firstName)
-                updateData.firstName = firstName;
-            if (lastName)
-                updateData.lastName = lastName;
-            if (avatarUrl)
-                updateData.avatarUrl = avatarUrl;
             if (Object.keys(updateData).length > 0) {
-                await db_1.db.update(profiles_1.profiles).set(updateData).where((0, drizzle_orm_1.eq)(profiles_1.profiles.id, id));
+                await db_1.db.update(profiles_1.user).set(updateData).where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(id)));
             }
-            // ---------- UPDATE SUPABASE AUTH ----------
-            const authUpdatePayload = {
-                user_metadata: {
-                    firstName,
-                    lastName,
-                },
-            };
-            if (password) {
-                authUpdatePayload.password = password;
-            }
-            const { error: supabaseError } = await supabase_1.supabase.auth.admin.updateUserById(id, authUpdatePayload);
-            if (supabaseError) {
-                console.error("Supabase update error:", supabaseError.message);
-                return res
-                    .status(500)
-                    .json({ error: "Failed to update Supabase auth user." });
-            }
+            // ---------- UPDATE AUTH PASSWORD (if needed) ----------
+            // TODO: Update Supabase Auth password here
+            // await supabase.auth.admin.updateUserById(id, { password });
             // ---------- FETCH UPDATED USER ----------
             const [updatedUser] = await db_1.db
                 .select()
-                .from(profiles_1.profiles)
-                .where((0, drizzle_orm_1.eq)(profiles_1.profiles.id, id));
+                .from(profiles_1.user)
+                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(id)));
             return res.status(200).json(updatedUser);
         }
         catch (error) {
-            console.error(error);
+            console.error("Update profile error:", error);
             return res.status(500).json({ error: "Server error" });
+        }
+    }
+    static async getUserDashboard(req, res) {
+        try {
+            const userId = req.user?.id;
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
+            // ── 1. Profile ────────────────────────────────────────────────────────
+            const [user] = await db_1.db
+                .select({
+                id: profiles_1.user.id,
+                firstName: profiles_1.user.firstName,
+                lastName: profiles_1.user.lastName,
+                username: profiles_1.user.username,
+                image: profiles_1.user.image,
+                email: profiles_1.user.email,
+            })
+                .from(profiles_1.user)
+                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(userId)));
+            if (!user)
+                return res.status(404).json({ message: "User not found" });
+            // ── 2. Tickets purchased ──────────────────────────────────────────────
+            const userOrders = await db_1.db
+                .select({
+                id: schema_1.orders.id,
+                quantity: schema_1.orders.quantity,
+                totalAmount: schema_1.orders.totalAmount,
+                status: schema_1.orders.status,
+                createdAt: schema_1.orders.createdAt,
+                eventId: schema_1.orders.eventId,
+                ticketId: schema_1.orders.ticketId,
+                // Event info
+                eventName: schema_1.events.name,
+                eventDate: schema_1.events.eventDate,
+                eventImage: schema_1.events.imageUrl,
+                eventLocation: schema_1.events.location,
+                // Ticket info
+                ticketLabel: schema_1.eventTickets.label,
+            })
+                .from(schema_1.orders)
+                .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
+                .leftJoin(schema_1.eventTickets, (0, drizzle_orm_1.eq)(schema_1.eventTickets.id, schema_1.orders.ticketId))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
+                .orderBy((0, drizzle_orm_1.desc)(schema_1.orders.createdAt))
+                .limit(20);
+            // ── 3. Stats ──────────────────────────────────────────────────────────
+            const [ticketStats] = await db_1.db
+                .select({
+                totalTickets: (0, drizzle_orm_1.sql) `COALESCE(SUM(${schema_1.orders.quantity}::int), 0)`,
+                totalSpent: (0, drizzle_orm_1.sql) `COALESCE(SUM(${schema_1.orders.totalAmount}::numeric), 0)`,
+                totalOrders: (0, drizzle_orm_1.sql) `COUNT(*)`,
+            })
+                .from(schema_1.orders)
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
+            // ── 4. Upcoming events the user has a ticket for ───────────────────────
+            const upcomingUserEvents = userOrders
+                .filter((o) => o.eventDate && new Date(o.eventDate) > new Date())
+                .slice(0, 5)
+                .map((o) => ({
+                orderId: o.id,
+                eventId: o.eventId,
+                eventName: o.eventName,
+                eventDate: o.eventDate,
+                eventImage: o.eventImage,
+                eventLocation: o.eventLocation,
+                ticketLabel: o.ticketLabel,
+                quantity: o.quantity,
+            }));
+            // ── 5. Past events attended ───────────────────────────────────────────
+            const pastEvents = userOrders
+                .filter((o) => o.eventDate && new Date(o.eventDate) <= new Date())
+                .slice(0, 5)
+                .map((o) => ({
+                orderId: o.id,
+                eventId: o.eventId,
+                eventName: o.eventName,
+                eventDate: o.eventDate,
+                eventImage: o.eventImage,
+                eventLocation: o.eventLocation,
+                ticketLabel: o.ticketLabel,
+                quantity: o.quantity,
+            }));
+            // ── 6. Favourites ─────────────────────────────────────────────────────
+            const userFavourites = await db_1.db
+                .select({
+                eventId: schema_1.events.id,
+                eventName: schema_1.events.name,
+                eventDate: schema_1.events.eventDate,
+                eventImage: schema_1.events.imageUrl,
+                eventLocation: schema_1.events.location,
+                category: schema_1.events.category,
+            })
+                .from(schema_1.favoriteEvents)
+                .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.favoriteEvents.eventId))
+                .where((0, drizzle_orm_1.eq)(schema_1.favoriteEvents.userId, parseInt(userId)))
+                .orderBy((0, drizzle_orm_1.desc)(schema_1.favoriteEvents.createdAt))
+                .limit(6);
+            // ── 7. Recent spend per month (for mini chart) ────────────────────────
+            const spendMonthly = await db_1.db
+                .select({
+                month: (0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${schema_1.orders.createdAt})`,
+                spent: (0, drizzle_orm_1.sql) `COALESCE(SUM(${schema_1.orders.totalAmount}::numeric), 0)`,
+                tickets: (0, drizzle_orm_1.sql) `COALESCE(SUM(${schema_1.orders.quantity}::int), 0)`,
+            })
+                .from(schema_1.orders)
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID"), (0, drizzle_orm_1.gte)(schema_1.orders.createdAt, (0, drizzle_orm_1.sql) `NOW() - INTERVAL '6 months'`)))
+                .groupBy((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${schema_1.orders.createdAt})`)
+                .orderBy((0, drizzle_orm_1.asc)((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${schema_1.orders.createdAt})`));
+            const MONTHS = [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+            ];
+            const spendChart = MONTHS.map((month, i) => {
+                const match = spendMonthly.find((r) => Number(r.month) === i + 1);
+                return {
+                    month,
+                    spent: Number(match?.spent ?? 0),
+                    tickets: Number(match?.tickets ?? 0),
+                };
+            });
+            // ── 8. Role flags ─────────────────────────────────────────────────────
+            const [vendorProfile] = await db_1.db
+                .select({ id: vendors_1.vendors.id })
+                .from(vendors_1.vendors)
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(userId)));
+            const [plannerProfile] = await db_1.db
+                .select({ id: eventPlanners_1.eventPlanners.id })
+                .from(eventPlanners_1.eventPlanners)
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(userId)));
+            return res.json({
+                user,
+                stats: {
+                    totalTickets: Number(ticketStats.totalTickets ?? 0),
+                    totalSpent: Number(ticketStats.totalSpent ?? 0),
+                    totalOrders: Number(ticketStats.totalOrders ?? 0),
+                    eventsAttended: pastEvents.length,
+                    upcomingCount: upcomingUserEvents.length,
+                    favouritesCount: userFavourites.length,
+                },
+                upcomingEvents: upcomingUserEvents,
+                pastEvents,
+                favourites: userFavourites,
+                spendChart,
+                roles: {
+                    isVendor: Boolean(vendorProfile),
+                    isPlanner: Boolean(plannerProfile),
+                },
+            });
+        }
+        catch (error) {
+            console.error("User dashboard error:", error);
+            return res.status(500).json({
+                message: "Failed to load user dashboard",
+                error: error.message,
+            });
         }
     }
 }

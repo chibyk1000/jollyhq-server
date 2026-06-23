@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = verifyToken;
-const supabase_1 = require("../utils/supabase");
+const auth_1 = require("../utils/auth");
+const node_1 = require("better-auth/node");
 async function verifyToken(req, res, next) {
-  const token = req.headers.authorization?.replace("Bearer ", "");
-  if (!token) return res.status(401).json({ message: "No token" });
-  const { data, error } = await supabase_1.supabase.auth.getUser(token);
-  if (error) return res.status(403).json({ message: "Invalid token" });
-  req.user = data.user;
-  next();
+    const session = await auth_1.auth.api.getSession({
+        headers: (0, node_1.fromNodeHeaders)(req.headers),
+    });
+    req.user = session?.user;
+    next();
 }
