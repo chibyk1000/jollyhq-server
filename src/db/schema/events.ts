@@ -1,14 +1,14 @@
-import { pgTable, serial, integer, varchar, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, timestamp, text } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { eventPlanners } from "./eventPlanners";
 import { eventTickets } from "./eventTickets";
 import { eventDiscounts } from "./eventDiscounts";
 
 export const events = pgTable("events", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
 
   // FK → event_planners.id
-  plannerId: integer("planner_id")
+  plannerId: uuid("planner_id")
     .notNull()
     .references(() => eventPlanners.id, { onDelete: "cascade" }),
 

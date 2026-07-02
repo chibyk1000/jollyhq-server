@@ -11,7 +11,7 @@ function chatSocket(io, socket) {
     socket.on("join_chat", async (chatId) => {
         const userId = socket.user.id;
         const member = await db_1.db.query.chatMembers.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(schema_1.chatMembers.profileId, userId), (0, drizzle_orm_1.eq)(schema_1.chatMembers.isBanned, false)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(schema_1.chatMembers.profileId, userId), (0, drizzle_orm_1.eq)(schema_1.chatMembers.isBanned, false)),
         });
         if (!member)
             return;
@@ -60,14 +60,14 @@ function chatSocket(io, socket) {
      */
     socket.on("send_message", async ({ chatId, content, type = "text", mediaUrl, }) => {
         const member = await db_1.db.query.chatMembers.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(schema_1.chatMembers.profileId, socket.user.id), (0, drizzle_orm_1.eq)(schema_1.chatMembers.isBanned, false)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(schema_1.chatMembers.profileId, socket.user.id), (0, drizzle_orm_1.eq)(schema_1.chatMembers.isBanned, false)),
         });
         if (!member)
             return;
         const [message] = await db_1.db
             .insert(schema_1.messages)
             .values({
-            chatId: parseInt(chatId),
+            chatId: chatId,
             senderId: socket.user.id,
             content,
             type,
@@ -81,7 +81,7 @@ function chatSocket(io, socket) {
             lastMessageAt: message.createdAt,
             lastMessagePreview: content?.slice(0, 100),
         })
-            .where((0, drizzle_orm_1.eq)(schema_1.chats.id, parseInt(chatId)));
+            .where((0, drizzle_orm_1.eq)(schema_1.chats.id, chatId));
         io.to(chatId).emit("new_message", message);
     });
     /**
@@ -154,7 +154,7 @@ async function findOrCreateDirectChat(userAId, userBId, directType) {
  */
 async function fetchChatHistory(chatId) {
     const msgs = await db_1.db.query.messages.findMany({
-        where: (0, drizzle_orm_1.eq)(schema_1.messages.chatId, parseInt(chatId)),
+        where: (0, drizzle_orm_1.eq)(schema_1.messages.chatId, chatId),
         orderBy: (0, drizzle_orm_1.asc)(schema_1.messages.createdAt),
         limit: 50,
         with: { sender: true },

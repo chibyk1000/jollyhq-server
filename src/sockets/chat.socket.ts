@@ -12,7 +12,7 @@ export function chatSocket(io: Server, socket: Socket) {
 
     const member = await db.query.chatMembers.findFirst({
       where: and(
-        eq(chatMembers.chatId, parseInt(chatId)),
+        eq(chatMembers.chatId, chatId),
         eq(chatMembers.profileId, userId),
         eq(chatMembers.isBanned, false),
       ),
@@ -94,7 +94,7 @@ console.log("chatId",chatId)
     }) => {
       const member = await db.query.chatMembers.findFirst({
         where: and(
-          eq(chatMembers.chatId, parseInt(chatId)),
+          eq(chatMembers.chatId, chatId),
           eq(chatMembers.profileId, socket.user.id),
           eq(chatMembers.isBanned, false),
         ),
@@ -105,7 +105,7 @@ console.log("chatId",chatId)
       const [message] = await db
         .insert(messages)
         .values({
-          chatId: parseInt(chatId),
+          chatId: chatId,
           senderId: socket.user.id,
           content,
           type,
@@ -120,7 +120,7 @@ console.log("chatId",chatId)
           lastMessageAt: message.createdAt,
           lastMessagePreview: content?.slice(0, 100),
         })
-        .where(eq(chats.id, parseInt(chatId)));
+        .where(eq(chats.id, chatId));
 
       io.to(chatId).emit("new_message", message);
     },
@@ -180,7 +180,7 @@ async function findOrCreateDirectChat(
         eq(chats.directType, directType),
       ),
     )
-    .where(eq(chatMembers.profileId, parseInt(userAId)));
+    .where(eq(chatMembers.profileId, userAId));
 
   const candidateChatIds = userAMemberships.map((m) => m.chatId);
 
@@ -191,7 +191,7 @@ async function findOrCreateDirectChat(
       .from(chatMembers)
       .where(
         and(
-          eq(chatMembers.profileId, parseInt(userBId)),
+          eq(chatMembers.profileId, userBId),
           inArray(chatMembers.chatId, candidateChatIds),
         ),
       )
@@ -210,8 +210,8 @@ async function findOrCreateDirectChat(
       .returning();
 
     await tx.insert(chatMembers).values([
-      { chatId: chat.id, profileId: parseInt(userAId), role: "member" },
-      { chatId: chat.id, profileId: parseInt(userBId), role: "member" },
+      { chatId: chat.id, profileId: userAId, role: "member" },
+      { chatId: chat.id, profileId: userBId, role: "member" },
     ]);
 
     return chat.id;
@@ -225,7 +225,7 @@ async function findOrCreateDirectChat(
  */
 async function fetchChatHistory(chatId: string) {
   const msgs = await db.query.messages.findMany({
-    where: eq(messages.chatId, parseInt(chatId)),
+    where: eq(messages.chatId, chatId),
     orderBy: asc(messages.createdAt),
     limit: 50,
     with: { sender: true },

@@ -141,7 +141,7 @@ class UserControllers {
             const [user] = await db_1.db
                 .select()
                 .from(profiles_1.user)
-                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(id)));
+                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, id));
             if (!user) {
                 return res.status(404).json({ error: "User not found." });
             }
@@ -149,12 +149,12 @@ class UserControllers {
             const [vendorProfile] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(id)));
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, id));
             // Check if user has an event planner profile
             const [plannerProfile] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(id)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, id));
             const hasVendorProfile = Boolean(vendorProfile);
             const hasPlannerProfile = Boolean(plannerProfile);
             // Check for wallet
@@ -230,7 +230,7 @@ class UserControllers {
             }
             // ---------- UPDATE LOCAL DB ----------
             if (Object.keys(updateData).length > 0) {
-                await db_1.db.update(profiles_1.user).set(updateData).where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(id)));
+                await db_1.db.update(profiles_1.user).set(updateData).where((0, drizzle_orm_1.eq)(profiles_1.user.id, id));
             }
             // ---------- UPDATE AUTH PASSWORD (if needed) ----------
             // TODO: Update Supabase Auth password here
@@ -239,7 +239,7 @@ class UserControllers {
             const [updatedUser] = await db_1.db
                 .select()
                 .from(profiles_1.user)
-                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(id)));
+                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, id));
             return res.status(200).json(updatedUser);
         }
         catch (error) {
@@ -263,7 +263,7 @@ class UserControllers {
                 email: profiles_1.user.email,
             })
                 .from(profiles_1.user)
-                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, parseInt(userId)));
+                .where((0, drizzle_orm_1.eq)(profiles_1.user.id, userId));
             if (!user)
                 return res.status(404).json({ message: "User not found" });
             // ── 2. Tickets purchased ──────────────────────────────────────────────
@@ -287,7 +287,7 @@ class UserControllers {
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
                 .leftJoin(schema_1.eventTickets, (0, drizzle_orm_1.eq)(schema_1.eventTickets.id, schema_1.orders.ticketId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, userId), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
                 .orderBy((0, drizzle_orm_1.desc)(schema_1.orders.createdAt))
                 .limit(20);
             // ── 3. Stats ──────────────────────────────────────────────────────────
@@ -298,7 +298,7 @@ class UserControllers {
                 totalOrders: (0, drizzle_orm_1.sql) `COUNT(*)`,
             })
                 .from(schema_1.orders)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, userId), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
             // ── 4. Upcoming events the user has a ticket for ───────────────────────
             const upcomingUserEvents = userOrders
                 .filter((o) => o.eventDate && new Date(o.eventDate) > new Date())
@@ -339,7 +339,7 @@ class UserControllers {
             })
                 .from(schema_1.favoriteEvents)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.favoriteEvents.eventId))
-                .where((0, drizzle_orm_1.eq)(schema_1.favoriteEvents.userId, parseInt(userId)))
+                .where((0, drizzle_orm_1.eq)(schema_1.favoriteEvents.userId, userId))
                 .orderBy((0, drizzle_orm_1.desc)(schema_1.favoriteEvents.createdAt))
                 .limit(6);
             // ── 7. Recent spend per month (for mini chart) ────────────────────────
@@ -350,7 +350,7 @@ class UserControllers {
                 tickets: (0, drizzle_orm_1.sql) `COALESCE(SUM(${schema_1.orders.quantity}::int), 0)`,
             })
                 .from(schema_1.orders)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID"), (0, drizzle_orm_1.gte)(schema_1.orders.createdAt, (0, drizzle_orm_1.sql) `NOW() - INTERVAL '6 months'`)))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.userId, userId), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID"), (0, drizzle_orm_1.gte)(schema_1.orders.createdAt, (0, drizzle_orm_1.sql) `NOW() - INTERVAL '6 months'`)))
                 .groupBy((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${schema_1.orders.createdAt})`)
                 .orderBy((0, drizzle_orm_1.asc)((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${schema_1.orders.createdAt})`));
             const MONTHS = [
@@ -379,11 +379,11 @@ class UserControllers {
             const [vendorProfile] = await db_1.db
                 .select({ id: vendors_1.vendors.id })
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(userId)));
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, userId));
             const [plannerProfile] = await db_1.db
                 .select({ id: eventPlanners_1.eventPlanners.id })
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(userId)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, userId));
             return res.json({
                 user,
                 stats: {

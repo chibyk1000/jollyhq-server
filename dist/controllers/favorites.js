@@ -16,7 +16,7 @@ class FavoriteController {
             const existing = await db_1.db
                 .select()
                 .from(favorites_1.favoriteEvents)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.eventId, parseInt(eventIdStr)), (0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, parseInt(userId))))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.eventId, eventIdStr), (0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, userId)))
                 .limit(1);
             if (existing.length > 0) {
                 // 2️⃣ Remove if exists → Unfavorite
@@ -30,8 +30,8 @@ class FavoriteController {
             }
             // 3️⃣ Insert new favorite → Favorite
             await db_1.db.insert(favorites_1.favoriteEvents).values({
-                userId: parseInt(userId),
-                eventId: parseInt(eventIdStr),
+                userId: userId,
+                eventId: eventIdStr,
             });
             console.log("success");
             return res.status(201).json({
@@ -59,7 +59,7 @@ class FavoriteController {
             })
                 .from(favorites_1.favoriteEvents)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.eventId, schema_1.events.id))
-                .where((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, parseInt(userId)));
+                .where((0, drizzle_orm_1.eq)(favorites_1.favoriteEvents.userId, userId));
             res.status(200).json({ favorites });
         }
         catch (err) {

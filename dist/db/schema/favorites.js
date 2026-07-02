@@ -7,11 +7,11 @@ const drizzle_orm_1 = require("drizzle-orm");
 const profiles_1 = require("./profiles");
 const events_1 = require("./events");
 exports.favoriteEvents = (0, pg_core_1.pgTable)("favorite_events", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    userId: (0, pg_core_1.integer)("user_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    userId: (0, pg_core_1.uuid)("user_id")
         .notNull()
         .references(() => profiles_1.user.id, { onDelete: "cascade" }),
-    eventId: (0, pg_core_1.integer)("event_id")
+    eventId: (0, pg_core_1.uuid)("event_id")
         .notNull()
         .references(() => events_1.events.id, { onDelete: "cascade" }),
     createdAt: (0, pg_core_1.timestamp)("created_at").defaultNow(),

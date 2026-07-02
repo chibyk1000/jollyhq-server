@@ -1,17 +1,17 @@
-import { pgTable, serial, integer, timestamp, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, timestamp, varchar, index } from "drizzle-orm/pg-core";
 import { messages } from "./messages";
 import { user as profiles } from "./profiles";
 
 export const messageReads = pgTable(
   "message_reads",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
 
-    messageId: integer("message_id")
+    messageId: uuid("message_id")
       .notNull()
       .references(() => messages.id, { onDelete: "cascade" }),
 
-    profileId: integer("profile_id")
+    profileId: uuid("profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "cascade" }),
 

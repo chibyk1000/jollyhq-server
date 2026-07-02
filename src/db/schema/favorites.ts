@@ -1,5 +1,5 @@
 // db/schema/favoriteEvents.ts
-import { pgTable, serial, integer, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, uuid, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { InferModel, relations } from "drizzle-orm";
 import { user as profiles } from "./profiles";
 import { events } from "./events";
@@ -7,11 +7,11 @@ import { events } from "./events";
 export const favoriteEvents = pgTable(
   "favorite_events",
   {
-    id: serial("id").primaryKey(),
-    userId: integer("user_id")
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "cascade" }),
-    eventId: integer("event_id")
+    eventId: uuid("event_id")
       .notNull()
       .references(() => events.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").defaultNow(),

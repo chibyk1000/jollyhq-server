@@ -18,8 +18,8 @@ export class FavoriteController {
         .from(favoriteEvents)
         .where(
           and(
-            eq(favoriteEvents.eventId, parseInt(eventIdStr)),
-            eq(favoriteEvents.userId, parseInt(userId as string))
+            eq(favoriteEvents.eventId, eventIdStr),
+            eq(favoriteEvents.userId, userId as string)
           )
         )
         .limit(1);
@@ -38,8 +38,8 @@ export class FavoriteController {
 
       // 3️⃣ Insert new favorite → Favorite
       await db.insert(favoriteEvents).values({
-        userId: parseInt(userId as string),
-        eventId: parseInt(eventIdStr),
+        userId: userId as string,
+        eventId: eventIdStr,
       });
 console.log("success");
 
@@ -69,7 +69,7 @@ console.log("success");
         })
         .from(favoriteEvents)
         .innerJoin(events, eq(favoriteEvents.eventId, events.id))
-        .where(eq(favoriteEvents.userId, parseInt(userId as string)));
+        .where(eq(favoriteEvents.userId, userId as string));
 
       res.status(200).json({ favorites });
     } catch (err) {

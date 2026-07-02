@@ -14,17 +14,17 @@ exports.orderStatusEnum = (0, pg_core_2.pgEnum)("order_status", [
     "CANCELLED",
 ]);
 exports.orders = (0, pg_core_1.pgTable)("orders", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
     // FK → users.id
-    userId: (0, pg_core_1.integer)("user_id")
+    userId: (0, pg_core_1.uuid)("user_id")
         .notNull()
         .references(() => profiles_1.user.id, { onDelete: "cascade" }),
     // FK → events.id
-    eventId: (0, pg_core_1.integer)("event_id").references(() => events_1.events.id, {
+    eventId: (0, pg_core_1.uuid)("event_id").references(() => events_1.events.id, {
         onDelete: "cascade",
     }),
     // FK → event_tickets.id
-    ticketId: (0, pg_core_1.integer)("ticket_id").references(() => eventTickets_1.eventTickets.id, {
+    ticketId: (0, pg_core_1.uuid)("ticket_id").references(() => eventTickets_1.eventTickets.id, {
         onDelete: "cascade",
     }),
     quantity: (0, pg_core_1.numeric)("quantity").notNull().default("1"),

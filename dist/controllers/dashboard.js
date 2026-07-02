@@ -26,7 +26,7 @@ class DashboardController {
                 isVerified: schema_1.eventPlanners.isVerified,
             })
                 .from(schema_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(schema_1.eventPlanners.id, parseInt(plannerIdStr)));
+                .where((0, drizzle_orm_1.eq)(schema_1.eventPlanners.id, plannerIdStr));
             if (!planner) {
                 return res.status(404).json({ message: "Event planner not found" });
             }
@@ -41,28 +41,28 @@ class DashboardController {
             })
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
             const [revenueResult] = await db_1.db
                 .select({
                 revenue: (0, drizzle_orm_1.sql) `COALESCE(SUM(${schema_1.orders.totalAmount}::numeric), 0)`,
             })
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
             const [totalEventsResult] = await db_1.db
                 .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
                 .from(schema_1.events)
-                .where((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)));
+                .where((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr));
             const [cancelledResult] = await db_1.db
                 .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "CANCELLED")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "CANCELLED")));
             const [refundedResult] = await db_1.db
                 .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "FAILED")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "FAILED")));
             // ── 3. Upcoming events with ticket sales progress ──────────────────────
             const upcomingEventsRaw = await db_1.db
                 .select({
@@ -73,7 +73,7 @@ class DashboardController {
                 location: schema_1.events.location,
             })
                 .from(schema_1.events)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.gte)(schema_1.events.eventDate, new Date())))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.gte)(schema_1.events.eventDate, new Date())))
                 .orderBy((0, drizzle_orm_1.asc)(schema_1.events.eventDate))
                 .limit(5);
             // Attach ticket progress to each upcoming event
@@ -110,7 +110,7 @@ class DashboardController {
                 .from(schema_1.orders)
                 .innerJoin(eventTickets_1.eventTickets, (0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, schema_1.orders.ticketId))
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
                 .groupBy(eventTickets_1.eventTickets.id, eventTickets_1.eventTickets.label, schema_1.events.name)
                 .orderBy((0, drizzle_orm_1.desc)((0, drizzle_orm_1.sql) `SUM(${schema_1.orders.quantity}::int)`))
                 .limit(5);
@@ -124,7 +124,7 @@ class DashboardController {
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
                 .innerJoin(schema_1.user, (0, drizzle_orm_1.eq)(schema_1.user.id, schema_1.orders.userId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
                 .groupBy(schema_1.user.phoneNumber)
                 .orderBy((0, drizzle_orm_1.desc)((0, drizzle_orm_1.sql) `COUNT(DISTINCT ${schema_1.orders.userId})`))
                 .limit(6);
@@ -135,7 +135,7 @@ class DashboardController {
             })
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")));
             // ── 6. Wallet transaction history ──────────────────────────────────────
             const walletTxHistory = wallet?.id
                 ? await db_1.db
@@ -163,7 +163,7 @@ class DashboardController {
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
                 .innerJoin(schema_1.user, (0, drizzle_orm_1.eq)(schema_1.user.id, schema_1.orders.userId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
                 .orderBy((0, drizzle_orm_1.desc)(schema_1.orders.createdAt))
                 .limit(5);
             // ── 8. Ticket pie (sold vs available) ─────────────────────────────────
@@ -175,7 +175,7 @@ class DashboardController {
                 .from(eventTickets_1.eventTickets)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, eventTickets_1.eventTickets.eventId))
                 .leftJoin(schema_1.orders, (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.orders.ticketId, eventTickets_1.eventTickets.id), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
-                .where((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)));
+                .where((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr));
             const soldTotal = Number(ticketTotals?.sold ?? 0);
             const capacityTotal = Number(ticketTotals?.totalCapacity ?? 0);
             const availableTotal = Math.max(capacityTotal - soldTotal, 0);
@@ -191,7 +191,7 @@ class DashboardController {
             })
                 .from(schema_1.orders)
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(schema_1.events.id, schema_1.orders.eventId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, parseInt(plannerIdStr)), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.events.plannerId, plannerIdStr), (0, drizzle_orm_1.eq)(schema_1.orders.status, "PAID")))
                 .groupBy((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${schema_1.orders.createdAt})`)
                 .orderBy((0, drizzle_orm_1.asc)((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${schema_1.orders.createdAt})`));
             const MONTHS = [
@@ -262,7 +262,7 @@ class DashboardController {
                 rating: vendors_1.vendors.rating,
             })
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.id, parseInt(vendorIdStr)));
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.id, vendorIdStr));
             if (!vendor) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
@@ -274,31 +274,31 @@ class DashboardController {
             const [totalBookingsResult] = await db_1.db
                 .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)));
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr));
             const [revenueResult] = await db_1.db
                 .select({
                 revenue: (0, drizzle_orm_1.sql) `COALESCE(SUM(${vendorBooking_1.vendorBookings.amount}), 0)`,
             })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "completed")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "completed")));
             const [pendingResult] = await db_1.db
                 .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "pending")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "pending")));
             const [acceptedResult] = await db_1.db
                 .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "accepted")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "accepted")));
             const [rejectedResult] = await db_1.db
                 .select({ count: (0, drizzle_orm_1.sql) `COUNT(*)` })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "rejected")));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "rejected")));
             const [avgBookingValueResult] = await db_1.db
                 .select({
                 avg: (0, drizzle_orm_1.sql) `COALESCE(AVG(${vendorBooking_1.vendorBookings.amount}), 0)`,
             })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)));
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr));
             // Acceptance rate
             const totalReviewed = Number(acceptedResult.count ?? 0) + Number(rejectedResult.count ?? 0);
             const acceptanceRate = totalReviewed > 0
@@ -311,7 +311,7 @@ class DashboardController {
                 count: (0, drizzle_orm_1.sql) `COUNT(*)`,
             })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)))
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr))
                 .groupBy(vendorBooking_1.vendorBookings.userId);
             const repeatClients = clientBookingCounts.filter((c) => Number(c.count) > 1).length;
             const newClients = clientBookingCounts.filter((c) => Number(c.count) === 1).length;
@@ -326,7 +326,7 @@ class DashboardController {
             })
                 .from(vendorBooking_1.vendorBookings)
                 .innerJoin(vendorServices_1.vendorServices, (0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, vendorBooking_1.vendorBookings.serviceId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "rejected")), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "cancelled"))))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "rejected")), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "cancelled"))))
                 .groupBy(vendorServices_1.vendorServices.id, vendorServices_1.vendorServices.title)
                 .orderBy((0, drizzle_orm_1.desc)((0, drizzle_orm_1.sql) `SUM(${vendorBooking_1.vendorBookings.amount})`))
                 .limit(5);
@@ -345,7 +345,7 @@ class DashboardController {
                 .from(vendorBooking_1.vendorBookings)
                 .leftJoin(vendorServices_1.vendorServices, (0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, vendorBooking_1.vendorBookings.serviceId))
                 .innerJoin(schema_1.user, (0, drizzle_orm_1.eq)(schema_1.user.id, vendorBooking_1.vendorBookings.userId))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)), (0, drizzle_orm_1.gte)(vendorBooking_1.vendorBookings.scheduledDate, new Date()), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "cancelled")), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "rejected"))))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr), (0, drizzle_orm_1.gte)(vendorBooking_1.vendorBookings.scheduledDate, new Date()), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "cancelled")), (0, drizzle_orm_1.not)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "rejected"))))
                 .orderBy((0, drizzle_orm_1.asc)(vendorBooking_1.vendorBookings.scheduledDate))
                 .limit(5);
             // ── 6. Wallet transaction history ──────────────────────────────────────
@@ -376,7 +376,7 @@ class DashboardController {
                 .from(vendorBooking_1.vendorBookings)
                 .leftJoin(vendorServices_1.vendorServices, (0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, vendorBooking_1.vendorBookings.serviceId))
                 .innerJoin(schema_1.user, (0, drizzle_orm_1.eq)(schema_1.user.id, vendorBooking_1.vendorBookings.userId))
-                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)))
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr))
                 .orderBy((0, drizzle_orm_1.desc)(vendorBooking_1.vendorBookings.createdAt))
                 .limit(5);
             // ── 8. Booking status pie ──────────────────────────────────────────────
@@ -386,7 +386,7 @@ class DashboardController {
                 count: (0, drizzle_orm_1.sql) `COUNT(*)`,
             })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)))
+                .where((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr))
                 .groupBy(vendorBooking_1.vendorBookings.status);
             const bookingPieData = [
                 {
@@ -422,7 +422,7 @@ class DashboardController {
                 revenue: (0, drizzle_orm_1.sql) `COALESCE(SUM(${vendorBooking_1.vendorBookings.amount}), 0)`,
             })
                 .from(vendorBooking_1.vendorBookings)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, parseInt(vendorIdStr)), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "completed")))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.vendorId, vendorIdStr), (0, drizzle_orm_1.eq)(vendorBooking_1.vendorBookings.status, "completed")))
                 .groupBy((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${vendorBooking_1.vendorBookings.createdAt})`)
                 .orderBy((0, drizzle_orm_1.asc)((0, drizzle_orm_1.sql) `EXTRACT(MONTH FROM ${vendorBooking_1.vendorBookings.createdAt})`));
             const MONTHS = [

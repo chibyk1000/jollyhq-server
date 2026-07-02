@@ -6,8 +6,8 @@ const pg_core_1 = require("drizzle-orm/pg-core");
 const profiles_1 = require("./profiles"); // ensure correct import path
 const events_1 = require("./events");
 exports.eventPlanners = (0, pg_core_1.pgTable)("event_planners", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    profileId: (0, pg_core_1.integer)("profile_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    profileId: (0, pg_core_1.uuid)("profile_id")
         .notNull()
         .references(() => profiles_1.user.id, { onDelete: "cascade" })
         .unique(), // FK to base user profile

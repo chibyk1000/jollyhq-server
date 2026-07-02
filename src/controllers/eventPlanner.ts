@@ -18,7 +18,7 @@ export class EventPlannerControllers {
       const [existing] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, parseInt(userId)));
+        .where(eq(eventPlanners.profileId, userId));
 
       if (existing) {
         return res
@@ -66,7 +66,7 @@ export class EventPlannerControllers {
         const [planner] = await tx
           .insert(eventPlanners)
           .values({
-            profileId: parseInt(userId),
+            profileId: userId,
             businessName,
             businessEmail,
             businessPhone,
@@ -91,7 +91,7 @@ export class EventPlannerControllers {
         const [wallet] = await tx
           .insert(wallets)
           .values({
-            userId: parseInt(userId),
+            userId: userId,
             ownerType: "event_planner",
             balance: 0,
             currency: "NGN",
@@ -133,7 +133,7 @@ export class EventPlannerControllers {
             eq(wallets.ownerType, "event_planner"),
           ),
         )
-        .where(eq(eventPlanners.profileId, parseInt(idStr)));
+        .where(eq(eventPlanners.profileId, idStr));
 
       if (!data) {
         return res.status(404).json({ message: "Event planner not found" });
@@ -196,14 +196,14 @@ export class EventPlannerControllers {
       const [current] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.id, parseInt(idStr)));
+        .where(eq(eventPlanners.id, idStr));
 
       if (!current) {
         return res.status(404).json({ message: "Event planner not found" });
       }
 
       // Only the owner can update their own profile
-      if (current.profileId !== parseInt(userId)) {
+      if (current.profileId !== userId) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -230,7 +230,7 @@ export class EventPlannerControllers {
           businessDocumentUrl,
           updatedAt: new Date(),
         })
-        .where(eq(eventPlanners.id, parseInt(idStr)))
+        .where(eq(eventPlanners.id, idStr))
         .returning();
 
       return res.status(200).json({
@@ -258,20 +258,20 @@ export class EventPlannerControllers {
       const [current] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.id, parseInt(idStr)));
+        .where(eq(eventPlanners.id, idStr));
 
       if (!current) {
         return res.status(404).json({ message: "Event planner not found" });
       }
 
       // Only the owner can delete their own profile
-      if (current.profileId !== parseInt(userId)) {
+      if (current.profileId !== userId) {
         return res.status(403).json({ message: "Access denied" });
       }
 
       const [deleted] = await db
         .delete(eventPlanners)
-        .where(eq(eventPlanners.id, parseInt(idStr)))
+        .where(eq(eventPlanners.id, idStr))
         .returning();
 
       return res.status(200).json({

@@ -93,7 +93,7 @@ export class TicketController {
       const result = await db
         .select()
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, parseInt(eventIdStr)));
+        .where(eq(eventTickets.eventId, eventIdStr));
 
       return res.json(result);
     } catch (e: any) {
@@ -113,7 +113,7 @@ export class TicketController {
       const [ticket] = await db
         .select()
         .from(eventTickets)
-        .where(eq(eventTickets.id, parseInt(ticketIdStr)));
+        .where(eq(eventTickets.id, ticketIdStr));
 
       if (!ticket) {
         return res.status(404).json({ message: "Ticket not found" });
@@ -139,7 +139,7 @@ export class TicketController {
       const [updated] = await db
         .update(eventTickets)
         .set(data)
-        .where(eq(eventTickets.id, parseInt(ticketIdStr)))
+        .where(eq(eventTickets.id, ticketIdStr))
         .returning();
 
       if (!updated) {
@@ -162,7 +162,7 @@ export class TicketController {
 
       const [deleted] = await db
         .delete(eventTickets)
-        .where(eq(eventTickets.id, parseInt(ticketIdStr)))
+        .where(eq(eventTickets.id, ticketIdStr))
         .returning();
 
       if (!deleted) {
@@ -209,7 +209,7 @@ export class TicketController {
         .from(userTickets)
         .innerJoin(eventTickets, eq(userTickets.ticketId, eventTickets.id))
         .innerJoin(events, eq(eventTickets.eventId, events.id))
-        .where(eq(userTickets.userId, parseInt(userId)))
+        .where(eq(userTickets.userId, userId))
         .orderBy(desc(userTickets.purchasedAt));
 
       return res.json({ tickets });

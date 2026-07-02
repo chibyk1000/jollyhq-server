@@ -1,7 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
-  serial,
+  uuid,
   integer,
   varchar,
   boolean,
@@ -11,9 +11,9 @@ import {
 import { vendors } from "./vendors";
 
 export const vendorServices = pgTable("vendor_services", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
 
-  vendorId: integer("vendor_id")
+  vendorId: uuid("vendor_id")
     .references(() => vendors.id, { onDelete: "cascade" })
     .notNull(),
 

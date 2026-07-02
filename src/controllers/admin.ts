@@ -167,7 +167,7 @@ export class AdminController {
       const userData = await db
         .select()
         .from(user)
-        .where(eq(user.id, parseInt(userIdStr)))
+        .where(eq(user.id, userIdStr))
         .limit(1);
 
       if (!userData || userData.length === 0) {
@@ -180,7 +180,7 @@ export class AdminController {
       const userWallets = await db
         .select()
         .from(wallets)
-        .where(eq(wallets.userId, parseInt(userIdStr)));
+        .where(eq(wallets.userId, userIdStr));
 
       return res.status(200).json({
         success: true,
@@ -235,7 +235,7 @@ export class AdminController {
           banExpires,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, parseInt(userIdStr)))
+        .where(eq(user.id, userIdStr))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -284,7 +284,7 @@ export class AdminController {
           banExpires: null,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, parseInt(userIdStr)))
+        .where(eq(user.id, userIdStr))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -339,7 +339,7 @@ export class AdminController {
           role,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, parseInt(userIdStr)))
+        .where(eq(user.id, userIdStr))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -386,7 +386,7 @@ export class AdminController {
           deletedAt: new Date(),
           updatedAt: new Date(),
         })
-        .where(eq(user.id, parseInt(userIdStr)))
+        .where(eq(user.id, userIdStr))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -433,7 +433,7 @@ export class AdminController {
           deletedAt: null,
           updatedAt: new Date(),
         })
-        .where(eq(user.id, parseInt(userIdStr)))
+        .where(eq(user.id, userIdStr))
         .returning();
 
       if (!updatedUser || updatedUser.length === 0) {
@@ -566,7 +566,7 @@ export class AdminController {
           verified,
           updatedAt: new Date(),
         })
-        .where(eq(vendors.id, parseInt(vendorIdStr)))
+        .where(eq(vendors.id, vendorIdStr))
         .returning();
 
       if (!updatedVendor || updatedVendor.length === 0) {
@@ -623,7 +623,7 @@ export class AdminController {
           isActive,
           updatedAt: new Date(),
         })
-        .where(eq(vendors.id, parseInt(vendorIdStr)))
+        .where(eq(vendors.id, vendorIdStr))
         .returning();
 
       if (!updatedVendor || updatedVendor.length === 0) {
@@ -817,7 +817,7 @@ export class AdminController {
           status,
           updatedAt: new Date(),
         })
-        .where(eq(orders.id, parseInt(orderIdStr)))
+        .where(eq(orders.id, orderIdStr))
         .returning();
 
       if (!updatedOrder || updatedOrder.length === 0) {
@@ -916,7 +916,9 @@ export class AdminController {
   static async approveWithdrawal(req: Request, res: Response) {
     try {
       const { withdrawalId } = req.params;
-      const withdrawalIdStr = Array.isArray(withdrawalId) ? withdrawalId[0] : withdrawalId;
+      const withdrawalIdStr = Array.isArray(withdrawalId)
+        ? withdrawalId[0]
+        : withdrawalId;
       const adminId = (req as any).user?.id;
 
       if (!withdrawalId) {
@@ -940,7 +942,7 @@ export class AdminController {
           reviewedBy: adminId,
           updatedAt: new Date(),
         })
-        .where(eq(withdrawalRequests.id, parseInt(withdrawalIdStr)))
+        .where(eq(withdrawalRequests.id, withdrawalIdStr))
         .returning();
 
       if (!updatedRequest || updatedRequest.length === 0) {
@@ -972,7 +974,9 @@ export class AdminController {
   static async rejectWithdrawal(req: Request, res: Response) {
     try {
       const { withdrawalId } = req.params;
-      const withdrawalIdStr = Array.isArray(withdrawalId) ? withdrawalId[0] : withdrawalId;
+      const withdrawalIdStr = Array.isArray(withdrawalId)
+        ? withdrawalId[0]
+        : withdrawalId;
       const { reason } = req.body;
       const adminId = (req as any).user?.id;
 
@@ -1003,7 +1007,7 @@ export class AdminController {
       const updatedRequest = await db
         .update(withdrawalRequests)
         .set(updateData)
-        .where(eq(withdrawalRequests.id, parseInt(withdrawalIdStr)))
+        .where(eq(withdrawalRequests.id, withdrawalIdStr))
         .returning();
 
       if (!updatedRequest || updatedRequest.length === 0) {
@@ -1139,7 +1143,7 @@ export class AdminController {
           isVerified,
           updatedAt: new Date(),
         })
-        .where(eq(eventPlanners.id, parseInt(plannerIdStr)))
+        .where(eq(eventPlanners.id, plannerIdStr))
         .returning();
 
       if (!updatedPlanner || updatedPlanner.length === 0) {
@@ -1192,7 +1196,7 @@ export class AdminController {
         const userWallets = await db
           .select({ id: wallets.id })
           .from(wallets)
-          .where(eq(wallets.userId, parseInt(userId as string)));
+          .where(eq(wallets.userId, userId as string));
 
         if (userWallets.length > 0) {
           const walletIds = userWallets.map((w) => w.id);
@@ -1274,7 +1278,7 @@ export class AdminController {
       let whereConditions: any[] = [];
 
       if (eventId) {
-        whereConditions.push(eq(eventDiscounts.eventId, parseInt(eventId as string)));
+        whereConditions.push(eq(eventDiscounts.eventId, eventId as string));
       }
 
       if (search) {
@@ -1379,7 +1383,7 @@ export class AdminController {
 
       const deleted = await db
         .delete(eventDiscounts)
-        .where(eq(eventDiscounts.id, parseInt(codeIdStr)))
+        .where(eq(eventDiscounts.id, codeIdStr))
         .returning();
 
       if (!deleted || deleted.length === 0) {
@@ -1428,7 +1432,7 @@ export class AdminController {
       const userWallets = await db
         .select()
         .from(wallets)
-        .where(eq(wallets.userId, parseInt(userIdStr)));
+        .where(eq(wallets.userId, userIdStr));
 
       if (userWallets.length === 0) {
         return res.status(200).json({
@@ -1505,14 +1509,14 @@ export class AdminController {
       const tickets = await db
         .select()
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, parseInt(eventId as string)))
+        .where(eq(eventTickets.eventId, eventId as string))
         .limit(limitNum)
         .offset(offset);
 
       const countResult = await db
         .select({ count: sql`count(*)` })
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, parseInt(eventId as string)));
+        .where(eq(eventTickets.eventId, eventId as string));
 
       const total = parseInt((countResult[0].count as any).toString());
 
@@ -1604,7 +1608,9 @@ export class AdminController {
       const totalEventsResult = await db
         .select({ count: sql`count(*)` })
         .from(events);
-      const totalEvents = parseInt((totalEventsResult[0].count as any).toString());
+      const totalEvents = parseInt(
+        (totalEventsResult[0].count as any).toString(),
+      );
 
       // Get upcoming events (eventDate > now)
       const upcomingEvents = await db
@@ -1629,7 +1635,9 @@ export class AdminController {
         .select({ count: sql`count(*)` })
         .from(events)
         .where(gte(events.eventDate, now));
-      const activeEvents = parseInt((activeEventsResult[0].count as any).toString());
+      const activeEvents = parseInt(
+        (activeEventsResult[0].count as any).toString(),
+      );
 
       return res.status(200).json({
         success: true,

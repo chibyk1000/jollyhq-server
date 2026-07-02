@@ -14,13 +14,13 @@ class UserSettingsController {
             const settings = await db_1.db
                 .select()
                 .from(settings_1.userSettings)
-                .where((0, drizzle_orm_1.eq)(settings_1.userSettings.userId, parseInt(userId)))
+                .where((0, drizzle_orm_1.eq)(settings_1.userSettings.userId, userId))
                 .limit(1);
             // Auto-create settings if missing
             if (!settings.length) {
                 const [created] = await db_1.db
                     .insert(settings_1.userSettings)
-                    .values({ userId: parseInt(userId) })
+                    .values({ userId: userId })
                     .returning();
                 return res.json({ settings: created });
             }
@@ -44,7 +44,7 @@ class UserSettingsController {
             const [updated] = await db_1.db
                 .insert(settings_1.userSettings)
                 .values({
-                userId: parseInt(userId),
+                userId: userId,
                 notificationsEnabled,
                 darkModeEnabled,
                 language,
@@ -95,7 +95,7 @@ class UserSettingsController {
             const [updated] = await db_1.db
                 .update(settings_1.userSettings)
                 .set(update)
-                .where((0, drizzle_orm_1.eq)(settings_1.userSettings.userId, parseInt(userId)))
+                .where((0, drizzle_orm_1.eq)(settings_1.userSettings.userId, userId))
                 .returning();
             return res.json({ settings: updated });
         }

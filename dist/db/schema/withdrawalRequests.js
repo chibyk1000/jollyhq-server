@@ -12,8 +12,8 @@ exports.withdrawalStatusEnum = (0, pg_core_1.pgEnum)("withdrawal_status", [
     "rejected", // admin rejected
 ]);
 exports.withdrawalRequests = (0, pg_core_1.pgTable)("withdrawal_requests", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    walletId: (0, pg_core_1.integer)("wallet_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    walletId: (0, pg_core_1.uuid)("wallet_id")
         .references(() => wallet_1.wallets.id, { onDelete: "cascade" })
         .notNull(),
     amount: (0, pg_core_1.real)("amount").notNull(),
@@ -29,7 +29,7 @@ exports.withdrawalRequests = (0, pg_core_1.pgTable)("withdrawal_requests", {
     // filled when rejected
     rejectionReason: (0, pg_core_1.varchar)("rejection_reason", { length: 255 }),
     reviewedAt: (0, pg_core_1.timestamp)("reviewed_at"),
-    reviewedBy: (0, pg_core_1.integer)("reviewed_by"), // admin user id
+    reviewedBy: (0, pg_core_1.uuid)("reviewed_by"), // admin user id
     narration: (0, pg_core_1.varchar)("narration", { length: 255 }),
     createdAt: (0, pg_core_1.timestamp)("created_at").defaultNow().notNull(),
     updatedAt: (0, pg_core_1.timestamp)("updated_at").$onUpdate(() => new Date()),

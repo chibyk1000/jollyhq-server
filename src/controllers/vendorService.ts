@@ -41,7 +41,7 @@ export const createVendorService = async (req: Request, res: Response) => {
    const [vendor] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.userId, parseInt(userId as string)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, userId as string), isNull(vendors.deletedAt)));
 
     const [service] = await db
       .insert(vendorServices)
@@ -116,7 +116,7 @@ export const getVendorServicesByVendor = async (
     const services = await db
       .select()
       .from(vendorServices)  
-      .where(eq(vendorServices.vendorId, parseInt(vendorIdStr)));
+      .where(eq(vendorServices.vendorId, vendorIdStr));
 
     res.json({ services });  
   } catch (error) {
@@ -136,7 +136,7 @@ export const getVendorServiceById = async (req: Request, res: Response) => {
     const [service] = await db
       .select()
       .from(vendorServices)
-      .where(eq(vendorServices.id, parseInt(idStr)));
+      .where(eq(vendorServices.id, idStr));
 
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
@@ -172,7 +172,7 @@ console.log(req.body, req.file);
     const [service] = await db
       .update(vendorServices)
       .set(updateData)
-      .where(eq(vendorServices.id, parseInt(idStr)))
+      .where(eq(vendorServices.id, idStr))
       .returning();
 
     if (!service) {
@@ -204,7 +204,7 @@ export const toggleVendorServiceStatus = async (
     const [service] = await db
       .update(vendorServices)
       .set({ isActive })
-      .where(eq(vendorServices.id, parseInt(idStr)))
+      .where(eq(vendorServices.id, idStr))
       .returning();
 
     res.json({
@@ -225,7 +225,7 @@ export const deleteVendorService = async (req: Request, res: Response) => {
     const { id } = req.params;
     const idStr = Array.isArray(id) ? id[0] : id;
 
-    await db.delete(vendorServices).where(eq(vendorServices.id, parseInt(idStr)));
+    await db.delete(vendorServices).where(eq(vendorServices.id, idStr));
 
     res.json({ message: "Service deleted successfully" });
   } catch (error) {

@@ -10,14 +10,14 @@ export default class WalletService {
   // ── Get or create ─────────────────────────────────────────────────────────
   static async getOrCreate(userId: string, ownerType: WalletOwnerType) {
     const existing = await db.query.wallets.findFirst({
-      where: and(eq(wallets.userId, parseInt(userId)), eq(wallets.ownerType, ownerType)),
+      where: and(eq(wallets.userId, userId), eq(wallets.ownerType, ownerType)),
     });
 
     if (existing) return existing;
 
     const [wallet] = await db
       .insert(wallets)
-      .values({ userId: parseInt(userId), ownerType, balance: 0, currency: "NGN" })
+      .values({ userId: userId, ownerType, balance: 0, currency: "NGN" })
       .returning();
 
     return wallet;
@@ -26,7 +26,7 @@ export default class WalletService {
   // ── Get single wallet with history ────────────────────────────────────────
   static async getWithHistory(userId: string, ownerType: WalletOwnerType) {
     return db.query.wallets.findFirst({
-      where: and(eq(wallets.userId, parseInt(userId)), eq(wallets.ownerType, ownerType)),
+      where: and(eq(wallets.userId, userId), eq(wallets.ownerType, ownerType)),
       with: {
         transactions: {
           orderBy: (t: any, { desc }: any) => [desc(t.createdAt)],
@@ -43,7 +43,7 @@ export default class WalletService {
   // ── Get all wallets for a user (planner + vendor if both exist) ───────────
   static async getAllWallets(userId: string) {
     return db.query.wallets.findMany({
-      where: eq(wallets.userId, parseInt(userId)),
+      where: eq(wallets.userId, userId),
       with: {
         transactions: {
           orderBy: (t: any, { desc }: any) => [desc(t.createdAt)],
@@ -68,7 +68,7 @@ export default class WalletService {
   }) {
     const wallet = await db.query.wallets.findFirst({
       where: and(
-        eq(wallets.userId, parseInt(params.userId)),
+        eq(wallets.userId, params.userId),
         eq(wallets.ownerType, params.ownerType),
       ),
     });
@@ -88,7 +88,7 @@ export default class WalletService {
         .set({ balance: balanceAfter })
         .where(
           and(
-            eq(wallets.userId, parseInt(params.userId)),
+            eq(wallets.userId, params.userId),
             eq(wallets.ownerType, params.ownerType),
           ),
         );
@@ -119,7 +119,7 @@ export default class WalletService {
   }) {
     const wallet = await db.query.wallets.findFirst({
       where: and(
-        eq(wallets.userId, parseInt(params.userId)),
+        eq(wallets.userId, params.userId),
         eq(wallets.ownerType, params.ownerType),
       ),
     });
@@ -137,7 +137,7 @@ export default class WalletService {
         .set({ balance: balanceAfter })
         .where(
           and(
-            eq(wallets.userId, parseInt(params.userId)),
+            eq(wallets.userId, params.userId),
             eq(wallets.ownerType, params.ownerType),
           ),
         );
@@ -170,7 +170,7 @@ export default class WalletService {
   }) {
     const wallet = await db.query.wallets.findFirst({
       where: and(
-        eq(wallets.userId, parseInt(params.userId)),
+        eq(wallets.userId, params.userId),
         eq(wallets.ownerType, params.ownerType),
       ),
     });
@@ -213,7 +213,7 @@ export default class WalletService {
   // ── Get withdrawal history for one wallet ─────────────────────────────────
   static async getWithdrawals(userId: string, ownerType: WalletOwnerType) {
     const wallet = await db.query.wallets.findFirst({
-      where: and(eq(wallets.userId, parseInt(userId)), eq(wallets.ownerType, ownerType)),
+      where: and(eq(wallets.userId, userId), eq(wallets.ownerType, ownerType)),
     });
 
     if (!wallet) throw new Error("Wallet not found");

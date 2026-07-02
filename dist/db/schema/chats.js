@@ -15,14 +15,14 @@ exports.chatDirectTypeEnum = (0, pg_core_2.pgEnum)("chat_direct_type", [
     "vendor_planner", // vendor ↔ event planner
 ]);
 exports.chats = (0, pg_core_1.pgTable)("chats", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    eventId: (0, pg_core_1.integer)("event_id").references(() => events_1.events.id, {
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    eventId: (0, pg_core_1.uuid)("event_id").references(() => events_1.events.id, {
         onDelete: "cascade",
     }),
-    vendorId: (0, pg_core_1.integer)("vendor_id").references(() => vendors_1.vendors.id, {
+    vendorId: (0, pg_core_1.uuid)("vendor_id").references(() => vendors_1.vendors.id, {
         onDelete: "cascade",
     }),
-    userId: (0, pg_core_1.integer)("user_id").references(() => profiles_1.user.id, {
+    userId: (0, pg_core_1.uuid)("user_id").references(() => profiles_1.user.id, {
         onDelete: "cascade",
     }),
     // NEW — marks this as a DM and describes who's talking

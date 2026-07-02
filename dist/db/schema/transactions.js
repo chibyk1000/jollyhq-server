@@ -13,8 +13,8 @@ exports.txSourceEnum = (0, pg_core_1.pgEnum)("wallet_tx_source", [
     "refund_reversal", // debit when a sale is reversed
 ]);
 exports.walletTransactions = (0, pg_core_1.pgTable)("wallet_transactions", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    walletId: (0, pg_core_1.integer)("wallet_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    walletId: (0, pg_core_1.uuid)("wallet_id")
         .references(() => wallet_1.wallets.id, { onDelete: "cascade" })
         .notNull(),
     type: (0, exports.txTypeEnum)("type").notNull(),

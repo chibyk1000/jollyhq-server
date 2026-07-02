@@ -8,7 +8,7 @@ exports.account = (0, pg_core_1.pgTable)("account", {
     id: (0, pg_core_1.text)("id").primaryKey(),
     accountId: (0, pg_core_1.text)("account_id").notNull(),
     providerId: (0, pg_core_1.text)("provider_id").notNull(),
-    userId: (0, pg_core_1.integer)("user_id")
+    userId: (0, pg_core_1.uuid)("user_id")
         .notNull()
         .references(() => profiles_1.user.id, { onDelete: "cascade" }),
     accessToken: (0, pg_core_1.text)("access_token"),

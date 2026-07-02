@@ -2,7 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import { InferModel } from "drizzle-orm";
 import {
   pgTable,
-  serial,
+  uuid,
   integer,
   varchar,
   boolean,
@@ -17,21 +17,21 @@ import { events } from "./events"; // optional but recommended
 
 export const vendorBookings = pgTable("vendor_bookings", {
   /* ---------- IDS ---------- */
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
 
-  vendorId: integer("vendor_id")
+  vendorId: uuid("vendor_id")
     .references(() => vendors.id, { onDelete: "cascade" })
     .notNull(),
 
-  serviceId: integer("service_id").references(() => vendorServices.id, {
+  serviceId: uuid("service_id").references(() => vendorServices.id, {
     onDelete: "set null",
   }),
 
-  userId: integer("user_id")
+  userId: uuid("user_id")
     .references(() => profiles.id, { onDelete: "cascade" })
     .notNull(),
 
-  eventId: integer("event_id").references(() => events.id, {
+  eventId: uuid("event_id").references(() => events.id, {
     onDelete: "set null",
   }),
 

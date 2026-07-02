@@ -52,7 +52,7 @@ export class ChatController {
         .leftJoin(events, eq(chats.eventId, events.id))
         .leftJoin(vendors, eq(chats.vendorId, vendors.id))
 
-        .where(eq(chatMembers.profileId, parseInt(userId)))
+        .where(eq(chatMembers.profileId, userId))
 
         .groupBy(
           chats.id,
@@ -131,7 +131,7 @@ export class ChatController {
             eq(chats.directType, directType),
           ),
         )
-        .where(eq(chatMembers.profileId, parseInt(currentUserId)));
+        .where(eq(chatMembers.profileId, currentUserId));
 
       const candidateIds = myMemberships.map((m) => m.chatId);
 
@@ -198,8 +198,8 @@ export class ChatController {
         .from(chatMembers)
         .where(
           and(
-            eq(chatMembers.chatId, parseInt(chatIdStr)),
-            eq(chatMembers.profileId, parseInt(userId)),
+            eq(chatMembers.chatId, chatIdStr),
+            eq(chatMembers.profileId, userId),
           ),
         )
         .limit(1);
@@ -255,7 +255,7 @@ export class ChatController {
         .leftJoin(eventPlanners, eq(events.plannerId, eventPlanners.id))
         .leftJoin(vendors, eq(chats.vendorId, vendors.id))
         .innerJoin(chatMembers, eq(chatMembers.chatId, chats.id))
-        .where(eq(chats.id, parseInt(chatIdStr)))
+        .where(eq(chats.id, chatIdStr))
         .groupBy(
           chats.id,
           chats.name,
@@ -313,7 +313,7 @@ export class ChatController {
         .from(chatMembers)
         .innerJoin(user, eq(chatMembers.profileId, user.id))
         .where(
-          and(eq(chatMembers.chatId, parseInt(chatIdStr)), eq(chatMembers.isBanned, false)),
+          and(eq(chatMembers.chatId, chatIdStr), eq(chatMembers.isBanned, false)),
         )
         .orderBy(chatMembers.joinedAt);
 
@@ -339,8 +339,8 @@ export class ChatController {
       // 1️⃣ Ensure user is a member
       const member = await db.query.chatMembers.findFirst({
         where: and(
-          eq(chatMembers.chatId, parseInt(chatIdStr)),
-          eq(chatMembers.profileId, parseInt(userId)),
+          eq(chatMembers.chatId, chatIdStr),
+          eq(chatMembers.profileId, userId),
         ),
       });
 
@@ -363,7 +363,7 @@ export class ChatController {
         })
         .from(chats)
         .leftJoin(events, eq(chats.eventId, events.id))
-        .where(eq(chats.id, parseInt(chatIdStr)));
+        .where(eq(chats.id, chatIdStr));
 
       if (!chat) {
         return res.status(404).json({ message: "Chat not found" });
@@ -382,13 +382,13 @@ export class ChatController {
         })
         .from(chatMembers)
         .innerJoin(profiles, eq(profiles.id, chatMembers.profileId))
-        .where(eq(chatMembers.chatId, parseInt(chatIdStr)));
+        .where(eq(chatMembers.chatId, chatIdStr));
 
       // 3️⃣ Get messages
       const chatMessages = await db
         .select()
         .from(messages)
-        .where(eq(messages.chatId, parseInt(chatIdStr)))
+        .where(eq(messages.chatId, chatIdStr))
         .orderBy(desc(messages.createdAt));
 
       // 4️⃣ Final response
@@ -432,8 +432,8 @@ export class ChatController {
 
       const member = await db.query.chatMembers.findFirst({
         where: and(
-          eq(chatMembers.chatId, parseInt(chatId)),
-          eq(chatMembers.profileId, parseInt(userId)),
+          eq(chatMembers.chatId, chatId),
+          eq(chatMembers.profileId, userId),
         ),
       });
 
@@ -443,8 +443,8 @@ export class ChatController {
       const [message] = await db
         .insert(messages)
         .values({
-          chatId: parseInt(chatId),
-          senderId: parseInt(userId),
+          chatId: chatId,
+          senderId: userId,
           content,
           type: type || "text",
         })
@@ -468,8 +468,8 @@ export class ChatController {
         return res.status(400).json({ message: "Invalid request" });
 
       await db.insert(messageReads).values({
-        messageId: parseInt(messageId),
-        profileId: parseInt(userId),
+        messageId: messageId,
+        profileId: userId,
       });
 
       return res.status(200).json({ success: true });
@@ -490,15 +490,15 @@ export class ChatController {
       }
       const admin = await db.query.chatMembers.findFirst({
         where: and(
-          eq(chatMembers.chatId, parseInt(chatId)),
-          eq(chatMembers.profileId, parseInt(userId)),
+          eq(chatMembers.chatId, chatId),
+          eq(chatMembers.profileId, userId),
           eq(chatMembers.role, "admin"),
         ),
       });
 
       if (!admin) return res.status(403).json({ message: "Admins only" });
 
-      await db.insert(chatMembers).values({ chatId: parseInt(chatId), profileId: parseInt(profileId) });
+      await db.insert(chatMembers).values({ chatId: chatId, profileId: profileId });
 
       return res.json({ message: "Member added successfully" });
     } catch (error: any) {
@@ -520,8 +520,8 @@ export class ChatController {
 
       const admin = await db.query.chatMembers.findFirst({
         where: and(
-          eq(chatMembers.chatId, parseInt(chatId)),
-          eq(chatMembers.profileId, parseInt(userId)),
+          eq(chatMembers.chatId, chatId),
+          eq(chatMembers.profileId, userId),
           eq(chatMembers.role, "admin"),
         ),
       });
@@ -532,8 +532,8 @@ export class ChatController {
         .delete(chatMembers)
         .where(
           and(
-            eq(chatMembers.chatId, parseInt(chatId)),
-            eq(chatMembers.profileId, parseInt(profileId)),
+            eq(chatMembers.chatId, chatId),
+            eq(chatMembers.profileId, profileId),
           ),
         );
 
@@ -555,8 +555,8 @@ export class ChatController {
       }
       const admin = await db.query.chatMembers.findFirst({
         where: and(
-          eq(chatMembers.chatId, parseInt(chatId)),
-          eq(chatMembers.profileId, parseInt(userId)),
+          eq(chatMembers.chatId, chatId),
+          eq(chatMembers.profileId, userId),
           eq(chatMembers.role, "admin"),
         ),
       });
@@ -568,8 +568,8 @@ export class ChatController {
         .set({ role: "admin" })
         .where(
           and(
-            eq(chatMembers.chatId, parseInt(chatId)),
-            eq(chatMembers.profileId, parseInt(profileId)),
+            eq(chatMembers.chatId, chatId),
+            eq(chatMembers.profileId, profileId),
           ),
         );
 

@@ -5,7 +5,7 @@ import {
   text,
   timestamp,
   boolean,
-  integer,
+  uuid,
   index,
 } from "drizzle-orm/pg-core";
 import { user } from "./profiles";
@@ -15,7 +15,7 @@ export const account = pgTable(
     id: text("id").primaryKey(),
     accountId: text("account_id").notNull(),
     providerId: text("provider_id").notNull(),
-    userId: integer("user_id")
+    userId: uuid("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     accessToken: text("access_token"),

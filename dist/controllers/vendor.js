@@ -19,7 +19,7 @@ class VendorsController {
             const [existing] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(userId)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, userId), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
             if (existing) {
                 return res
                     .status(400)
@@ -44,7 +44,7 @@ class VendorsController {
                 const [vendor] = await tx
                     .insert(vendors_1.vendors)
                     .values({
-                    userId: parseInt(userId),
+                    userId: userId,
                     businessName,
                     contactName,
                     contactEmail,
@@ -61,7 +61,7 @@ class VendorsController {
                 const [wallet] = await tx
                     .insert(wallet_1.wallets)
                     .values({
-                    userId: parseInt(userId),
+                    userId: userId,
                     ownerType: "vendor",
                     balance: 0,
                     currency: "NGN",
@@ -105,7 +105,7 @@ class VendorsController {
             const [vendor] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, parseInt(idStr)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, idStr), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
             if (!vendor) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
@@ -130,7 +130,7 @@ class VendorsController {
             const [vendor] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(userIdStr)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, userIdStr), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
             if (!vendor) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
@@ -154,8 +154,8 @@ class VendorsController {
                 wallet: wallet_1.wallets,
             })
                 .from(vendors_1.vendors)
-                .leftJoin(wallet_1.wallets, (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(wallet_1.wallets.userId, parseInt(idStr)), (0, drizzle_orm_1.eq)(wallet_1.wallets.ownerType, "vendor")))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(idStr)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+                .leftJoin(wallet_1.wallets, (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(wallet_1.wallets.userId, idStr), (0, drizzle_orm_1.eq)(wallet_1.wallets.ownerType, "vendor")))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, idStr), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
             if (!data) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
@@ -185,12 +185,12 @@ class VendorsController {
             const [current] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, parseInt(idStr)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, idStr), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
             if (!current) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
             // Only the owner can update
-            if (current.userId !== parseInt(userId)) {
+            if (current.userId !== userId) {
                 return res.status(403).json({ message: "Access denied" });
             }
             const imageUrl = req.file
@@ -225,7 +225,7 @@ class VendorsController {
             const [updated] = await db_1.db
                 .update(vendors_1.vendors)
                 .set(updateData)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, parseInt(idStr)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, idStr), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)))
                 .returning();
             return res.json({ success: true, data: updated });
         }
@@ -247,18 +247,18 @@ class VendorsController {
             const [current] = await db_1.db
                 .select()
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, parseInt(idStr)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, idStr), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
             if (!current) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
             // Only the owner can delete
-            if (current.userId !== parseInt(userId)) {
+            if (current.userId !== userId) {
                 return res.status(403).json({ message: "Access denied" });
             }
             await db_1.db
                 .update(vendors_1.vendors)
                 .set({ deletedAt: new Date(), isActive: false })
-                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.id, parseInt(idStr)));
+                .where((0, drizzle_orm_1.eq)(vendors_1.vendors.id, idStr));
             return res.json({
                 success: true,
                 message: "Vendor deleted successfully",
@@ -280,7 +280,7 @@ class VendorsController {
             const [vendor] = await db_1.db
                 .select({ id: vendors_1.vendors.id })
                 .from(vendors_1.vendors)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, parseInt(vendorIdStr)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.id, vendorIdStr), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
             if (!vendor) {
                 return res.status(404).json({ message: "Vendor not found" });
             }
@@ -300,7 +300,7 @@ class VendorsController {
                 createdAt: schema_1.chats.createdAt,
             })
                 .from(schema_1.chats)
-                .where((0, drizzle_orm_1.eq)(schema_1.chats.vendorId, parseInt(vendorIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.chats.vendorId, vendorIdStr))
                 .orderBy((0, drizzle_orm_1.desc)(schema_1.chats.lastMessageAt));
             if (vendorChats.length === 0) {
                 return res.status(200).json({ success: true, data: [] });

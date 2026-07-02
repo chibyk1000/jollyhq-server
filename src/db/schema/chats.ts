@@ -1,7 +1,6 @@
 import {
   pgTable,
-  serial,
-  integer,
+  uuid,
   varchar,
   timestamp,
   boolean,
@@ -25,14 +24,14 @@ export const chatDirectTypeEnum = pgEnum("chat_direct_type", [
 export const chats = pgTable(
   "chats",
   {
-    id: serial("id").primaryKey(),
-    eventId: integer("event_id").references(() => events.id, {
+    id: uuid("id").defaultRandom().primaryKey(),
+    eventId: uuid("event_id").references(() => events.id, {
       onDelete: "cascade",
     }),
-    vendorId: integer("vendor_id").references(() => vendors.id, {
+    vendorId: uuid("vendor_id").references(() => vendors.id, {
       onDelete: "cascade",
     }),
-    userId: integer("user_id").references(() => user.id, {
+    userId: uuid("user_id").references(() => user.id, {
       onDelete: "cascade",
     }),
     // NEW — marks this as a DM and describes who's talking

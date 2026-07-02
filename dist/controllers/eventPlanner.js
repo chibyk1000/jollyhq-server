@@ -18,7 +18,7 @@ class EventPlannerControllers {
             const [existing] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(userId)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, userId));
             if (existing) {
                 return res
                     .status(400)
@@ -45,7 +45,7 @@ class EventPlannerControllers {
                 const [planner] = await tx
                     .insert(eventPlanners_1.eventPlanners)
                     .values({
-                    profileId: parseInt(userId),
+                    profileId: userId,
                     businessName,
                     businessEmail,
                     businessPhone,
@@ -69,7 +69,7 @@ class EventPlannerControllers {
                 const [wallet] = await tx
                     .insert(wallet_1.wallets)
                     .values({
-                    userId: parseInt(userId),
+                    userId: userId,
                     ownerType: "event_planner",
                     balance: 0,
                     currency: "NGN",
@@ -102,7 +102,7 @@ class EventPlannerControllers {
             })
                 .from(eventPlanners_1.eventPlanners)
                 .leftJoin(wallet_1.wallets, (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(wallet_1.wallets.userId, eventPlanners_1.eventPlanners.profileId), (0, drizzle_orm_1.eq)(wallet_1.wallets.ownerType, "event_planner")))
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(idStr)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, idStr));
             if (!data) {
                 return res.status(404).json({ message: "Event planner not found" });
             }
@@ -155,12 +155,12 @@ class EventPlannerControllers {
             const [current] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, parseInt(idStr)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, idStr));
             if (!current) {
                 return res.status(404).json({ message: "Event planner not found" });
             }
             // Only the owner can update their own profile
-            if (current.profileId !== parseInt(userId)) {
+            if (current.profileId !== userId) {
                 return res.status(403).json({ message: "Access denied" });
             }
             const files = req.files;
@@ -184,7 +184,7 @@ class EventPlannerControllers {
                 businessDocumentUrl,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, parseInt(idStr)))
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, idStr))
                 .returning();
             return res.status(200).json({
                 success: true,
@@ -210,17 +210,17 @@ class EventPlannerControllers {
             const [current] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, parseInt(idStr)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, idStr));
             if (!current) {
                 return res.status(404).json({ message: "Event planner not found" });
             }
             // Only the owner can delete their own profile
-            if (current.profileId !== parseInt(userId)) {
+            if (current.profileId !== userId) {
                 return res.status(403).json({ message: "Access denied" });
             }
             const [deleted] = await db_1.db
                 .delete(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, parseInt(idStr)))
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.id, idStr))
                 .returning();
             return res.status(200).json({
                 success: true,

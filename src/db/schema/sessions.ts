@@ -1,4 +1,4 @@
-import { index, pgTable, text, timestamp, integer } from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./profiles";
 import { relations } from "drizzle-orm";
 
@@ -14,7 +14,7 @@ export const session = pgTable(
       .notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
-    userId: integer("user_id")
+    userId: uuid("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     impersonatedBy: text("impersonated_by"),

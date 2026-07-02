@@ -11,7 +11,7 @@ const chats_1 = require("./chats");
    USER TABLE
 ========================= */
 exports.user = (0, pg_core_1.pgTable)("user", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
     // Auth-required
     email: (0, pg_core_1.varchar)("email", { length: 255 }).notNull().unique(),
     username: (0, pg_core_1.varchar)("username", { length: 100 }).unique(),

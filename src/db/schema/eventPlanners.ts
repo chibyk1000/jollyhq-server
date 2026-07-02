@@ -5,17 +5,16 @@ import {
   text,
   timestamp,
   boolean,
-  serial,
-  integer,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { user as profiles } from "./profiles"; // ensure correct import path
 import { events } from "./events";
 import { wallets } from "./wallet";
 
 export const eventPlanners = pgTable("event_planners", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
 
-  profileId: integer("profile_id")
+  profileId: uuid("profile_id")
     .notNull()
     .references(() => profiles.id, { onDelete: "cascade" })
     .unique(), // FK to base user profile

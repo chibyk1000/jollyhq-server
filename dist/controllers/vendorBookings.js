@@ -11,7 +11,7 @@ class VendorBookingController {
         try {
             const userId = req.user.id;
             const bookings = await db_1.db.query.vendorBookings.findMany({
-                where: (0, drizzle_orm_1.eq)(schema_1.vendorBookings.userId, parseInt(userId)),
+                where: (0, drizzle_orm_1.eq)(schema_1.vendorBookings.userId, userId),
                 orderBy: [(0, drizzle_orm_1.desc)(schema_1.vendorBookings.createdAt)],
                 with: {
                     service: {
@@ -64,7 +64,7 @@ class VendorBookingController {
             const { id } = req.params;
             const idStr = Array.isArray(id) ? id[0] : id;
             const booking = await db_1.db.query.vendorBookings.findFirst({
-                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.vendorBookings.id, parseInt(idStr))),
+                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.vendorBookings.id, idStr)),
                 with: {
                     service: true,
                     vendor: true,
@@ -90,7 +90,7 @@ class VendorBookingController {
             const userId = req.user.id;
             // Resolve vendor from userId
             const vendor = await db_1.db.query.vendors.findFirst({
-                where: (0, drizzle_orm_1.eq)(schema_1.vendors.userId, parseInt(userId)),
+                where: (0, drizzle_orm_1.eq)(schema_1.vendors.userId, userId),
                 columns: { id: true },
             });
             if (!vendor) {
@@ -156,7 +156,7 @@ class VendorBookingController {
             }
             // Resolve vendor
             const vendor = await db_1.db.query.vendors.findFirst({
-                where: (0, drizzle_orm_1.eq)(schema_1.vendors.userId, parseInt(userId)),
+                where: (0, drizzle_orm_1.eq)(schema_1.vendors.userId, userId),
                 columns: { id: true },
             });
             if (!vendor) {
@@ -166,7 +166,7 @@ class VendorBookingController {
             }
             // Verify booking belongs to this vendor
             const booking = await db_1.db.query.vendorBookings.findFirst({
-                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.vendorBookings.id, parseInt(idStr)), (0, drizzle_orm_1.eq)(schema_1.vendorBookings.vendorId, vendor.id)),
+                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.vendorBookings.id, idStr), (0, drizzle_orm_1.eq)(schema_1.vendorBookings.vendorId, vendor.id)),
             });
             if (!booking) {
                 return res
@@ -182,7 +182,7 @@ class VendorBookingController {
                     : undefined,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.vendorBookings.id, parseInt(idStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.vendorBookings.id, idStr))
                 .returning();
             return res.json({ success: true, data: updated });
         }

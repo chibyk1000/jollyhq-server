@@ -18,7 +18,7 @@ export class VendorsController {
       const [existing] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.userId, parseInt(userId)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, userId), isNull(vendors.deletedAt)));
 
       if (existing) {
         return res
@@ -62,7 +62,7 @@ export class VendorsController {
         const [vendor] = await tx
           .insert(vendors)
           .values({
-            userId: parseInt(userId),
+            userId: userId,
             businessName,
             contactName,
             contactEmail,
@@ -80,7 +80,7 @@ export class VendorsController {
         const [wallet] = await tx
           .insert(wallets)
           .values({
-            userId: parseInt(userId),
+            userId: userId,
             ownerType: "vendor",
             balance: 0,
             currency: "NGN",
@@ -128,7 +128,7 @@ export class VendorsController {
       const [vendor] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, idStr), isNull(vendors.deletedAt)));
 
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -157,7 +157,7 @@ export class VendorsController {
       const [vendor] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.userId, parseInt(userIdStr)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, userIdStr), isNull(vendors.deletedAt)));
 
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -187,11 +187,11 @@ export class VendorsController {
         .leftJoin(
           wallets,
           and(
-            eq(wallets.userId, parseInt(idStr)),
+            eq(wallets.userId, idStr),
             eq(wallets.ownerType, "vendor"), // ← scoped to vendor wallet only
           ),
         )
-        .where(and(eq(vendors.userId, parseInt(idStr)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.userId, idStr), isNull(vendors.deletedAt)));
 
       if (!data) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -224,14 +224,14 @@ export class VendorsController {
       const [current] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, idStr), isNull(vendors.deletedAt)));
 
       if (!current) {
         return res.status(404).json({ message: "Vendor not found" });
       }
 
       // Only the owner can update
-      if (current.userId !== parseInt(userId)) {
+      if (current.userId !== userId) {
         return res.status(403).json({ message: "Access denied" });
       }
 
@@ -272,7 +272,7 @@ export class VendorsController {
       const [updated] = await db
         .update(vendors)
         .set(updateData)
-        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)))
+        .where(and(eq(vendors.id, idStr), isNull(vendors.deletedAt)))
         .returning();
 
       return res.json({ success: true, data: updated });
@@ -296,21 +296,21 @@ export class VendorsController {
       const [current] = await db
         .select()
         .from(vendors)
-        .where(and(eq(vendors.id, parseInt(idStr)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, idStr), isNull(vendors.deletedAt)));
 
       if (!current) {
         return res.status(404).json({ message: "Vendor not found" });
       }
 
       // Only the owner can delete
-      if (current.userId !== parseInt(userId)) {
+      if (current.userId !== userId) {
         return res.status(403).json({ message: "Access denied" });
       }
 
       await db
         .update(vendors)
         .set({ deletedAt: new Date(), isActive: false })
-        .where(eq(vendors.id, parseInt(idStr)));
+        .where(eq(vendors.id, idStr));
 
       return res.json({
         success: true,
@@ -334,7 +334,7 @@ export class VendorsController {
       const [vendor] = await db
         .select({ id: vendors.id })
         .from(vendors)
-        .where(and(eq(vendors.id, parseInt(vendorIdStr)), isNull(vendors.deletedAt)));
+        .where(and(eq(vendors.id, vendorIdStr), isNull(vendors.deletedAt)));
 
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -356,7 +356,7 @@ export class VendorsController {
           createdAt: chats.createdAt,
         })
         .from(chats)
-        .where(eq(chats.vendorId, parseInt(vendorIdStr)))
+        .where(eq(chats.vendorId, vendorIdStr))
         .orderBy(desc(chats.lastMessageAt));
 
       if (vendorChats.length === 0) {

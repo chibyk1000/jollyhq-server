@@ -24,7 +24,7 @@ class EventController {
             const [planner] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(user.id)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, user.id));
             if (!planner) {
                 return res.status(403).json({
                     message: "You must register as an event planner before creating events.",
@@ -59,7 +59,7 @@ class EventController {
                     .returning();
                 await tx.insert(chatMembers_1.chatMembers).values({
                     chatId: newChat.id,
-                    profileId: parseInt(user.id),
+                    profileId: user.id,
                     role: "admin",
                 });
                 return { newEvent, newChat };
@@ -90,14 +90,14 @@ class EventController {
             const [planner] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(user.id)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, user.id));
             if (!planner) {
                 return res.status(403).json({ message: "Not an event planner" });
             }
             const [existing] = await db_1.db
                 .select()
                 .from(events_1.events)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(events_1.events.id, parseInt(eventIdStr)), (0, drizzle_orm_1.eq)(events_1.events.plannerId, planner.id)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(events_1.events.id, eventIdStr), (0, drizzle_orm_1.eq)(events_1.events.plannerId, planner.id)));
             if (!existing) {
                 return res
                     .status(404)
@@ -109,7 +109,7 @@ class EventController {
             const [updated] = await db_1.db
                 .update(events_1.events)
                 .set({ ...updateData, updatedAt: new Date() })
-                .where((0, drizzle_orm_1.eq)(events_1.events.id, parseInt(eventIdStr)))
+                .where((0, drizzle_orm_1.eq)(events_1.events.id, eventIdStr))
                 .returning();
             return res.json({ success: true, data: updated });
         }
@@ -163,7 +163,7 @@ class EventController {
             const [planner] = await db_1.db
                 .select()
                 .from(eventPlanners_1.eventPlanners)
-                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, parseInt(plannerIdStr)));
+                .where((0, drizzle_orm_1.eq)(eventPlanners_1.eventPlanners.profileId, plannerIdStr));
             if (!planner) {
                 return res.status(404).json({ message: "Event planner not found" });
             }
@@ -222,14 +222,14 @@ class EventController {
             })
                 .from(events_1.events)
                 .leftJoin(eventPlanners_1.eventPlanners, (0, drizzle_orm_1.eq)(events_1.events.plannerId, eventPlanners_1.eventPlanners.id))
-                .where((0, drizzle_orm_1.eq)(events_1.events.id, parseInt(eventIdStr)));
+                .where((0, drizzle_orm_1.eq)(events_1.events.id, eventIdStr));
             if (!event) {
                 return res.status(404).json({ message: "Event not found" });
             }
             const tickets = await db_1.db
                 .select()
                 .from(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, parseInt(eventIdStr)));
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, eventIdStr));
             return res.json({
                 success: true,
                 data: {
@@ -261,7 +261,7 @@ class EventController {
                 plannerId: events_1.events.plannerId,
             })
                 .from(events_1.events)
-                .where((0, drizzle_orm_1.eq)(events_1.events.id, parseInt(eventIdStr)));
+                .where((0, drizzle_orm_1.eq)(events_1.events.id, eventIdStr));
             if (!event) {
                 return res.status(404).json({ message: "Event not found" });
             }
@@ -275,7 +275,7 @@ class EventController {
                 isFree: eventTickets_1.eventTickets.isFree,
             })
                 .from(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, parseInt(eventIdStr)));
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, eventIdStr));
             // ── Sales via orders table ─────────────────────────────────────────────
             // Use orders (PAID status) as the source of truth for sales
             const salesResult = await db_1.db.execute((0, drizzle_orm_1.sql) `
@@ -284,7 +284,7 @@ class EventController {
           SUM(o.quantity::int)              AS "sold",
           SUM(o.total_amount::numeric)      AS "revenue"
         FROM orders o
-        WHERE o.event_id   = ${parseInt(eventIdStr)}
+        WHERE o.event_id   = ${eventIdStr}
           AND o.status     = 'PAID'
         GROUP BY o.ticket_id
       `);
@@ -336,7 +336,7 @@ class EventController {
           COUNT(*)            AS count,
           SUM(total_amount::numeric) AS total
         FROM orders
-        WHERE event_id = ${parseInt(eventIdStr)}
+        WHERE event_id = ${eventIdStr}
         GROUP BY status
       `);
             const statsMap = Object.fromEntries(orderStats.rows.map((r) => [

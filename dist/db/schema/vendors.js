@@ -8,8 +8,8 @@ const vendorServices_1 = require("./vendorServices");
 const wallet_1 = require("./wallet");
 exports.vendors = (0, pg_core_1.pgTable)("vendors", {
     // ---------- IDs ----------
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    userId: (0, pg_core_1.integer)("user_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    userId: (0, pg_core_1.uuid)("user_id")
         .references(() => profiles_1.user.id, { onDelete: "cascade" })
         .notNull(),
     businessName: (0, pg_core_1.varchar)("business_name", { length: 255 }).default(""),

@@ -7,20 +7,20 @@ class WalletService {
     // ── Get or create ─────────────────────────────────────────────────────────
     static async getOrCreate(userId, ownerType) {
         const existing = await db_1.db.query.wallets.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, ownerType)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, ownerType)),
         });
         if (existing)
             return existing;
         const [wallet] = await db_1.db
             .insert(schema_1.wallets)
-            .values({ userId: parseInt(userId), ownerType, balance: 0, currency: "NGN" })
+            .values({ userId: userId, ownerType, balance: 0, currency: "NGN" })
             .returning();
         return wallet;
     }
     // ── Get single wallet with history ────────────────────────────────────────
     static async getWithHistory(userId, ownerType) {
         return db_1.db.query.wallets.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, ownerType)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, ownerType)),
             with: {
                 transactions: {
                     orderBy: (t, { desc }) => [desc(t.createdAt)],
@@ -36,7 +36,7 @@ class WalletService {
     // ── Get all wallets for a user (planner + vendor if both exist) ───────────
     static async getAllWallets(userId) {
         return db_1.db.query.wallets.findMany({
-            where: (0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(userId)),
+            where: (0, drizzle_orm_1.eq)(schema_1.wallets.userId, userId),
             with: {
                 transactions: {
                     orderBy: (t, { desc }) => [desc(t.createdAt)],
@@ -52,7 +52,7 @@ class WalletService {
     // ── Credit ────────────────────────────────────────────────────────────────
     static async credit(params) {
         const wallet = await db_1.db.query.wallets.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(params.userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, params.userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)),
         });
         if (!wallet)
             throw new Error(`No ${params.ownerType} wallet for user ${params.userId}`);
@@ -64,7 +64,7 @@ class WalletService {
             await tx
                 .update(schema_1.wallets)
                 .set({ balance: balanceAfter })
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(params.userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, params.userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)));
             await tx.insert(schema_1.walletTransactions).values({
                 walletId: wallet.id,
                 type: "credit",
@@ -81,7 +81,7 @@ class WalletService {
     // ── Debit ─────────────────────────────────────────────────────────────────
     static async debit(params) {
         const wallet = await db_1.db.query.wallets.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(params.userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, params.userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)),
         });
         if (!wallet)
             throw new Error("Wallet not found");
@@ -95,7 +95,7 @@ class WalletService {
             await tx
                 .update(schema_1.wallets)
                 .set({ balance: balanceAfter })
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(params.userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, params.userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)));
             await tx.insert(schema_1.walletTransactions).values({
                 walletId: wallet.id,
                 type: "debit",
@@ -112,7 +112,7 @@ class WalletService {
     // ── Request withdrawal ────────────────────────────────────────────────────
     static async requestWithdrawal(params) {
         const wallet = await db_1.db.query.wallets.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(params.userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, params.userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, params.ownerType)),
         });
         if (!wallet)
             throw new Error("Wallet not found");
@@ -145,7 +145,7 @@ class WalletService {
     // ── Get withdrawal history for one wallet ─────────────────────────────────
     static async getWithdrawals(userId, ownerType) {
         const wallet = await db_1.db.query.wallets.findFirst({
-            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(userId)), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, ownerType)),
+            where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.wallets.userId, userId), (0, drizzle_orm_1.eq)(schema_1.wallets.ownerType, ownerType)),
         });
         if (!wallet)
             throw new Error("Wallet not found");

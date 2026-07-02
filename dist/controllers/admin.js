@@ -127,7 +127,7 @@ class AdminController {
             const userData = await db_1.db
                 .select()
                 .from(schema_1.user)
-                .where((0, drizzle_orm_1.eq)(schema_1.user.id, parseInt(userIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.user.id, userIdStr))
                 .limit(1);
             if (!userData || userData.length === 0) {
                 return res.status(404).json({
@@ -138,7 +138,7 @@ class AdminController {
             const userWallets = await db_1.db
                 .select()
                 .from(schema_1.wallets)
-                .where((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(userIdStr)));
+                .where((0, drizzle_orm_1.eq)(schema_1.wallets.userId, userIdStr));
             return res.status(200).json({
                 success: true,
                 data: {
@@ -188,7 +188,7 @@ class AdminController {
                 banExpires,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.user.id, parseInt(userIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.user.id, userIdStr))
                 .returning();
             if (!updatedUser || updatedUser.length === 0) {
                 return res.status(404).json({
@@ -232,7 +232,7 @@ class AdminController {
                 banExpires: null,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.user.id, parseInt(userIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.user.id, userIdStr))
                 .returning();
             if (!updatedUser || updatedUser.length === 0) {
                 return res.status(404).json({
@@ -281,7 +281,7 @@ class AdminController {
                 role,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.user.id, parseInt(userIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.user.id, userIdStr))
                 .returning();
             if (!updatedUser || updatedUser.length === 0) {
                 return res.status(404).json({
@@ -323,7 +323,7 @@ class AdminController {
                 deletedAt: new Date(),
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.user.id, parseInt(userIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.user.id, userIdStr))
                 .returning();
             if (!updatedUser || updatedUser.length === 0) {
                 return res.status(404).json({
@@ -365,7 +365,7 @@ class AdminController {
                 deletedAt: null,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.user.id, parseInt(userIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.user.id, userIdStr))
                 .returning();
             if (!updatedUser || updatedUser.length === 0) {
                 return res.status(404).json({
@@ -469,7 +469,7 @@ class AdminController {
                 verified,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.vendors.id, parseInt(vendorIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.vendors.id, vendorIdStr))
                 .returning();
             if (!updatedVendor || updatedVendor.length === 0) {
                 return res.status(404).json({
@@ -518,7 +518,7 @@ class AdminController {
                 isActive,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.vendors.id, parseInt(vendorIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.vendors.id, vendorIdStr))
                 .returning();
             if (!updatedVendor || updatedVendor.length === 0) {
                 return res.status(404).json({
@@ -670,7 +670,7 @@ class AdminController {
                 status,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.orders.id, parseInt(orderIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.orders.id, orderIdStr))
                 .returning();
             if (!updatedOrder || updatedOrder.length === 0) {
                 return res.status(404).json({
@@ -773,7 +773,7 @@ class AdminController {
                 reviewedBy: adminId,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.withdrawalRequests.id, parseInt(withdrawalIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.withdrawalRequests.id, withdrawalIdStr))
                 .returning();
             if (!updatedRequest || updatedRequest.length === 0) {
                 return res.status(404).json({
@@ -828,7 +828,7 @@ class AdminController {
             const updatedRequest = await db_1.db
                 .update(schema_1.withdrawalRequests)
                 .set(updateData)
-                .where((0, drizzle_orm_1.eq)(schema_1.withdrawalRequests.id, parseInt(withdrawalIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.withdrawalRequests.id, withdrawalIdStr))
                 .returning();
             if (!updatedRequest || updatedRequest.length === 0) {
                 return res.status(404).json({
@@ -934,7 +934,7 @@ class AdminController {
                 isVerified,
                 updatedAt: new Date(),
             })
-                .where((0, drizzle_orm_1.eq)(schema_1.eventPlanners.id, parseInt(plannerIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.eventPlanners.id, plannerIdStr))
                 .returning();
             if (!updatedPlanner || updatedPlanner.length === 0) {
                 return res.status(404).json({
@@ -971,7 +971,7 @@ class AdminController {
                 const userWallets = await db_1.db
                     .select({ id: schema_1.wallets.id })
                     .from(schema_1.wallets)
-                    .where((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(userId)));
+                    .where((0, drizzle_orm_1.eq)(schema_1.wallets.userId, userId));
                 if (userWallets.length > 0) {
                     const walletIds = userWallets.map((w) => w.id);
                     whereConditions.push((0, drizzle_orm_1.sql) `${schema_1.walletTransactions.walletId} IN (${drizzle_orm_1.sql.join(walletIds)})`);
@@ -1124,7 +1124,7 @@ class AdminController {
             }
             const deleted = await db_1.db
                 .delete(schema_1.eventDiscounts)
-                .where((0, drizzle_orm_1.eq)(schema_1.eventDiscounts.id, parseInt(codeIdStr)))
+                .where((0, drizzle_orm_1.eq)(schema_1.eventDiscounts.id, codeIdStr))
                 .returning();
             if (!deleted || deleted.length === 0) {
                 return res.status(404).json({
@@ -1167,7 +1167,7 @@ class AdminController {
             const userWallets = await db_1.db
                 .select()
                 .from(schema_1.wallets)
-                .where((0, drizzle_orm_1.eq)(schema_1.wallets.userId, parseInt(userIdStr)));
+                .where((0, drizzle_orm_1.eq)(schema_1.wallets.userId, userIdStr));
             if (userWallets.length === 0) {
                 return res.status(200).json({
                     success: true,

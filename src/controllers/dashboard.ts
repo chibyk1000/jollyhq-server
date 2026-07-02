@@ -36,7 +36,7 @@ export class DashboardController {
           isVerified: eventPlanners.isVerified,
         })
         .from(eventPlanners)
-        .where(eq(eventPlanners.id, parseInt(plannerIdStr)));
+        .where(eq(eventPlanners.id, plannerIdStr));
 
       if (!planner) {
         return res.status(404).json({ message: "Event planner not found" });
@@ -59,7 +59,7 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "PAID")));
+        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")));
 
       const [revenueResult] = await db
         .select({
@@ -67,19 +67,19 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "PAID")));
+        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")));
 
       const [totalEventsResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(events)
-        .where(eq(events.plannerId, parseInt(plannerIdStr)));
+        .where(eq(events.plannerId, plannerIdStr));
 
       const [cancelledResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .where(
-          and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "CANCELLED")),
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "CANCELLED")),
         );
 
       const [refundedResult] = await db
@@ -87,7 +87,7 @@ export class DashboardController {
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .where(
-          and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "FAILED")),
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "FAILED")),
         );
 
       // ── 3. Upcoming events with ticket sales progress ──────────────────────
@@ -102,7 +102,7 @@ export class DashboardController {
         .from(events)
         .where(
           and(
-            eq(events.plannerId, parseInt(plannerIdStr)),
+            eq(events.plannerId, plannerIdStr),
             gte(events.eventDate, new Date()),
           ),
         )
@@ -155,7 +155,7 @@ export class DashboardController {
         .from(orders)
         .innerJoin(eventTickets, eq(eventTickets.id, orders.ticketId))
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "PAID")))
+        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
         .groupBy(eventTickets.id, eventTickets.label, events.name)
         .orderBy(desc(sql`SUM(${orders.quantity}::int)`))
         .limit(5);
@@ -170,7 +170,7 @@ export class DashboardController {
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .innerJoin(profiles, eq(profiles.id, orders.userId))
-        .where(and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "PAID")))
+        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
         .groupBy(profiles.phoneNumber)
         .orderBy(desc(sql`COUNT(DISTINCT ${orders.userId})`))
         .limit(6);
@@ -182,7 +182,7 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "PAID")));
+        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")));
 
       // ── 6. Wallet transaction history ──────────────────────────────────────
       const walletTxHistory = wallet?.id
@@ -212,7 +212,7 @@ export class DashboardController {
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .innerJoin(profiles, eq(profiles.id, orders.userId))
-        .where(and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "PAID")))
+        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
         .orderBy(desc(orders.createdAt))
         .limit(5);
 
@@ -228,7 +228,7 @@ export class DashboardController {
           orders,
           and(eq(orders.ticketId, eventTickets.id), eq(orders.status, "PAID")),
         )
-        .where(eq(events.plannerId, parseInt(plannerIdStr)));
+        .where(eq(events.plannerId, plannerIdStr));
 
       const soldTotal = Number(ticketTotals?.sold ?? 0);
       const capacityTotal = Number(ticketTotals?.totalCapacity ?? 0);
@@ -247,7 +247,7 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, parseInt(plannerIdStr)), eq(orders.status, "PAID")))
+        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
         .groupBy(sql`EXTRACT(MONTH FROM ${orders.createdAt})`)
         .orderBy(asc(sql`EXTRACT(MONTH FROM ${orders.createdAt})`));
 
@@ -322,7 +322,7 @@ export class DashboardController {
           rating: vendors.rating,
         })
         .from(vendors)
-        .where(eq(vendors.id, parseInt(vendorIdStr)));
+        .where(eq(vendors.id, vendorIdStr));
 
       if (!vendor) {
         return res.status(404).json({ message: "Vendor not found" });
@@ -342,7 +342,7 @@ export class DashboardController {
       const [totalBookingsResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(vendorBookings)
-        .where(eq(vendorBookings.vendorId, parseInt(vendorIdStr)));
+        .where(eq(vendorBookings.vendorId, vendorIdStr));
 
       const [revenueResult] = await db
         .select({
@@ -351,7 +351,7 @@ export class DashboardController {
         .from(vendorBookings)
         .where(
           and(
-            eq(vendorBookings.vendorId, parseInt(vendorIdStr)),
+            eq(vendorBookings.vendorId, vendorIdStr),
             eq(vendorBookings.status, "completed"),
           ),
         );
@@ -361,7 +361,7 @@ export class DashboardController {
         .from(vendorBookings)
         .where(
           and(
-            eq(vendorBookings.vendorId, parseInt(vendorIdStr)),
+            eq(vendorBookings.vendorId, vendorIdStr),
             eq(vendorBookings.status, "pending"),
           ),
         );
@@ -371,7 +371,7 @@ export class DashboardController {
         .from(vendorBookings)
         .where(
           and(
-            eq(vendorBookings.vendorId, parseInt(vendorIdStr)),
+            eq(vendorBookings.vendorId, vendorIdStr),
             eq(vendorBookings.status, "accepted"),
           ),
         );
@@ -381,7 +381,7 @@ export class DashboardController {
         .from(vendorBookings)
         .where(
           and(
-            eq(vendorBookings.vendorId, parseInt(vendorIdStr)),
+            eq(vendorBookings.vendorId, vendorIdStr),
             eq(vendorBookings.status, "rejected"),
           ),
         );
@@ -391,7 +391,7 @@ export class DashboardController {
           avg: sql<number>`COALESCE(AVG(${vendorBookings.amount}), 0)`,
         })
         .from(vendorBookings)
-        .where(eq(vendorBookings.vendorId, parseInt(vendorIdStr)));
+        .where(eq(vendorBookings.vendorId, vendorIdStr));
 
       // Acceptance rate
       const totalReviewed =
@@ -408,7 +408,7 @@ export class DashboardController {
           count: sql<number>`COUNT(*)`,
         })
         .from(vendorBookings)
-        .where(eq(vendorBookings.vendorId, parseInt(vendorIdStr)))
+        .where(eq(vendorBookings.vendorId, vendorIdStr))
         .groupBy(vendorBookings.userId);
 
       const repeatClients = clientBookingCounts.filter(
@@ -434,7 +434,7 @@ export class DashboardController {
         )
         .where(
           and(
-            eq(vendorBookings.vendorId, parseInt(vendorIdStr)),
+            eq(vendorBookings.vendorId, vendorIdStr),
             not(eq(vendorBookings.status, "rejected")),
             not(eq(vendorBookings.status, "cancelled")),
           ),
@@ -463,7 +463,7 @@ export class DashboardController {
         .innerJoin(profiles, eq(profiles.id, vendorBookings.userId))
         .where(
           and(
-            eq(vendorBookings.vendorId, parseInt(vendorIdStr)),
+            eq(vendorBookings.vendorId, vendorIdStr),
             gte(vendorBookings.scheduledDate, new Date()),
             not(eq(vendorBookings.status, "cancelled")),
             not(eq(vendorBookings.status, "rejected")),
@@ -504,7 +504,7 @@ export class DashboardController {
           eq(vendorServices.id, vendorBookings.serviceId),
         )
         .innerJoin(profiles, eq(profiles.id, vendorBookings.userId))
-        .where(eq(vendorBookings.vendorId, parseInt(vendorIdStr)))
+        .where(eq(vendorBookings.vendorId, vendorIdStr))
         .orderBy(desc(vendorBookings.createdAt))
         .limit(5);
 
@@ -515,7 +515,7 @@ export class DashboardController {
           count: sql<number>`COUNT(*)`,
         })
         .from(vendorBookings)
-        .where(eq(vendorBookings.vendorId, parseInt(vendorIdStr)))
+        .where(eq(vendorBookings.vendorId, vendorIdStr))
         .groupBy(vendorBookings.status);
 
       const bookingPieData = [
@@ -565,7 +565,7 @@ export class DashboardController {
         .from(vendorBookings)
         .where(
           and(
-            eq(vendorBookings.vendorId, parseInt(vendorIdStr)),
+            eq(vendorBookings.vendorId, vendorIdStr),
             eq(vendorBookings.status, "completed"),
           ),
         )

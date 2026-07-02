@@ -25,7 +25,7 @@ export class DiscountController {
       const [discount] = await db
         .select()
         .from(eventDiscounts)
-        .where(eq(eventDiscounts.id, parseInt(discountIdStr)));
+        .where(eq(eventDiscounts.id, discountIdStr));
 
       if (!discount) {
         return res.status(404).json({ message: "Discount not found" });
@@ -63,7 +63,7 @@ export class DiscountController {
       const [updated] = await db
         .update(eventDiscounts)
         .set(data)
-        .where(eq(eventDiscounts.id, parseInt(discountIdStr)))
+        .where(eq(eventDiscounts.id, discountIdStr))
         .returning();
 
       if (!updated) {
@@ -83,7 +83,7 @@ export class DiscountController {
 
       const [deleted] = await db
         .delete(eventDiscounts)
-        .where(eq(eventDiscounts.id, parseInt(discountIdStr)))
+        .where(eq(eventDiscounts.id, discountIdStr))
         .returning();
 
       if (!deleted) {

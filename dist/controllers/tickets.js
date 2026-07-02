@@ -76,7 +76,7 @@ class TicketController {
             const result = await db_1.db
                 .select()
                 .from(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, parseInt(eventIdStr)));
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, eventIdStr));
             return res.json(result);
         }
         catch (e) {
@@ -94,7 +94,7 @@ class TicketController {
             const [ticket] = await db_1.db
                 .select()
                 .from(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, parseInt(ticketIdStr)));
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, ticketIdStr));
             if (!ticket) {
                 return res.status(404).json({ message: "Ticket not found" });
             }
@@ -116,7 +116,7 @@ class TicketController {
             const [updated] = await db_1.db
                 .update(eventTickets_1.eventTickets)
                 .set(data)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, parseInt(ticketIdStr)))
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, ticketIdStr))
                 .returning();
             if (!updated) {
                 return res.status(404).json({ message: "Ticket not found" });
@@ -136,7 +136,7 @@ class TicketController {
             const ticketIdStr = Array.isArray(ticketId) ? ticketId[0] : ticketId;
             const [deleted] = await db_1.db
                 .delete(eventTickets_1.eventTickets)
-                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, parseInt(ticketIdStr)))
+                .where((0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.id, ticketIdStr))
                 .returning();
             if (!deleted) {
                 return res.status(404).json({ message: "Ticket not found" });
@@ -180,7 +180,7 @@ class TicketController {
                 .from(userTickets_1.userTickets)
                 .innerJoin(eventTickets_1.eventTickets, (0, drizzle_orm_1.eq)(userTickets_1.userTickets.ticketId, eventTickets_1.eventTickets.id))
                 .innerJoin(schema_1.events, (0, drizzle_orm_1.eq)(eventTickets_1.eventTickets.eventId, schema_1.events.id))
-                .where((0, drizzle_orm_1.eq)(userTickets_1.userTickets.userId, parseInt(userId)))
+                .where((0, drizzle_orm_1.eq)(userTickets_1.userTickets.userId, userId))
                 .orderBy((0, drizzle_orm_1.desc)(userTickets_1.userTickets.purchasedAt));
             return res.json({ tickets });
         }

@@ -25,7 +25,7 @@ const createVendorService = async (req, res) => {
         const [vendor] = await db_1.db
             .select()
             .from(vendors_1.vendors)
-            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, parseInt(userId)), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(vendors_1.vendors.userId, userId), (0, drizzle_orm_1.isNull)(vendors_1.vendors.deletedAt)));
         const [service] = await db_1.db
             .insert(vendorServices_1.vendorServices)
             .values({
@@ -93,7 +93,7 @@ const getVendorServicesByVendor = async (req, res) => {
         const services = await db_1.db
             .select()
             .from(vendorServices_1.vendorServices)
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.vendorId, parseInt(vendorIdStr)));
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.vendorId, vendorIdStr));
         res.json({ services });
     }
     catch (error) {
@@ -112,7 +112,7 @@ const getVendorServiceById = async (req, res) => {
         const [service] = await db_1.db
             .select()
             .from(vendorServices_1.vendorServices)
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)));
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, idStr));
         if (!service) {
             return res.status(404).json({ message: "Service not found" });
         }
@@ -143,7 +143,7 @@ const updateVendorService = async (req, res) => {
         const [service] = await db_1.db
             .update(vendorServices_1.vendorServices)
             .set(updateData)
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)))
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, idStr))
             .returning();
         if (!service) {
             return res.status(404).json({ message: "Service not found" });
@@ -170,7 +170,7 @@ const toggleVendorServiceStatus = async (req, res) => {
         const [service] = await db_1.db
             .update(vendorServices_1.vendorServices)
             .set({ isActive })
-            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)))
+            .where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, idStr))
             .returning();
         res.json({
             message: "Service status updated",
@@ -190,7 +190,7 @@ const deleteVendorService = async (req, res) => {
     try {
         const { id } = req.params;
         const idStr = Array.isArray(id) ? id[0] : id;
-        await db_1.db.delete(vendorServices_1.vendorServices).where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, parseInt(idStr)));
+        await db_1.db.delete(vendorServices_1.vendorServices).where((0, drizzle_orm_1.eq)(vendorServices_1.vendorServices.id, idStr));
         res.json({ message: "Service deleted successfully" });
     }
     catch (error) {

@@ -15,14 +15,14 @@ export class UserSettingsController {
       const settings = await db
         .select()
         .from(userSettings)
-        .where(eq(userSettings.userId, parseInt(userId as string)))
+        .where(eq(userSettings.userId, userId as string))
         .limit(1);
 
       // Auto-create settings if missing
       if (!settings.length) {
         const [created] = await db
           .insert(userSettings)
-          .values({ userId: parseInt(userId as string) })
+          .values({ userId: userId as string })
           .returning();
 
         return res.json({ settings: created });
@@ -58,7 +58,7 @@ export class UserSettingsController {
       const [updated] = await db
         .insert(userSettings)
         .values({
-          userId: parseInt(userId),
+          userId: userId,
           notificationsEnabled,
           darkModeEnabled,
           language,
@@ -117,7 +117,7 @@ export class UserSettingsController {
       const [updated] = await db
         .update(userSettings)
         .set(update)
-        .where(eq(userSettings.userId, parseInt(userId)))
+        .where(eq(userSettings.userId, userId))
         .returning();
 
       return res.json({ settings: updated });

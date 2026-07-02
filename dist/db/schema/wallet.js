@@ -11,8 +11,8 @@ exports.walletOwnerTypeEnum = (0, pg_core_1.pgEnum)("wallet_owner_type", [
     "vendor",
 ]);
 exports.wallets = (0, pg_core_1.pgTable)("wallets", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    userId: (0, pg_core_1.integer)("user_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    userId: (0, pg_core_1.uuid)("user_id")
         .references(() => profiles_1.user.id, { onDelete: "cascade" })
         .notNull(),
     // one wallet per role per user

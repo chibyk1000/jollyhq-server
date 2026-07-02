@@ -1,7 +1,6 @@
 import {
   pgTable,
-  serial,
-  integer,
+  uuid,
   boolean,
   varchar,
   timestamp,
@@ -9,9 +8,9 @@ import {
 import { user as profiles } from "./profiles";
 
 export const userSettings = pgTable("user_settings", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
 
-  userId: integer("user_id")
+  userId: uuid("user_id")
     .notNull()
     .references(() => profiles.id, { onDelete: "cascade" })
     .unique(),

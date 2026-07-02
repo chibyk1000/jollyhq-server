@@ -44,7 +44,7 @@ class ChatController {
                 // context joins
                 .leftJoin(schema_1.events, (0, drizzle_orm_1.eq)(chats_1.chats.eventId, schema_1.events.id))
                 .leftJoin(schema_1.vendors, (0, drizzle_orm_1.eq)(chats_1.chats.vendorId, schema_1.vendors.id))
-                .where((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(userId)))
+                .where((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId))
                 .groupBy(chats_1.chats.id, chats_1.chats.name, chats_1.chats.eventId, chats_1.chats.vendorId, chats_1.chats.directType, chats_1.chats.isGroup, chats_1.chats.lastMessagePreview, chats_1.chats.lastMessageAt, chatMembers_1.chatMembers.joinedAt, schema_1.events.name, schema_1.events.imageUrl, schema_1.vendors.businessName, schema_1.vendors.image)
                 .orderBy((0, drizzle_orm_1.desc)(chats_1.chats.lastMessageAt));
             return res.json(userChats);
@@ -90,7 +90,7 @@ class ChatController {
                 .select({ chatId: chatMembers_1.chatMembers.chatId })
                 .from(chatMembers_1.chatMembers)
                 .innerJoin(chats_1.chats, (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chats_1.chats.id, chatMembers_1.chatMembers.chatId), (0, drizzle_orm_1.eq)(chats_1.chats.isGroup, false), (0, drizzle_orm_1.eq)(chats_1.chats.directType, directType)))
-                .where((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(currentUserId)));
+                .where((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, currentUserId));
             const candidateIds = myMemberships.map((m) => m.chatId);
             // 2. Check if target is also in any of those chats
             if (candidateIds.length > 0) {
@@ -142,7 +142,7 @@ class ChatController {
             const membership = await db_1.db
                 .select()
                 .from(chatMembers_1.chatMembers)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatIdStr)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(userId))))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatIdStr), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId)))
                 .limit(1);
             if (!membership.length) {
                 return res.status(403).json({ message: "Access denied" });
@@ -190,7 +190,7 @@ class ChatController {
                 .leftJoin(schema_1.eventPlanners, (0, drizzle_orm_1.eq)(schema_1.events.plannerId, schema_1.eventPlanners.id))
                 .leftJoin(schema_1.vendors, (0, drizzle_orm_1.eq)(chats_1.chats.vendorId, schema_1.vendors.id))
                 .innerJoin(chatMembers_1.chatMembers, (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chats_1.chats.id))
-                .where((0, drizzle_orm_1.eq)(chats_1.chats.id, parseInt(chatIdStr)))
+                .where((0, drizzle_orm_1.eq)(chats_1.chats.id, chatIdStr))
                 .groupBy(chats_1.chats.id, chats_1.chats.name, chats_1.chats.isGroup, chats_1.chats.createdAt, chats_1.chats.eventId, chats_1.chats.vendorId, chats_1.chats.lastMessagePreview, chats_1.chats.lastMessageAt, schema_1.events.name, schema_1.events.imageUrl, schema_1.events.eventType, schema_1.events.category, schema_1.events.eventDate, schema_1.events.eventTime, schema_1.events.location, schema_1.events.description, schema_1.eventPlanners.id, schema_1.eventPlanners.businessName, schema_1.eventPlanners.businessEmail, schema_1.eventPlanners.businessPhone, schema_1.eventPlanners.logoUrl, schema_1.eventPlanners.instagram, schema_1.eventPlanners.facebook, schema_1.eventPlanners.twitter, schema_1.eventPlanners.city, schema_1.eventPlanners.state, schema_1.eventPlanners.country, schema_1.eventPlanners.isVerified, schema_1.vendors.businessName, schema_1.vendors.image)
                 .limit(1);
             if (!chat) {
@@ -214,7 +214,7 @@ class ChatController {
             })
                 .from(chatMembers_1.chatMembers)
                 .innerJoin(schema_1.user, (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, schema_1.user.id))
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatIdStr)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.isBanned, false)))
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatIdStr), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.isBanned, false)))
                 .orderBy(chatMembers_1.chatMembers.joinedAt);
             return res.json({ ...chat, members });
         }
@@ -236,7 +236,7 @@ class ChatController {
             }
             // 1️⃣ Ensure user is a member
             const member = await db_1.db.query.chatMembers.findFirst({
-                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatIdStr)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(userId))),
+                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatIdStr), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId)),
             });
             if (!member) {
                 return res.status(403).json({ message: "Access denied" });
@@ -256,7 +256,7 @@ class ChatController {
             })
                 .from(chats_1.chats)
                 .leftJoin(schema_1.events, (0, drizzle_orm_1.eq)(chats_1.chats.eventId, schema_1.events.id))
-                .where((0, drizzle_orm_1.eq)(chats_1.chats.id, parseInt(chatIdStr)));
+                .where((0, drizzle_orm_1.eq)(chats_1.chats.id, chatIdStr));
             if (!chat) {
                 return res.status(404).json({ message: "Chat not found" });
             }
@@ -272,12 +272,12 @@ class ChatController {
             })
                 .from(chatMembers_1.chatMembers)
                 .innerJoin(schema_1.user, (0, drizzle_orm_1.eq)(schema_1.user.id, chatMembers_1.chatMembers.profileId))
-                .where((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatIdStr)));
+                .where((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatIdStr));
             // 3️⃣ Get messages
             const chatMessages = await db_1.db
                 .select()
                 .from(messages_1.messages)
-                .where((0, drizzle_orm_1.eq)(messages_1.messages.chatId, parseInt(chatIdStr)))
+                .where((0, drizzle_orm_1.eq)(messages_1.messages.chatId, chatIdStr))
                 .orderBy((0, drizzle_orm_1.desc)(messages_1.messages.createdAt));
             // 4️⃣ Final response
             return res.json({
@@ -318,15 +318,15 @@ class ChatController {
             if (!chatId || !content)
                 return res.status(400).json({ message: "Invalid payload" });
             const member = await db_1.db.query.chatMembers.findFirst({
-                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(userId))),
+                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId)),
             });
             if (!member || member.isBanned)
                 return res.status(403).json({ message: "Not allowed" });
             const [message] = await db_1.db
                 .insert(messages_1.messages)
                 .values({
-                chatId: parseInt(chatId),
-                senderId: parseInt(userId),
+                chatId: chatId,
+                senderId: userId,
                 content,
                 type: type || "text",
             })
@@ -347,8 +347,8 @@ class ChatController {
             if (!userId || !messageId)
                 return res.status(400).json({ message: "Invalid request" });
             await db_1.db.insert(schema_1.messageReads).values({
-                messageId: parseInt(messageId),
-                profileId: parseInt(userId),
+                messageId: messageId,
+                profileId: userId,
             });
             return res.status(200).json({ success: true });
         }
@@ -367,11 +367,11 @@ class ChatController {
                 return res.status(401).json({ message: "Unauthorized" });
             }
             const admin = await db_1.db.query.chatMembers.findFirst({
-                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(userId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.role, "admin")),
+                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.role, "admin")),
             });
             if (!admin)
                 return res.status(403).json({ message: "Admins only" });
-            await db_1.db.insert(chatMembers_1.chatMembers).values({ chatId: parseInt(chatId), profileId: parseInt(profileId) });
+            await db_1.db.insert(chatMembers_1.chatMembers).values({ chatId: chatId, profileId: profileId });
             return res.json({ message: "Member added successfully" });
         }
         catch (error) {
@@ -389,13 +389,13 @@ class ChatController {
                 return res.status(401).json({ message: "Unauthorized" });
             }
             const admin = await db_1.db.query.chatMembers.findFirst({
-                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(userId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.role, "admin")),
+                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.role, "admin")),
             });
             if (!admin)
                 return res.status(403).json({ message: "Admins only" });
             await db_1.db
                 .delete(chatMembers_1.chatMembers)
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(profileId))));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, profileId)));
             return res.json({ message: "User removed" });
         }
         catch (error) {
@@ -413,14 +413,14 @@ class ChatController {
                 return res.status(401).json({ message: "Unauthorized" });
             }
             const admin = await db_1.db.query.chatMembers.findFirst({
-                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(userId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.role, "admin")),
+                where: (0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, userId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.role, "admin")),
             });
             if (!admin)
                 return res.status(403).json({ message: "Admins only" });
             await db_1.db
                 .update(chatMembers_1.chatMembers)
                 .set({ role: "admin" })
-                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, parseInt(chatId)), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, parseInt(profileId))));
+                .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.chatId, chatId), (0, drizzle_orm_1.eq)(chatMembers_1.chatMembers.profileId, profileId)));
             return res.json({ message: "User is now admin" });
         }
         catch (error) {

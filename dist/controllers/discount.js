@@ -24,7 +24,7 @@ class DiscountController {
             const [discount] = await db_1.db
                 .select()
                 .from(eventDiscounts_1.eventDiscounts)
-                .where((0, drizzle_orm_1.eq)(eventDiscounts_1.eventDiscounts.id, parseInt(discountIdStr)));
+                .where((0, drizzle_orm_1.eq)(eventDiscounts_1.eventDiscounts.id, discountIdStr));
             if (!discount) {
                 return res.status(404).json({ message: "Discount not found" });
             }
@@ -56,7 +56,7 @@ class DiscountController {
             const [updated] = await db_1.db
                 .update(eventDiscounts_1.eventDiscounts)
                 .set(data)
-                .where((0, drizzle_orm_1.eq)(eventDiscounts_1.eventDiscounts.id, parseInt(discountIdStr)))
+                .where((0, drizzle_orm_1.eq)(eventDiscounts_1.eventDiscounts.id, discountIdStr))
                 .returning();
             if (!updated) {
                 return res.status(404).json({ message: "Discount not found" });
@@ -73,7 +73,7 @@ class DiscountController {
             const discountIdStr = Array.isArray(discountId) ? discountId[0] : discountId;
             const [deleted] = await db_1.db
                 .delete(eventDiscounts_1.eventDiscounts)
-                .where((0, drizzle_orm_1.eq)(eventDiscounts_1.eventDiscounts.id, parseInt(discountIdStr)))
+                .where((0, drizzle_orm_1.eq)(eventDiscounts_1.eventDiscounts.id, discountIdStr))
                 .returning();
             if (!deleted) {
                 return res.status(404).json({ message: "Discount not found" });

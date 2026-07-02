@@ -175,7 +175,7 @@ export class UserControllers {
       const [user] = await db
         .select()
         .from(profiles)
-        .where(eq(profiles.id, parseInt(id)));
+        .where(eq(profiles.id, id));
 
       if (!user) {
         return res.status(404).json({ error: "User not found." });
@@ -185,13 +185,13 @@ export class UserControllers {
       const [vendorProfile] = await db
         .select()
         .from(vendors)
-        .where(eq(vendors.userId, parseInt(id)));
+        .where(eq(vendors.userId, id));
 
       // Check if user has an event planner profile
       const [plannerProfile] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, parseInt(id)));
+        .where(eq(eventPlanners.profileId, id));
 
       const hasVendorProfile = Boolean(vendorProfile);
       const hasPlannerProfile = Boolean(plannerProfile);
@@ -281,7 +281,7 @@ export class UserControllers {
 
       // ---------- UPDATE LOCAL DB ----------
       if (Object.keys(updateData).length > 0) {
-        await db.update(profiles).set(updateData).where(eq(profiles.id, parseInt(id)));
+        await db.update(profiles).set(updateData).where(eq(profiles.id, id));
       }
 
       // ---------- UPDATE AUTH PASSWORD (if needed) ----------
@@ -292,7 +292,7 @@ export class UserControllers {
       const [updatedUser] = await db
         .select()
         .from(profiles)
-        .where(eq(profiles.id, parseInt(id)));
+        .where(eq(profiles.id, id));
 
       return res.status(200).json(updatedUser);
     } catch (error) {
@@ -316,7 +316,7 @@ export class UserControllers {
           email: profiles.email,
         })
         .from(profiles)
-        .where(eq(profiles.id, parseInt(userId)));
+        .where(eq(profiles.id, userId));
 
       if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -341,7 +341,7 @@ export class UserControllers {
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .leftJoin(eventTickets, eq(eventTickets.id, orders.ticketId))
-        .where(and(eq(orders.userId, parseInt(userId)), eq(orders.status, "PAID")))
+        .where(and(eq(orders.userId, userId), eq(orders.status, "PAID")))
         .orderBy(desc(orders.createdAt))
         .limit(20);
 
@@ -353,7 +353,7 @@ export class UserControllers {
           totalOrders: sql<number>`COUNT(*)`,
         })
         .from(orders)
-        .where(and(eq(orders.userId, parseInt(userId)), eq(orders.status, "PAID")));
+        .where(and(eq(orders.userId, userId), eq(orders.status, "PAID")));
 
       // ── 4. Upcoming events the user has a ticket for ───────────────────────
       const upcomingUserEvents = userOrders
@@ -397,7 +397,7 @@ export class UserControllers {
         })
         .from(favoriteEvents)
         .innerJoin(events, eq(events.id, favoriteEvents.eventId))
-        .where(eq(favoriteEvents.userId, parseInt(userId)))
+        .where(eq(favoriteEvents.userId, userId))
         .orderBy(desc(favoriteEvents.createdAt))
         .limit(6);
 
@@ -411,7 +411,7 @@ export class UserControllers {
         .from(orders)
         .where(
           and(
-            eq(orders.userId, parseInt(userId)),
+            eq(orders.userId, userId),
             eq(orders.status, "PAID"),
             gte(orders.createdAt, sql`NOW() - INTERVAL '6 months'`),
           ),
@@ -447,11 +447,11 @@ export class UserControllers {
       const [vendorProfile] = await db
         .select({ id: vendors.id })
         .from(vendors)
-        .where(eq(vendors.userId, parseInt(userId)));
+        .where(eq(vendors.userId, userId));
       const [plannerProfile] = await db
         .select({ id: eventPlanners.id })
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, parseInt(userId)));
+        .where(eq(eventPlanners.profileId, userId));
 
       return res.json({
         user,

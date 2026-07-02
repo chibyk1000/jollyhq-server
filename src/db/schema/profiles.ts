@@ -5,9 +5,7 @@ import {
   text,
   timestamp,
   boolean,
-  serial,
-  integer,
-  index,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { wallets } from "./wallet";
 import { session } from "./sessions";
@@ -19,7 +17,7 @@ import { chats } from "./chats";
 ========================= */
 
 export const user = pgTable("user", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
 
   // Auth-required
   email: varchar("email", { length: 255 }).notNull().unique(),

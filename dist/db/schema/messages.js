@@ -6,11 +6,11 @@ const chats_1 = require("./chats");
 const profiles_1 = require("./profiles");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.messages = (0, pg_core_1.pgTable)("messages", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    chatId: (0, pg_core_1.integer)("chat_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    chatId: (0, pg_core_1.uuid)("chat_id")
         .notNull()
         .references(() => chats_1.chats.id, { onDelete: "cascade" }),
-    senderId: (0, pg_core_1.integer)("sender_id")
+    senderId: (0, pg_core_1.uuid)("sender_id")
         .notNull()
         .references(() => profiles_1.user.id, { onDelete: "cascade" }),
     status: (0, pg_core_1.varchar)("status", { length: 20 }).default("sent"),
@@ -27,5 +27,9 @@ exports.messagesRelations = (0, drizzle_orm_1.relations)(exports.messages, ({ on
     sender: one(profiles_1.user, {
         fields: [exports.messages.senderId],
         references: [profiles_1.user.id],
+    }),
+    chat: one(chats_1.chats, {
+        fields: [exports.messages.chatId],
+        references: [chats_1.chats.id],
     }),
 }));

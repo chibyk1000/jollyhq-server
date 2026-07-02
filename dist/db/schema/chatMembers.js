@@ -6,11 +6,11 @@ const chats_1 = require("./chats");
 const profiles_1 = require("./profiles");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.chatMembers = (0, pg_core_1.pgTable)("chat_members", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    chatId: (0, pg_core_1.integer)("chat_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    chatId: (0, pg_core_1.uuid)("chat_id")
         .notNull()
         .references(() => chats_1.chats.id, { onDelete: "cascade" }),
-    profileId: (0, pg_core_1.integer)("profile_id")
+    profileId: (0, pg_core_1.uuid)("profile_id")
         .notNull()
         .references(() => profiles_1.user.id, { onDelete: "cascade" }),
     role: (0, pg_core_1.varchar)("role", { length: 20 }).default("member"), // admin | member

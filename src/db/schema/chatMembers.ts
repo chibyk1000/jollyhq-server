@@ -1,7 +1,6 @@
 import {
   pgTable,
-  serial,
-  integer,
+  uuid,
   varchar,
   timestamp,
   boolean,
@@ -15,13 +14,13 @@ import { relations } from "drizzle-orm";
 export const chatMembers = pgTable(
   "chat_members",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
 
-    chatId: integer("chat_id")
+    chatId: uuid("chat_id")
       .notNull()
       .references(() => chats.id, { onDelete: "cascade" }),
 
-    profileId: integer("profile_id")
+    profileId: uuid("profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "cascade" }),
 

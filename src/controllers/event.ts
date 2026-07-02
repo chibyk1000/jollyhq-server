@@ -34,7 +34,7 @@ export class EventController {
       const [planner] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, parseInt(user.id)));
+        .where(eq(eventPlanners.profileId, user.id));
 
       if (!planner) {
         return res.status(403).json({
@@ -75,7 +75,7 @@ export class EventController {
 
         await tx.insert(chatMembers).values({
           chatId: newChat.id,
-          profileId: parseInt(user.id),
+          profileId: user.id,
           role: "admin",
         });
 
@@ -109,7 +109,7 @@ export class EventController {
       const [planner] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, parseInt(user.id)));
+        .where(eq(eventPlanners.profileId, user.id));
 
       if (!planner) {
         return res.status(403).json({ message: "Not an event planner" });
@@ -118,7 +118,7 @@ export class EventController {
       const [existing] = await db
         .select()
         .from(events)
-        .where(and(eq(events.id, parseInt(eventIdStr)), eq(events.plannerId, planner.id)));
+        .where(and(eq(events.id, eventIdStr), eq(events.plannerId, planner.id)));
 
       if (!existing) {
         return res
@@ -133,7 +133,7 @@ export class EventController {
       const [updated] = await db
         .update(events)
         .set({ ...updateData, updatedAt: new Date() })
-        .where(eq(events.id, parseInt(eventIdStr)))
+        .where(eq(events.id, eventIdStr))
         .returning();
 
       return res.json({ success: true, data: updated });
@@ -190,7 +190,7 @@ export class EventController {
       const [planner] = await db
         .select()
         .from(eventPlanners)
-        .where(eq(eventPlanners.profileId, parseInt(plannerIdStr)));
+        .where(eq(eventPlanners.profileId, plannerIdStr));
 
       if (!planner) {
         return res.status(404).json({ message: "Event planner not found" });
@@ -254,7 +254,7 @@ export class EventController {
         })
         .from(events)
         .leftJoin(eventPlanners, eq(events.plannerId, eventPlanners.id))
-        .where(eq(events.id, parseInt(eventIdStr)));
+        .where(eq(events.id, eventIdStr));
 
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -263,7 +263,7 @@ export class EventController {
       const tickets = await db
         .select()
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, parseInt(eventIdStr)));
+        .where(eq(eventTickets.eventId, eventIdStr));
 
       return res.json({
         success: true,
@@ -297,7 +297,7 @@ export class EventController {
           plannerId: events.plannerId,
         })
         .from(events)
-        .where(eq(events.id, parseInt(eventIdStr)));
+        .where(eq(events.id, eventIdStr));
 
       if (!event) {
         return res.status(404).json({ message: "Event not found" });
@@ -313,7 +313,7 @@ export class EventController {
           isFree: eventTickets.isFree,
         })
         .from(eventTickets)
-        .where(eq(eventTickets.eventId, parseInt(eventIdStr)));
+        .where(eq(eventTickets.eventId, eventIdStr));
 
       // ── Sales via orders table ─────────────────────────────────────────────
       // Use orders (PAID status) as the source of truth for sales
@@ -323,7 +323,7 @@ export class EventController {
           SUM(o.quantity::int)              AS "sold",
           SUM(o.total_amount::numeric)      AS "revenue"
         FROM orders o
-        WHERE o.event_id   = ${parseInt(eventIdStr)}
+        WHERE o.event_id   = ${eventIdStr}
           AND o.status     = 'PAID'
         GROUP BY o.ticket_id
       `);
@@ -393,7 +393,7 @@ export class EventController {
           COUNT(*)            AS count,
           SUM(total_amount::numeric) AS total
         FROM orders
-        WHERE event_id = ${parseInt(eventIdStr)}
+        WHERE event_id = ${eventIdStr}
         GROUP BY status
       `);
 

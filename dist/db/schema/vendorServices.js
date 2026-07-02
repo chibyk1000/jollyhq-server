@@ -5,8 +5,8 @@ const drizzle_orm_1 = require("drizzle-orm");
 const pg_core_1 = require("drizzle-orm/pg-core");
 const vendors_1 = require("./vendors");
 exports.vendorServices = (0, pg_core_1.pgTable)("vendor_services", {
-    id: (0, pg_core_1.serial)("id").primaryKey(),
-    vendorId: (0, pg_core_1.integer)("vendor_id")
+    id: (0, pg_core_1.uuid)("id").defaultRandom().primaryKey(),
+    vendorId: (0, pg_core_1.uuid)("vendor_id")
         .references(() => vendors_1.vendors.id, { onDelete: "cascade" })
         .notNull(),
     // ---------- SERVICE INFO ----------

@@ -144,7 +144,7 @@ class WalletController {
             const orderReference = (0, uuid_1.v4)();
             await db_1.db.transaction(async (tx) => {
                 await tx.insert(schema_1.orders).values({
-                    userId: parseInt(authUser.id),
+                    userId: authUser.id,
                     eventId: ticket.eventId,
                     ticketId,
                     quantity: quantity.toString(),
@@ -213,7 +213,7 @@ class WalletController {
                     .json({ success: false, message: "Vendor not found" });
             }
             // 3. Block vendor from paying for their own service
-            if (vendor.userId === parseInt(authUser.id)) {
+            if (vendor.userId === authUser.id) {
                 return res.status(400).json({
                     success: false,
                     message: "You cannot pay for your own service",
@@ -227,7 +227,7 @@ class WalletController {
                 .values({
                 vendorId: vendor.id,
                 serviceId: service.id,
-                userId: parseInt(authUser.id),
+                userId: authUser.id,
                 eventId: eventId && eventId.trim() !== "" ? eventId : null,
                 quantity: 1,
                 amount: totalAmount,

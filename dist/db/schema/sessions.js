@@ -14,7 +14,7 @@ exports.session = (0, pg_core_1.pgTable)("session", {
         .notNull(),
     ipAddress: (0, pg_core_1.text)("ip_address"),
     userAgent: (0, pg_core_1.text)("user_agent"),
-    userId: (0, pg_core_1.integer)("user_id")
+    userId: (0, pg_core_1.uuid)("user_id")
         .notNull()
         .references(() => profiles_1.user.id, { onDelete: "cascade" }),
     impersonatedBy: (0, pg_core_1.text)("impersonated_by"),
