@@ -21,7 +21,11 @@ export const io = new Server(server, {
 });
 app.use(
   cors({
-    origin: ["jollyhq://*", "http://localhost:5173"], // Replace with your frontend's origin
+    origin: [
+      "jollyhq://*",
+      "http://localhost:5173",
+      "https://admin.jollyhq.net",
+    ], // Replace with your frontend's origin
 
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
