@@ -1,14 +1,14 @@
 CREATE TYPE "public"."chat_direct_type" AS ENUM('user_vendor', 'vendor_planner');--> statement-breakpoint
 CREATE TYPE "public"."wallet_owner_type" AS ENUM('event_planner', 'vendor');--> statement-breakpoint
-CREATE TYPE "public"."wallet_tx_source" AS ENUM('ticket_sale', 'vendor_payment', 'withdrawal_payout', 'refund_reversal');--> statement-breakpoint
 CREATE TYPE "public"."wallet_tx_type" AS ENUM('credit', 'debit');--> statement-breakpoint
+CREATE TYPE "public"."wallet_tx_source" AS ENUM('ticket_sale', 'vendor_payment', 'withdrawal_payout', 'refund_reversal');--> statement-breakpoint
 CREATE TYPE "public"."order_status" AS ENUM('PENDING', 'PAID', 'FAILED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."withdrawal_status" AS ENUM('pending', 'approved', 'paid', 'rejected');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" uuid NOT NULL,
 	"access_token" text,
 	"refresh_token" text,
 	"id_token" text,
@@ -21,9 +21,9 @@ CREATE TABLE "account" (
 );
 --> statement-breakpoint
 CREATE TABLE "chat_members" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"chat_id" integer NOT NULL,
-	"profile_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"chat_id" uuid NOT NULL,
+	"profile_id" uuid NOT NULL,
 	"role" varchar(20) DEFAULT 'member',
 	"is_muted" boolean DEFAULT false,
 	"is_banned" boolean DEFAULT false,
@@ -31,10 +31,10 @@ CREATE TABLE "chat_members" (
 );
 --> statement-breakpoint
 CREATE TABLE "chats" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"event_id" integer,
-	"vendor_id" integer,
-	"user_id" integer,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event_id" uuid,
+	"vendor_id" uuid,
+	"user_id" uuid,
 	"direct_type" "chat_direct_type",
 	"last_message_at" timestamp,
 	"last_message_preview" varchar(100),
@@ -45,8 +45,8 @@ CREATE TABLE "chats" (
 );
 --> statement-breakpoint
 CREATE TABLE "event_discounts" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"event_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event_id" uuid NOT NULL,
 	"code" varchar(50) NOT NULL,
 	"usage_limit" integer,
 	"used_count" integer DEFAULT 0,
@@ -54,8 +54,8 @@ CREATE TABLE "event_discounts" (
 );
 --> statement-breakpoint
 CREATE TABLE "event_planners" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"profile_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"profile_id" uuid NOT NULL,
 	"business_name" varchar(255) NOT NULL,
 	"business_email" varchar(255),
 	"business_phone" varchar(20),
@@ -81,8 +81,8 @@ CREATE TABLE "event_planners" (
 );
 --> statement-breakpoint
 CREATE TABLE "events" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"planner_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"planner_id" uuid NOT NULL,
 	"image_url" text,
 	"event_type" varchar(50) NOT NULL,
 	"category" varchar(50) NOT NULL,
@@ -96,8 +96,8 @@ CREATE TABLE "events" (
 );
 --> statement-breakpoint
 CREATE TABLE "event_tickets" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"event_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event_id" uuid NOT NULL,
 	"label" varchar(100) NOT NULL,
 	"quantity" integer NOT NULL,
 	"price" numeric(12, 2) DEFAULT '0' NOT NULL,
@@ -106,14 +106,14 @@ CREATE TABLE "event_tickets" (
 );
 --> statement-breakpoint
 CREATE TABLE "favorite_events" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"event_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"event_id" uuid NOT NULL,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "user" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"username" varchar(100),
 	"display_username" varchar(100),
@@ -142,9 +142,9 @@ CREATE TABLE "user" (
 );
 --> statement-breakpoint
 CREATE TABLE "messages" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"chat_id" integer NOT NULL,
-	"sender_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"chat_id" uuid NOT NULL,
+	"sender_id" uuid NOT NULL,
 	"status" varchar(20) DEFAULT 'sent',
 	"content" text,
 	"type" varchar(20) DEFAULT 'text',
@@ -153,15 +153,15 @@ CREATE TABLE "messages" (
 );
 --> statement-breakpoint
 CREATE TABLE "message_reads" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"message_id" integer NOT NULL,
-	"profile_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"message_id" uuid NOT NULL,
+	"profile_id" uuid NOT NULL,
 	"read_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "vendors" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
 	"business_name" varchar(255) DEFAULT '',
 	"name" varchar(255) NOT NULL,
 	"email" varchar(255) NOT NULL,
@@ -183,8 +183,8 @@ CREATE TABLE "vendors" (
 );
 --> statement-breakpoint
 CREATE TABLE "wallets" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
 	"owner_type" "wallet_owner_type" DEFAULT 'event_planner',
 	"balance" real DEFAULT 0 NOT NULL,
 	"currency" varchar(10) DEFAULT 'NGN' NOT NULL,
@@ -194,8 +194,8 @@ CREATE TABLE "wallets" (
 );
 --> statement-breakpoint
 CREATE TABLE "wallet_transactions" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"wallet_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"wallet_id" uuid NOT NULL,
 	"type" "wallet_tx_type" NOT NULL,
 	"source" "wallet_tx_source" NOT NULL,
 	"amount" real NOT NULL,
@@ -224,16 +224,16 @@ CREATE TABLE "session" (
 	"updated_at" timestamp NOT NULL,
 	"ip_address" text,
 	"user_agent" text,
-	"user_id" integer NOT NULL,
+	"user_id" uuid NOT NULL,
 	"impersonated_by" text,
 	CONSTRAINT "session_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
 CREATE TABLE "orders" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"event_id" integer,
-	"ticket_id" integer,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"event_id" uuid,
+	"ticket_id" uuid,
 	"quantity" numeric DEFAULT '1' NOT NULL,
 	"total_amount" numeric(12, 2) NOT NULL,
 	"currency" varchar(10) DEFAULT 'NGN',
@@ -249,8 +249,8 @@ CREATE TABLE "orders" (
 );
 --> statement-breakpoint
 CREATE TABLE "withdrawal_requests" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"wallet_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"wallet_id" uuid NOT NULL,
 	"amount" real NOT NULL,
 	"status" "withdrawal_status" DEFAULT 'pending' NOT NULL,
 	"bank_code" varchar(20) NOT NULL,
@@ -261,15 +261,15 @@ CREATE TABLE "withdrawal_requests" (
 	"paid_at" timestamp,
 	"rejection_reason" varchar(255),
 	"reviewed_at" timestamp,
-	"reviewed_by" integer,
+	"reviewed_by" uuid,
 	"narration" varchar(255),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "vendor_services" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"vendor_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"vendor_id" uuid NOT NULL,
 	"title" varchar(255) NOT NULL,
 	"description" text,
 	"category" varchar(255) NOT NULL,
@@ -284,11 +284,11 @@ CREATE TABLE "vendor_services" (
 );
 --> statement-breakpoint
 CREATE TABLE "vendor_bookings" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"vendor_id" integer NOT NULL,
-	"service_id" integer,
-	"user_id" integer NOT NULL,
-	"event_id" integer,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"vendor_id" uuid NOT NULL,
+	"service_id" uuid,
+	"user_id" uuid NOT NULL,
+	"event_id" uuid,
 	"quantity" integer DEFAULT 1 NOT NULL,
 	"amount" integer NOT NULL,
 	"scheduled_date" timestamp,
@@ -302,8 +302,8 @@ CREATE TABLE "vendor_bookings" (
 );
 --> statement-breakpoint
 CREATE TABLE "user_settings" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
 	"notifications_enabled" boolean DEFAULT true NOT NULL,
 	"dark_mode_enabled" boolean DEFAULT false NOT NULL,
 	"language" varchar(10) DEFAULT 'en' NOT NULL,
@@ -317,17 +317,17 @@ CREATE TABLE "user_settings" (
 );
 --> statement-breakpoint
 CREATE TABLE "typing_status" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"chat_id" integer,
-	"profile_id" integer,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"chat_id" uuid,
+	"profile_id" uuid,
 	"is_typing" boolean DEFAULT false,
 	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "user_tickets" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"ticket_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"ticket_id" uuid NOT NULL,
 	"quantity" integer DEFAULT 1 NOT NULL,
 	"purchased_at" timestamp DEFAULT NOW()
 );

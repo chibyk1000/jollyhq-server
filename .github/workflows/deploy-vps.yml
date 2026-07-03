@@ -33,6 +33,7 @@ jobs:
         run: |
           mkdir -p deploy
           cp -r dist deploy/dist
+          cp -r drizzle deploy/drizzle
           cp package.json deploy/package.json
           cp package-lock.json deploy/package-lock.json
           cp drizzle.config.js deploy/drizzle.config.js
