@@ -35,7 +35,7 @@ jobs:
           cp -r dist deploy/dist
           cp package.json deploy/package.json
           cp package-lock.json deploy/package-lock.json
-          cp drizzle.config.ts deploy/drizzle.config.ts
+          cp drizzle.config.js deploy/drizzle.config.js
           cp vercel.json deploy/vercel.json 2>/dev/null || true
           tar -czf deploy.tar.gz -C deploy .
 
