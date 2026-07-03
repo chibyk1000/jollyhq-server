@@ -11,7 +11,7 @@ import { admin, auth, user as adminuser, superadmin } from "./utils/auth";
 const users = [
   {
     email: "admin@jollyhq.net",
-    password: "admin123",
+    password: "JollyHQ@Admin2026!X9",
     name: "Admin User",
     role: "superadmin",
     data: {
@@ -25,7 +25,7 @@ const users = [
   },
   {
     email: "user1@example.com",
-    password: "password123",
+    password: "JollyHQ@User12026!X9",
     name: "John Doe",
     role: "admin",
     data: {
