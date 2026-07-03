@@ -752,7 +752,9 @@ class AdminController {
     static async approveWithdrawal(req, res) {
         try {
             const { withdrawalId } = req.params;
-            const withdrawalIdStr = Array.isArray(withdrawalId) ? withdrawalId[0] : withdrawalId;
+            const withdrawalIdStr = Array.isArray(withdrawalId)
+                ? withdrawalId[0]
+                : withdrawalId;
             const adminId = req.user?.id;
             if (!withdrawalId) {
                 return res.status(400).json({
@@ -802,7 +804,9 @@ class AdminController {
     static async rejectWithdrawal(req, res) {
         try {
             const { withdrawalId } = req.params;
-            const withdrawalIdStr = Array.isArray(withdrawalId) ? withdrawalId[0] : withdrawalId;
+            const withdrawalIdStr = Array.isArray(withdrawalId)
+                ? withdrawalId[0]
+                : withdrawalId;
             const { reason } = req.body;
             const adminId = req.user?.id;
             if (!withdrawalId) {

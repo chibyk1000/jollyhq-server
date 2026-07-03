@@ -15,8 +15,8 @@ const users = [
     name: "Admin User",
     role: "superadmin",
     data: {
-      username: "admin",
-      displayUsername: "admin",
+      username: "adminuser",
+      displayUsername: "adminuser",
       firstName: "Admin",
       lastName: "User",
       agreedToTerms: true,
