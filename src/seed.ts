@@ -39,10 +39,15 @@ const users = [
   },
 ];
 
+const logInfo = (...args: unknown[]) => console.log("[SEED]", ...args);
+const logError = (...args: unknown[]) => console.error("[SEED ERROR]", ...args);
+
 async function seed() {
-  console.log("🌱 Starting seed...");
+  logInfo("🌱 Starting seed...");
 
   for (const userData of users) {
+    logInfo(`Processing user: ${userData.email}`);
+
     try {
       const existingUser = await db
         .select()
@@ -51,9 +56,11 @@ async function seed() {
         .limit(1);
 
       if (existingUser.length > 0) {
-        console.log(`⏭️ ${userData.email} already exists`);
+        logInfo(`⏭️ ${userData.email} already exists`);
         continue;
       }
+
+      logInfo(`Creating ${userData.role} user: ${userData.email}`);
 
       await auth.api.createUser({
         body: {
@@ -70,13 +77,13 @@ async function seed() {
         },
       });
 
-      console.log(`✅ Created ${userData.role}: ${userData.email}`);
+      logInfo(`✅ Created ${userData.role}: ${userData.email}`);
     } catch (error) {
-      console.error(`❌ Failed: ${userData.email}`, error);
+      logError(`❌ Failed to seed user: ${userData.email}`, error);
     }
   }
 
-  console.log("🎉 Seed completed");
+  logInfo("🎉 Seed completed");
   process.exit(0);
 }
 

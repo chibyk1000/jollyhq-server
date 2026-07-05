@@ -25,35 +25,49 @@ exports.io = new socket_io_1.Server(server, {
     },
 });
 app.use((0, cors_1.default)({
-    origin: ["jollyhq://*", "http://localhost:5173"], // Replace with your frontend's origin
+    origin: [
+        "jollyhq://*",
+        "http://localhost:5173",
+        "https://admin.jollyhq.net",
+    ], // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
 // Express middleware
-app.use(async (req, res, next) => {
-    const expoOrigin = req.headers['expo-origin']; // custom header from Expo
+app.use((req, res, next) => {
+    const expoOrigin = req.headers["expo-origin"]; // custom header from Expo
     if (expoOrigin) {
-        // Set it as the standard Origin header
-        req.headers['origin'] = expoOrigin;
-        console.log('Origin set from Expo header:', req.headers['origin']);
-    }
-    else {
-        // console.log('No Expo origin, using existing origin:', req);
+        req.headers["origin"] = expoOrigin;
+        (0, logger_1.logInfo)("Origin set from Expo header", {
+            origin: req.headers["origin"],
+            path: req.path,
+        });
     }
     next();
 });
 // Configure CORS middleware
 (0, sockets_1.registerSocketHandlers)(exports.io);
-// Log each requestn 
+// Log each request
 app.use((0, morgan_1.default)("combined", {
     stream: {
-        write: (message) => logger_1.logger.info(message.trim()),
+        write: (message) => (0, logger_1.logInfo)(message.trim()),
     },
 }));
 app.all("/api/auth/*splat", (0, node_1.toNodeHandler)(auth_1.auth));
 app.use(express_1.default.json());
 app.use("/api", routes_1.default);
+app.use((err, req, res, next) => {
+    (0, logger_1.logError)("Unhandled request error", err, {
+        method: req.method,
+        url: req.originalUrl,
+    });
+    res.status(500).json({ message: "Internal server error" });
+});
 server.listen(PORT, () => {
-    logger_1.logger.info(`🚀 Server listening on port ${PORT}`);
+    (0, logger_1.logInfo)(`🚀 Server listening on port ${PORT}`);
+});
+server.on("error", (error) => {
+    (0, logger_1.logError)("Server failed to start", error);
+    process.exit(1);
 });
 exports.default = app;

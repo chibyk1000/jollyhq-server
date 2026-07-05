@@ -2,14 +2,15 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import router from "./routes";
-import { logger } from "./utils/logger";
- import { toNodeHandler } from "better-auth/node";
+import { logError, logInfo } from "./utils/logger";
+import { toNodeHandler } from "better-auth/node";
 import morgan from "morgan";
 import http from "http";
 import { Server } from "socket.io";
 import { registerSocketHandlers } from "./sockets";
 import { auth } from "./utils/auth";
-import cors from "cors"
+import cors from "cors";
+
 const PORT = process.env.PORT;
 const app = express();
 const server = http.createServer(app);
@@ -32,16 +33,15 @@ app.use(
   }),
 );
 // Express middleware
-app.use(async (req, res, next) => {
+app.use((req, res, next) => {
+  const expoOrigin = req.headers["expo-origin"]; // custom header from Expo
 
-  
-  const expoOrigin = req.headers['expo-origin']; // custom header from Expo
   if (expoOrigin) {
-    // Set it as the standard Origin header
-    req.headers['origin'] = expoOrigin as string;
-    console.log('Origin set from Expo header:', req.headers['origin']);
-  } else {
-    // console.log('No Expo origin, using existing origin:', req);
+    req.headers["origin"] = expoOrigin as string;
+    logInfo("Origin set from Expo header", {
+      origin: req.headers["origin"],
+      path: req.path,
+    });
   }
 
   next();
@@ -51,21 +51,42 @@ app.use(async (req, res, next) => {
 
 registerSocketHandlers(io);
 
- 
-// Log each requestn 
+// Log each request
 app.use(
   morgan("combined", {
     stream: {
-      write: (message) => logger.info(message.trim()),
+      write: (message) => logInfo(message.trim()),
     },
-  })
+  }),
 );
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
-app.use(express.json())
+app.use(express.json());
 app.use("/api", router);
 
+app.use(
+  (
+    err: unknown,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    logError("Unhandled request error", err, {
+      method: req.method,
+      url: req.originalUrl,
+    });
+
+    res.status(500).json({ message: "Internal server error" });
+  },
+);
+
 server.listen(PORT, () => {
-  logger.info(`🚀 Server listening on port ${PORT}`);
+  logInfo(`🚀 Server listening on port ${PORT}`);
 });
+
+server.on("error", (error) => {
+  logError("Server failed to start", error);
+  process.exit(1);
+});
+
 export default app;

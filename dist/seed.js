@@ -12,7 +12,7 @@ const auth_1 = require("./utils/auth");
 const users = [
     {
         email: "admin@jollyhq.net",
-        password: "admin123",
+        password: "JollyHQ@Admin2026!X9",
         name: "Admin User",
         role: "superadmin",
         data: {
@@ -26,7 +26,7 @@ const users = [
     },
     {
         email: "user1@example.com",
-        password: "password123",
+        password: "JollyHQ@User12026!X9",
         name: "John Doe",
         role: "admin",
         data: {
@@ -39,9 +39,12 @@ const users = [
         },
     },
 ];
+const logInfo = (...args) => console.log("[SEED]", ...args);
+const logError = (...args) => console.error("[SEED ERROR]", ...args);
 async function seed() {
-    console.log("🌱 Starting seed...");
+    logInfo("🌱 Starting seed...");
     for (const userData of users) {
+        logInfo(`Processing user: ${userData.email}`);
         try {
             const existingUser = await db_1.db
                 .select()
@@ -49,9 +52,10 @@ async function seed() {
                 .where((0, drizzle_orm_1.eq)(profiles_1.user.email, userData.email))
                 .limit(1);
             if (existingUser.length > 0) {
-                console.log(`⏭️ ${userData.email} already exists`);
+                logInfo(`⏭️ ${userData.email} already exists`);
                 continue;
             }
+            logInfo(`Creating ${userData.role} user: ${userData.email}`);
             await auth_1.auth.api.createUser({
                 body: {
                     email: userData.email,
@@ -61,13 +65,13 @@ async function seed() {
                     data: userData.data,
                 },
             });
-            console.log(`✅ Created ${userData.role}: ${userData.email}`);
+            logInfo(`✅ Created ${userData.role}: ${userData.email}`);
         }
         catch (error) {
-            console.error(`❌ Failed: ${userData.email}`, error);
+            logError(`❌ Failed to seed user: ${userData.email}`, error);
         }
     }
-    console.log("🎉 Seed completed");
+    logInfo("🎉 Seed completed");
     process.exit(0);
 }
 seed();

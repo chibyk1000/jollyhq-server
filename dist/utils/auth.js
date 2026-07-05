@@ -182,7 +182,7 @@ exports.auth = (0, better_auth_1.betterAuth)({
     },
     trustedOrigins: [
         "jollyhq://",
-        "http://localhost:5173",
+        "https://admin.jollyhq.net",
         ...(process.env.NODE_ENV === "development"
             ? [
                 "exp://", // Trust all Expo URLs (prefix matching)

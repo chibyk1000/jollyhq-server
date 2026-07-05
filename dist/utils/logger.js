@@ -33,11 +33,12 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logger = void 0;
+exports.logError = exports.logInfo = exports.logger = void 0;
 const winston_1 = __importStar(require("winston"));
 const { combine, timestamp, printf, colorize, json } = winston_1.format;
-const consoleFormat = printf(({ level, message, timestamp }) => {
-    return `[${timestamp}] ${level}: ${message}`;
+const consoleFormat = printf(({ level, message, timestamp, ...meta }) => {
+    const extra = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : "";
+    return `[${timestamp}] ${level}: ${message}${extra}`;
 });
 // detect serverless or cloud env
 const isServerless = !!process.env.VERCEL;
@@ -47,6 +48,19 @@ winston_1.default.addColors({
     error: "bold red underline",
     debug: "cyan",
 });
+const serializeError = (error) => {
+    if (error instanceof Error) {
+        return {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+        };
+    }
+    if (typeof error === "string") {
+        return { message: error };
+    }
+    return error;
+};
 exports.logger = (0, winston_1.createLogger)({
     level: "info",
     format: combine(timestamp(), json()),
@@ -60,3 +74,14 @@ exports.logger = (0, winston_1.createLogger)({
             : [new winston_1.transports.File({ filename: "logs/server.log" })]),
     ],
 });
+const logInfo = (message, meta = {}) => {
+    exports.logger.info(message, meta);
+};
+exports.logInfo = logInfo;
+const logError = (message, error, meta = {}) => {
+    exports.logger.error(message, {
+        error: serializeError(error),
+        ...meta,
+    });
+};
+exports.logError = logError;
