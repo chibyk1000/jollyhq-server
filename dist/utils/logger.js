@@ -61,27 +61,51 @@ const serializeError = (error) => {
     }
     return error;
 };
-exports.logger = (0, winston_1.createLogger)({
-    level: "info",
+const consoleTransport = new winston_1.transports.Console({
+    format: combine(colorize({ all: true }), timestamp(), consoleFormat),
+});
+const createLoggerInstance = (name, level) => (0, winston_1.createLogger)({
+    level,
+    defaultMeta: { service: name },
     format: combine(timestamp(), json()),
     transports: [
-        new winston_1.transports.Console({
-            format: combine(colorize({ all: true }), timestamp(), consoleFormat),
-        }),
-        // only enable file logging locally
+        consoleTransport,
         ...(isServerless
             ? []
-            : [new winston_1.transports.File({ filename: "logs/server.log" })]),
+            : [
+                new winston_1.transports.File({
+                    filename: level === "error" ? "logs/server-error.log" : "logs/server.log",
+                }),
+            ]),
     ],
 });
+const normalLogger = createLoggerInstance("server", "info");
+const errorLogger = createLoggerInstance("server-error", "error");
+exports.logger = {
+    info: (message, meta = {}) => normalLogger.info(message, meta),
+    warn: (message, meta = {}) => normalLogger.warn(message, meta),
+    error: (message, errorOrMeta, meta = {}) => {
+        if (errorOrMeta &&
+            typeof errorOrMeta === "object" &&
+            !Array.isArray(errorOrMeta)) {
+            errorLogger.error(message, {
+                ...errorOrMeta,
+                ...meta,
+            });
+            return;
+        }
+        errorLogger.error(message, {
+            error: serializeError(errorOrMeta),
+            ...meta,
+        });
+    },
+    debug: (message, meta = {}) => normalLogger.debug(message, meta),
+};
 const logInfo = (message, meta = {}) => {
     exports.logger.info(message, meta);
 };
 exports.logInfo = logInfo;
 const logError = (message, error, meta = {}) => {
-    exports.logger.error(message, {
-        error: serializeError(error),
-        ...meta,
-    });
+    exports.logger.error(message, error, meta);
 };
 exports.logError = logError;

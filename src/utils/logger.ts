@@ -61,18 +61,42 @@ const errorLogger = createLoggerInstance("server-error", "error");
 type LoggerLike = {
   info: (message: string, meta?: Record<string, unknown>) => void;
   warn: (message: string, meta?: Record<string, unknown>) => void;
-  error: (message: string, meta?: Record<string, unknown>) => void;
+  error: (
+    message: string,
+    errorOrMeta?: unknown,
+    meta?: Record<string, unknown>,
+  ) => void;
   debug: (message: string, meta?: Record<string, unknown>) => void;
 };
 
 export const logger: LoggerLike = {
   info: (message, meta = {}) => normalLogger.info(message, meta),
   warn: (message, meta = {}) => normalLogger.warn(message, meta),
-  error: (message, meta = {}) => errorLogger.error(message, meta),
+  error: (message, errorOrMeta, meta = {}) => {
+    if (
+      errorOrMeta &&
+      typeof errorOrMeta === "object" &&
+      !Array.isArray(errorOrMeta)
+    ) {
+      errorLogger.error(message, {
+        ...(errorOrMeta as Record<string, unknown>),
+        ...meta,
+      });
+      return;
+    }
+
+    errorLogger.error(message, {
+      error: serializeError(errorOrMeta),
+      ...meta,
+    });
+  },
   debug: (message, meta = {}) => normalLogger.debug(message, meta),
 };
 
-export const logInfo = (message: string, meta: Record<string, unknown> = {}) => {
+export const logInfo = (
+  message: string,
+  meta: Record<string, unknown> = {},
+) => {
   logger.info(message, meta);
 };
 
@@ -81,8 +105,5 @@ export const logError = (
   error?: unknown,
   meta: Record<string, unknown> = {},
 ) => {
-  logger.error(message, {
-    error: serializeError(error),
-    ...meta,
-  });
+  logger.error(message, error, meta);
 };
