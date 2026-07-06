@@ -16,6 +16,7 @@ import {
   vendors,
   wallets,
 } from "../db/schema";
+import { logger } from "../utils/logger";
 
 function resolveOwnerType(raw: unknown): WalletOwnerType | null {
   if (raw === "event_planner" || raw === "vendor") return raw;
@@ -214,7 +215,7 @@ export class WalletController {
         orderReference,
       });
     } catch (err: any) {
-      console.error("Checkout error:", err.response?.data || err.message);
+      logger.error("Checkout error", err.response?.data || err.message);
       return res
         .status(500)
         .json({ success: false, message: "Checkout failed" });
@@ -311,10 +312,7 @@ export class WalletController {
         orderReference: paymentRef,
       });
     } catch (err: any) {
-      console.error(
-        "Service checkout error:",
-        err.response?.data || err.message,
-      );
+      logger.error("Service checkout error", err.response?.data || err.message);
       return res
         .status(500)
         .json({ success: false, message: "Checkout failed" });
@@ -529,16 +527,18 @@ export class WalletController {
         }
 
         case "payout_success":
-          console.log("Payout successful:", data.transaction.transactionId);
+          logger.info("Payout successful", {
+            transactionId: data.transaction.transactionId,
+          });
           break;
 
         default:
-          console.log("Unhandled webhook event:", eventType);
+          logger.info("Unhandled webhook event", { eventType });
       }
 
       return res.status(200).json({ received: true });
     } catch (err: any) {
-      console.error("Webhook error:", err);
+      logger.error("Webhook error", err);
       return res.status(500).send("Server error");
     }
   }

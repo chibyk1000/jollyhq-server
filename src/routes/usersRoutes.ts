@@ -23,6 +23,8 @@ router.post(
   FavoriteController.toggleFavorite,
 );
 
+// static route MUST come before "/:id"
+router.get("/dashboard", verifyToken, UserControllers.getUserDashboard);
 router.get("/:id", verifyToken, UserControllers.getProfile);
 router.put("/:id", upload.single("avatar"), UserControllers.updateProfile);
 

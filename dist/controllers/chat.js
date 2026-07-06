@@ -7,6 +7,7 @@ const chats_1 = require("../db/schema/chats");
 const chatMembers_1 = require("../db/schema/chatMembers");
 const messages_1 = require("../db/schema/messages");
 const schema_1 = require("../db/schema");
+const logger_1 = require("../utils/logger");
 /* ---------------------------------------------------
    GET USER CHAT GROUPS
 --------------------------------------------------- */
@@ -50,7 +51,7 @@ class ChatController {
             return res.json(userChats);
         }
         catch (error) {
-            console.log(error);
+            logger_1.logger.error("Failed to fetch user chats", error);
             res.status(500).json({ error: error.message });
         }
     }
@@ -123,7 +124,7 @@ class ChatController {
             return res.json({ chatId, isNew: true });
         }
         catch (err) {
-            console.error("findOrCreateDirectChat error:", err);
+            logger_1.logger.error("findOrCreateDirectChat error", err);
             return res.status(500).json({ error: "Failed to resolve chat" });
         }
     }
@@ -219,7 +220,7 @@ class ChatController {
             return res.json({ ...chat, members });
         }
         catch (error) {
-            console.log(error);
+            logger_1.logger.error("Failed to fetch chat details", error);
             res.status(500).json({ error: error.message });
         }
     }
@@ -301,7 +302,7 @@ class ChatController {
             });
         }
         catch (error) {
-            console.error(error);
+            logger_1.logger.error("Failed to fetch chat messages", error);
             res.status(500).json({ error: error.message });
         }
     }

@@ -10,6 +10,7 @@ const eventTickets_1 = require("../db/schema/eventTickets");
 const vendors_1 = require("../db/schema/vendors");
 const vendorBooking_1 = require("../db/schema/vendorBooking");
 const vendorServices_1 = require("../db/schema/vendorServices");
+const logger_1 = require("../utils/logger");
 class DashboardController {
     // ── GET /dashboard/:plannerId ──────────────────────────────────────────────
     static async getEventPlannerDashboard(req, res) {
@@ -239,7 +240,7 @@ class DashboardController {
             });
         }
         catch (error) {
-            console.error("Planner dashboard error:", error);
+            logger_1.logger.error("Planner dashboard error", error);
             return res
                 .status(500)
                 .json({ message: "Internal server error", error: error.message });
@@ -475,7 +476,7 @@ class DashboardController {
             });
         }
         catch (error) {
-            console.error("Vendor dashboard error:", error);
+            logger_1.logger.error("Vendor dashboard error", error);
             return res.status(500).json({
                 message: "Failed to load vendor dashboard",
                 error: error.message,

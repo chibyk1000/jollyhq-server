@@ -11,6 +11,7 @@ const uuid_1 = require("uuid");
 const drizzle_orm_1 = require("drizzle-orm");
 const db_1 = require("../db");
 const schema_1 = require("../db/schema");
+const logger_1 = require("../utils/logger");
 function resolveOwnerType(raw) {
     if (raw === "event_planner" || raw === "vendor")
         return raw;
@@ -176,7 +177,7 @@ class WalletController {
             });
         }
         catch (err) {
-            console.error("Checkout error:", err.response?.data || err.message);
+            logger_1.logger.error("Checkout error", err.response?.data || err.message);
             return res
                 .status(500)
                 .json({ success: false, message: "Checkout failed" });
@@ -257,7 +258,7 @@ class WalletController {
             });
         }
         catch (err) {
-            console.error("Service checkout error:", err.response?.data || err.message);
+            logger_1.logger.error("Service checkout error", err.response?.data || err.message);
             return res
                 .status(500)
                 .json({ success: false, message: "Checkout failed" });
@@ -431,15 +432,17 @@ class WalletController {
                     break;
                 }
                 case "payout_success":
-                    console.log("Payout successful:", data.transaction.transactionId);
+                    logger_1.logger.info("Payout successful", {
+                        transactionId: data.transaction.transactionId,
+                    });
                     break;
                 default:
-                    console.log("Unhandled webhook event:", eventType);
+                    logger_1.logger.info("Unhandled webhook event", { eventType });
             }
             return res.status(200).json({ received: true });
         }
         catch (err) {
-            console.error("Webhook error:", err);
+            logger_1.logger.error("Webhook error", err);
             return res.status(500).send("Server error");
         }
     }

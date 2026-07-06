@@ -4,13 +4,14 @@ import { events } from "../db/schema/events";
 import { eventTickets } from "../db/schema/eventTickets";
 import { eventPlanners } from "../db/schema/eventPlanners";
 import { eq, sql } from "drizzle-orm";
+import { logger } from "../utils/logger";
 
 export class TrendingEventsController {
   static async getTrendingEvents(req: Request, res: Response) {
     try {
       const limit = Number(req.query.limit) || 10;
 
-      const trending:any = await db.execute(sql`
+      const trending: any = await db.execute(sql`
         SELECT 
           e.id AS "eventId",
           e.name,
@@ -43,7 +44,6 @@ export class TrendingEventsController {
         LIMIT ${limit};
       `);
 
-
       // Format priceRange in JS
       const formatted = trending.rows.map((e: any) => {
         const prices = e.tickets
@@ -55,7 +55,7 @@ export class TrendingEventsController {
           priceRange:
             prices.length > 0
               ? `₦${Math.min(...prices).toLocaleString()} - ₦${Math.max(
-                  ...prices
+                  ...prices,
                 ).toLocaleString()}`
               : "FREE",
         };
@@ -63,7 +63,7 @@ export class TrendingEventsController {
 
       res.json({ trending: formatted });
     } catch (error: any) {
-      console.error(error);
+      logger.error("Failed to fetch trending events", error);
       res.status(500).json({ error: error.message });
     }
   }

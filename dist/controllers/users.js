@@ -10,6 +10,7 @@ const vendors_1 = require("../db/schema/vendors");
 const wallet_1 = require("../db/schema/wallet");
 const auth_1 = require("../utils/auth");
 const schema_1 = require("../db/schema");
+const logger_1 = require("../utils/logger");
 class UserControllers {
     static async createUser(req, res) {
         try {
@@ -106,7 +107,7 @@ class UserControllers {
             // return res.status(201).json(result[0]);
         }
         catch (error) {
-            console.error(error);
+            logger_1.logger.error("Failed to create user", error);
             return res.status(500).json({ error: "Server error" });
         }
     }
@@ -181,7 +182,7 @@ class UserControllers {
             });
         }
         catch (error) {
-            console.error(error);
+            logger_1.logger.error("Failed to get user profile", error);
             return res.status(500).json({ error: "Server error" });
         }
     }
@@ -243,7 +244,7 @@ class UserControllers {
             return res.status(200).json(updatedUser);
         }
         catch (error) {
-            console.error("Update profile error:", error);
+            logger_1.logger.error("Update profile error", error);
             return res.status(500).json({ error: "Server error" });
         }
     }
@@ -405,7 +406,7 @@ class UserControllers {
             });
         }
         catch (error) {
-            console.error("User dashboard error:", error);
+            logger_1.logger.error("User dashboard error", error);
             return res.status(500).json({
                 message: "Failed to load user dashboard",
                 error: error.message,

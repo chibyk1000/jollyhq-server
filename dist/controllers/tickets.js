@@ -7,6 +7,7 @@ const drizzle_orm_1 = require("drizzle-orm");
 const eventDiscounts_1 = require("../db/schema/eventDiscounts");
 const userTickets_1 = require("../db/schema/userTickets");
 const schema_1 = require("../db/schema");
+const logger_1 = require("../utils/logger");
 class TicketController {
     /**
      * CREATE Ticket(s)
@@ -62,7 +63,7 @@ class TicketController {
             });
         }
         catch (e) {
-            console.log(e);
+            logger_1.logger.error("Failed to create tickets", e);
             return res.status(500).json({ error: e.message });
         }
     }
@@ -80,7 +81,7 @@ class TicketController {
             return res.json(result);
         }
         catch (e) {
-            console.log(e);
+            logger_1.logger.error("Failed to fetch ticket", e);
             res.status(500).json({ error: e.message });
         }
     }
@@ -185,7 +186,7 @@ class TicketController {
             return res.json({ tickets });
         }
         catch (err) {
-            console.error(err);
+            logger_1.logger.error("Failed to fetch tickets by user", err);
             return res.status(500).json({ error: err.message });
         }
     }
@@ -198,7 +199,7 @@ class TicketController {
             return res.json(tickets);
         }
         catch (e) {
-            console.log(e);
+            logger_1.logger.error("Failed to fetch all tickets", e);
             res.status(500).json({ error: e.message });
         }
     }
@@ -236,7 +237,7 @@ class TicketController {
             });
         }
         catch (e) {
-            console.log(e);
+            logger_1.logger.error("Failed to fetch ticket stats", e);
             res.status(500).json({ error: e.message });
         }
     }

@@ -6,6 +6,7 @@ const vendorServices_1 = require("../db/schema/vendorServices");
 const drizzle_orm_1 = require("drizzle-orm");
 const vendors_1 = require("../db/schema/vendors");
 const upload_1 = require("../utils/upload");
+const logger_1 = require("../utils/logger");
 /**
  * CREATE vendor service
  */
@@ -46,7 +47,7 @@ const createVendorService = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("CREATE SERVICE ERROR:", error);
+        logger_1.logger.error("CREATE SERVICE ERROR", error);
         res.status(500).json({ message: "Failed to create service" });
     }
 };
@@ -74,11 +75,10 @@ const getAllVendorServices = async (_req, res) => {
             ...row.service,
             vendor: row.vendor,
         }));
-        console.log(services);
         res.json({ services });
     }
     catch (error) {
-        console.error("GET SERVICES ERROR:", error);
+        logger_1.logger.error("GET SERVICES ERROR", error);
         res.status(500).json({ message: "Failed to fetch services" });
     }
 };
@@ -97,7 +97,7 @@ const getVendorServicesByVendor = async (req, res) => {
         res.json({ services });
     }
     catch (error) {
-        console.error("GET VENDOR SERVICES ERROR:", error);
+        logger_1.logger.error("GET VENDOR SERVICES ERROR", error);
         res.status(500).json({ message: "Failed to fetch vendor services" });
     }
 };
@@ -119,7 +119,7 @@ const getVendorServiceById = async (req, res) => {
         res.json({ service });
     }
     catch (error) {
-        console.error("GET SERVICE ERROR:", error);
+        logger_1.logger.error("GET SERVICE ERROR", error);
         res.status(500).json({ message: "Failed to fetch service" });
     }
 };
@@ -131,7 +131,6 @@ const updateVendorService = async (req, res) => {
     try {
         const { id } = req.params;
         const idStr = Array.isArray(id) ? id[0] : id;
-        console.log(req.body, req.file);
         let image = req.body.image;
         if (req.file) {
             const image = await (0, upload_1.uploadToSupabase)(req.file, "vendor-services");
@@ -154,7 +153,7 @@ const updateVendorService = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("UPDATE SERVICE ERROR:", error);
+        logger_1.logger.error("UPDATE SERVICE ERROR", error);
         res.status(500).json({ message: "Failed to update service" });
     }
 };
@@ -178,7 +177,7 @@ const toggleVendorServiceStatus = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("TOGGLE SERVICE ERROR:", error);
+        logger_1.logger.error("TOGGLE SERVICE ERROR", error);
         res.status(500).json({ message: "Failed to toggle service status" });
     }
 };
@@ -194,7 +193,7 @@ const deleteVendorService = async (req, res) => {
         res.json({ message: "Service deleted successfully" });
     }
     catch (error) {
-        console.error("DELETE SERVICE ERROR:", error);
+        logger_1.logger.error("DELETE SERVICE ERROR", error);
         res.status(500).json({ message: "Failed to delete service" });
     }
 };

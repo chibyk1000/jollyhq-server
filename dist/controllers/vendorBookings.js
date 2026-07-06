@@ -4,6 +4,7 @@ exports.VendorBookingController = void 0;
 const db_1 = require("../db");
 const schema_1 = require("../db/schema");
 const drizzle_orm_1 = require("drizzle-orm");
+const logger_1 = require("../utils/logger");
 class VendorBookingController {
     // ── GET /bookings/my ─────────────────────────────────────────────────────
     // All bookings for the logged-in user
@@ -52,7 +53,7 @@ class VendorBookingController {
             return res.json({ success: true, data: bookings });
         }
         catch (err) {
-            console.error("Get my bookings error:", err);
+            logger_1.logger.error("Get my bookings error", err);
             return res.status(500).json({ success: false, message: err.message });
         }
     }
@@ -135,7 +136,7 @@ class VendorBookingController {
             return res.json({ success: true, data: bookings });
         }
         catch (err) {
-            console.error("Get vendor bookings error:", err);
+            logger_1.logger.error("Get vendor bookings error", err);
             return res.status(500).json({ success: false, message: err.message });
         }
     }

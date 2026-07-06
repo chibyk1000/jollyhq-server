@@ -4,6 +4,7 @@ import { vendorServices } from "../db/schema/vendorServices";
 import { eq, and, isNull } from "drizzle-orm";
 import { vendors } from "../db/schema/vendors";
 import { uploadToSupabase } from "../utils/upload";
+import { logger } from "../utils/logger";
 
 /**
  * CREATE vendor service
@@ -11,7 +12,6 @@ import { uploadToSupabase } from "../utils/upload";
 export const createVendorService = async (req: Request, res: Response) => {
   try {
     const {
-      
       title,
       description,
       category,
@@ -21,32 +21,31 @@ export const createVendorService = async (req: Request, res: Response) => {
       deliveryTime,
     } = req.body;
 
-      const userId = req.user?.id
-    
-      
-      if (!req.file) {
-          return res.status(400).json({message:"image upload is needed"})
-      }
+    const userId = req.user?.id;
 
-    if (  !title || !category || !price) {
+    if (!req.file) {
+      return res.status(400).json({ message: "image upload is needed" });
+    }
+
+    if (!title || !category || !price) {
       return res.status(400).json({
         message: "Missing required fields",
       });
     }
-      
-      const image = await uploadToSupabase(req.file, "vendor-services")
-      
-      
-      
-   const [vendor] = await db
-        .select()
-        .from(vendors)
-        .where(and(eq(vendors.userId, userId as string), isNull(vendors.deletedAt)));
+
+    const image = await uploadToSupabase(req.file, "vendor-services");
+
+    const [vendor] = await db
+      .select()
+      .from(vendors)
+      .where(
+        and(eq(vendors.userId, userId as string), isNull(vendors.deletedAt)),
+      );
 
     const [service] = await db
       .insert(vendorServices)
       .values({
-        vendorId:vendor.id,
+        vendorId: vendor.id,
         title,
         description,
         category,
@@ -63,7 +62,7 @@ export const createVendorService = async (req: Request, res: Response) => {
       service,
     });
   } catch (error) {
-    console.error("CREATE SERVICE ERROR:", error);
+    logger.error("CREATE SERVICE ERROR", error);
     res.status(500).json({ message: "Failed to create service" });
   }
 };
@@ -81,8 +80,7 @@ export const getAllVendorServices = async (_req: Request, res: Response) => {
           businessName: vendors.businessName,
           logo: vendors.image,
           phone: vendors.contactPhone,
-          userId:vendors.userId
-          
+          userId: vendors.userId,
         },
       })
       .from(vendorServices)
@@ -93,11 +91,10 @@ export const getAllVendorServices = async (_req: Request, res: Response) => {
       ...row.service,
       vendor: row.vendor,
     }));
-console.log(services);
 
     res.json({ services });
   } catch (error) {
-    console.error("GET SERVICES ERROR:", error);
+    logger.error("GET SERVICES ERROR", error);
     res.status(500).json({ message: "Failed to fetch services" });
   }
 };
@@ -107,7 +104,7 @@ console.log(services);
  */
 export const getVendorServicesByVendor = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { vendorId } = req.params;
@@ -115,15 +112,15 @@ export const getVendorServicesByVendor = async (
 
     const services = await db
       .select()
-      .from(vendorServices)  
+      .from(vendorServices)
       .where(eq(vendorServices.vendorId, vendorIdStr));
 
-    res.json({ services });  
+    res.json({ services });
   } catch (error) {
-    console.error("GET VENDOR SERVICES ERROR:", error);
+    logger.error("GET VENDOR SERVICES ERROR", error);
     res.status(500).json({ message: "Failed to fetch vendor services" });
   }
-}; 
+};
 
 /**
  * GET single service
@@ -144,7 +141,7 @@ export const getVendorServiceById = async (req: Request, res: Response) => {
 
     res.json({ service });
   } catch (error) {
-    console.error("GET SERVICE ERROR:", error);
+    logger.error("GET SERVICE ERROR", error);
     res.status(500).json({ message: "Failed to fetch service" });
   }
 };
@@ -156,13 +153,12 @@ export const updateVendorService = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const idStr = Array.isArray(id) ? id[0] : id;
-console.log(req.body, req.file);
 
     let image = req.body.image;
 
-      if (req.file) {
-          const image = await uploadToSupabase(req.file, "vendor-services")  
-      }
+    if (req.file) {
+      const image = await uploadToSupabase(req.file, "vendor-services");
+    }
 
     const updateData = {
       ...req.body,
@@ -184,7 +180,7 @@ console.log(req.body, req.file);
       service,
     });
   } catch (error) {
-    console.error("UPDATE SERVICE ERROR:", error);
+    logger.error("UPDATE SERVICE ERROR", error);
     res.status(500).json({ message: "Failed to update service" });
   }
 };
@@ -194,7 +190,7 @@ console.log(req.body, req.file);
  */
 export const toggleVendorServiceStatus = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { id } = req.params;
@@ -212,7 +208,7 @@ export const toggleVendorServiceStatus = async (
       service,
     });
   } catch (error) {
-    console.error("TOGGLE SERVICE ERROR:", error);
+    logger.error("TOGGLE SERVICE ERROR", error);
     res.status(500).json({ message: "Failed to toggle service status" });
   }
 };
@@ -229,7 +225,7 @@ export const deleteVendorService = async (req: Request, res: Response) => {
 
     res.json({ message: "Service deleted successfully" });
   } catch (error) {
-    console.error("DELETE SERVICE ERROR:", error);
+    logger.error("DELETE SERVICE ERROR", error);
     res.status(500).json({ message: "Failed to delete service" });
   }
 };

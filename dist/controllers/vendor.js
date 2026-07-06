@@ -8,6 +8,7 @@ const upload_1 = require("../utils/upload");
 const wallet_1 = require("../db/schema/wallet");
 const vendorServices_1 = require("../db/schema/vendorServices");
 const schema_1 = require("../db/schema");
+const logger_1 = require("../utils/logger");
 class VendorsController {
     // ── CREATE ────────────────────────────────────────────────────────────────
     static async create(req, res) {
@@ -75,7 +76,7 @@ class VendorsController {
             });
         }
         catch (error) {
-            console.error("Create vendor error:", error);
+            logger_1.logger.error("Create vendor error", error);
             return res
                 .status(500)
                 .json({ message: "Failed to create vendor", error: error.message });
@@ -91,7 +92,7 @@ class VendorsController {
             return res.json({ success: true, data });
         }
         catch (error) {
-            console.error("Get vendors error:", error);
+            logger_1.logger.error("Get vendors error", error);
             return res
                 .status(500)
                 .json({ message: "Failed to fetch vendors", error: error.message });
@@ -116,7 +117,7 @@ class VendorsController {
             return res.json({ success: true, data: { ...vendor, services } });
         }
         catch (error) {
-            console.error("Get vendor error:", error);
+            logger_1.logger.error("Get vendor error", error);
             return res
                 .status(500)
                 .json({ message: "Failed to fetch vendor", error: error.message });
@@ -137,7 +138,7 @@ class VendorsController {
             return res.json({ success: true, data: vendor });
         }
         catch (error) {
-            console.error("Get vendor by user error:", error);
+            logger_1.logger.error("Get vendor by user error", error);
             return res
                 .status(500)
                 .json({ message: "Failed to fetch vendor", error: error.message });
@@ -168,7 +169,7 @@ class VendorsController {
             });
         }
         catch (error) {
-            console.error("Get vendor profile error:", error);
+            logger_1.logger.error("Get vendor profile error", error);
             return res
                 .status(500)
                 .json({ message: "Failed to get vendor", error: error.message });
@@ -230,7 +231,7 @@ class VendorsController {
             return res.json({ success: true, data: updated });
         }
         catch (error) {
-            console.error("Update vendor error:", error);
+            logger_1.logger.error("Update vendor error", error);
             return res
                 .status(500)
                 .json({ message: "Failed to update vendor", error: error.message });
@@ -265,7 +266,7 @@ class VendorsController {
             });
         }
         catch (error) {
-            console.error("Delete vendor error:", error);
+            logger_1.logger.error("Delete vendor error", error);
             return res
                 .status(500)
                 .json({ message: "Failed to delete vendor", error: error.message });
@@ -382,7 +383,7 @@ class VendorsController {
             return res.status(200).json({ success: true, data });
         }
         catch (error) {
-            console.error("Get vendor chats error:", error);
+            logger_1.logger.error("Get vendor chats error", error);
             return res.status(500).json({
                 message: "Failed to fetch vendor chats",
                 error: error.message,

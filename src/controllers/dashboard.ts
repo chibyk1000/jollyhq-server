@@ -18,6 +18,7 @@ import { eventTickets } from "../db/schema/eventTickets";
 import { vendors } from "../db/schema/vendors";
 import { vendorBookings } from "../db/schema/vendorBooking";
 import { vendorServices } from "../db/schema/vendorServices";
+import { logger } from "../utils/logger";
 
 export class DashboardController {
   // ── GET /dashboard/:plannerId ──────────────────────────────────────────────
@@ -59,7 +60,9 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")));
+        .where(
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")),
+        );
 
       const [revenueResult] = await db
         .select({
@@ -67,7 +70,9 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")));
+        .where(
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")),
+        );
 
       const [totalEventsResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
@@ -79,7 +84,10 @@ export class DashboardController {
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .where(
-          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "CANCELLED")),
+          and(
+            eq(events.plannerId, plannerIdStr),
+            eq(orders.status, "CANCELLED"),
+          ),
         );
 
       const [refundedResult] = await db
@@ -155,7 +163,9 @@ export class DashboardController {
         .from(orders)
         .innerJoin(eventTickets, eq(eventTickets.id, orders.ticketId))
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
+        .where(
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")),
+        )
         .groupBy(eventTickets.id, eventTickets.label, events.name)
         .orderBy(desc(sql`SUM(${orders.quantity}::int)`))
         .limit(5);
@@ -170,7 +180,9 @@ export class DashboardController {
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .innerJoin(profiles, eq(profiles.id, orders.userId))
-        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
+        .where(
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")),
+        )
         .groupBy(profiles.phoneNumber)
         .orderBy(desc(sql`COUNT(DISTINCT ${orders.userId})`))
         .limit(6);
@@ -182,7 +194,9 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")));
+        .where(
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")),
+        );
 
       // ── 6. Wallet transaction history ──────────────────────────────────────
       const walletTxHistory = wallet?.id
@@ -212,7 +226,9 @@ export class DashboardController {
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
         .innerJoin(profiles, eq(profiles.id, orders.userId))
-        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
+        .where(
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")),
+        )
         .orderBy(desc(orders.createdAt))
         .limit(5);
 
@@ -247,7 +263,9 @@ export class DashboardController {
         })
         .from(orders)
         .innerJoin(events, eq(events.id, orders.eventId))
-        .where(and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")))
+        .where(
+          and(eq(events.plannerId, plannerIdStr), eq(orders.status, "PAID")),
+        )
         .groupBy(sql`EXTRACT(MONTH FROM ${orders.createdAt})`)
         .orderBy(asc(sql`EXTRACT(MONTH FROM ${orders.createdAt})`));
 
@@ -297,7 +315,7 @@ export class DashboardController {
         revenueChartData,
       });
     } catch (error: any) {
-      console.error("Planner dashboard error:", error);
+      logger.error("Planner dashboard error", error);
       return res
         .status(500)
         .json({ message: "Internal server error", error: error.message });
@@ -624,7 +642,7 @@ export class DashboardController {
         revenueChartData,
       });
     } catch (error: any) {
-      console.error("Vendor dashboard error:", error);
+      logger.error("Vendor dashboard error", error);
       return res.status(500).json({
         message: "Failed to load vendor dashboard",
         error: error.message,

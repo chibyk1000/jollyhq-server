@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { db } from "../db";
 import { vendorBookings, vendorServices, vendors } from "../db/schema";
 import { and, desc, eq } from "drizzle-orm";
+import { logger } from "../utils/logger";
 
 export class VendorBookingController {
   // ── GET /bookings/my ─────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ export class VendorBookingController {
 
       return res.json({ success: true, data: bookings });
     } catch (err: any) {
-      console.error("Get my bookings error:", err);
+      logger.error("Get my bookings error", err);
       return res.status(500).json({ success: false, message: err.message });
     }
   }
@@ -69,16 +70,15 @@ export class VendorBookingController {
       const booking = await db.query.vendorBookings.findFirst({
         where: and(
           eq(vendorBookings.id, idStr),
-        //   eq(vendorBookings.userId, userId), // ensure ownership
+          //   eq(vendorBookings.userId, userId), // ensure ownership
         ),
         with: {
           service: true,
           vendor: true,
-            event: true,
-          user:true
+          event: true,
+          user: true,
         },
       });
-
 
       if (!booking) {
         return res
@@ -147,7 +147,7 @@ export class VendorBookingController {
 
       return res.json({ success: true, data: bookings });
     } catch (err: any) {
-      console.error("Get vendor bookings error:", err);
+      logger.error("Get vendor bookings error", err);
       return res.status(500).json({ success: false, message: err.message });
     }
   }

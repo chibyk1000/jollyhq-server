@@ -88,7 +88,7 @@ export class EventController {
         chat: result.newChat,
       });
     } catch (error: any) {
-      console.error("Create Event Error:", error);
+      logger.error("Create Event Error", error);
       return res
         .status(500)
         .json({ message: "Failed to create event", error: error.message });
@@ -118,7 +118,9 @@ export class EventController {
       const [existing] = await db
         .select()
         .from(events)
-        .where(and(eq(events.id, eventIdStr), eq(events.plannerId, planner.id)));
+        .where(
+          and(eq(events.id, eventIdStr), eq(events.plannerId, planner.id)),
+        );
 
       if (!existing) {
         return res
@@ -176,7 +178,7 @@ export class EventController {
 
       return res.json({ success: true, data: result.rows });
     } catch (error: any) {
-      console.error(error);
+      logger.error("Failed to fetch all events", error);
       return res.status(500).json({ error: error.message });
     }
   }
@@ -274,7 +276,7 @@ export class EventController {
         },
       });
     } catch (error: any) {
-      console.error(error);
+      logger.error("Failed to fetch event by id", error);
       return res.status(500).json({ error: error.message });
     }
   }
@@ -443,7 +445,7 @@ export class EventController {
         },
       });
     } catch (error: any) {
-      logger.error(error);
+      logger.error("Failed to fetch event overview", error);
       return res.status(500).json({ error: error.message });
     }
   }

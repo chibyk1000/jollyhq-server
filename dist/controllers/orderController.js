@@ -4,6 +4,7 @@ exports.OrderController = void 0;
 const schema_1 = require("../db/schema");
 const drizzle_orm_1 = require("drizzle-orm");
 const db_1 = require("../db");
+const logger_1 = require("../utils/logger");
 class OrderController {
     static async getUserOrders(req, res) {
         try {
@@ -42,7 +43,7 @@ class OrderController {
             });
         }
         catch (error) {
-            console.error("Get user orders error:", error);
+            logger_1.logger.error("Get user orders error", error);
             return res.status(500).json({
                 success: false,
                 message: "Internal server error",

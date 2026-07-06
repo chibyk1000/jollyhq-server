@@ -3,6 +3,7 @@ import { db } from "../db";
 
 import { eq } from "drizzle-orm";
 import { userSettings } from "../db/schema/settings";
+import { logger } from "../utils/logger";
 
 export class UserSettingsController {
   // ===============================
@@ -30,8 +31,7 @@ export class UserSettingsController {
 
       return res.json({ settings: settings[0] });
     } catch (error: any) {
-      console.log(error);
-      
+      logger.error("Failed to fetch settings", error);
       return res.status(500).json({
         message: "Failed to fetch settings",
         error: error.message,
@@ -82,8 +82,7 @@ export class UserSettingsController {
 
       return res.json({ settings: updated });
     } catch (error: any) {
-      console.log(error);
-      
+      logger.error("Failed to update settings", error);
       return res.status(500).json({
         message: "Failed to update settings",
         error: error.message,
@@ -122,8 +121,7 @@ export class UserSettingsController {
 
       return res.json({ settings: updated });
     } catch (error: any) {
-
-      console.log(error)
+      logger.error("Failed to switch account mode", error);
       return res.status(500).json({
         message: "Failed to switch account mode",
         error: error.message,

@@ -11,6 +11,7 @@ import { WALLET_OWNER_TYPES } from "../utils/constants";
 
 import { auth } from "../utils/auth";
 import { events, eventTickets, orders, favoriteEvents } from "../db/schema";
+import { logger } from "../utils/logger";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
@@ -138,7 +139,7 @@ export class UserControllers {
       // const result = await db.insert(profiles).values(newUser).returning();
       // return res.status(201).json(result[0]);
     } catch (error) {
-      console.error(error);
+      logger.error("Failed to create user", error);
       return res.status(500).json({ error: "Server error" });
     }
   }
@@ -224,7 +225,7 @@ export class UserControllers {
         hasWallet,
       });
     } catch (error) {
-      console.error(error);
+      logger.error("Failed to get user profile", error);
       return res.status(500).json({ error: "Server error" });
     }
   }
@@ -296,7 +297,7 @@ export class UserControllers {
 
       return res.status(200).json(updatedUser);
     } catch (error) {
-      console.error("Update profile error:", error);
+      logger.error("Update profile error", error);
       return res.status(500).json({ error: "Server error" });
     }
   }
@@ -473,7 +474,7 @@ export class UserControllers {
         },
       });
     } catch (error: any) {
-      console.error("User dashboard error:", error);
+      logger.error("User dashboard error", error);
       return res.status(500).json({
         message: "Failed to load user dashboard",
         error: error.message,

@@ -23,9 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Drizzle migrations
-        run: npx drizzle-kit generate
-
       - name: Build application
         run: npm run build
 
@@ -74,6 +71,7 @@ jobs:
             fi
 
             if [ -f package.json ]; then
+              npx drizzle-kit generate || true
               npx drizzle-kit migrate || true
             fi
 

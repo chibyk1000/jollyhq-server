@@ -4,6 +4,7 @@ exports.UserControllers = void 0;
 const db_1 = require("../db");
 const profiles_1 = require("../db/schema/profiles");
 const supabase_1 = require("../utils/supabase");
+const logger_1 = require("../utils/logger");
 class UserControllers {
     static async createUser(req, res) {
         try {
@@ -96,7 +97,7 @@ class UserControllers {
                 .json({ message: "User created successfully", user: newUser });
         }
         catch (error) {
-            console.error(error);
+            logger_1.logger.error("Failed to create user", error);
             return res.status(500).json({ error: "Server error" });
         }
     }

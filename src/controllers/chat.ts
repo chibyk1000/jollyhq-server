@@ -4,7 +4,15 @@ import { and, eq, desc, sql, inArray } from "drizzle-orm";
 import { chats } from "../db/schema/chats";
 import { chatMembers } from "../db/schema/chatMembers";
 import { messages } from "../db/schema/messages";
-import { eventPlanners, events, messageReads, user as profiles, user, vendors } from "../db/schema";
+import {
+  eventPlanners,
+  events,
+  messageReads,
+  user as profiles,
+  user,
+  vendors,
+} from "../db/schema";
+import { logger } from "../utils/logger";
 
 /* ---------------------------------------------------
    GET USER CHAT GROUPS
@@ -77,7 +85,7 @@ export class ChatController {
 
       return res.json(userChats);
     } catch (error: any) {
-      console.log(error);
+      logger.error("Failed to fetch user chats", error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -174,7 +182,7 @@ export class ChatController {
 
       return res.json({ chatId, isNew: true });
     } catch (err) {
-      console.error("findOrCreateDirectChat error:", err);
+      logger.error("findOrCreateDirectChat error", err);
       return res.status(500).json({ error: "Failed to resolve chat" });
     }
   }
@@ -313,13 +321,16 @@ export class ChatController {
         .from(chatMembers)
         .innerJoin(user, eq(chatMembers.profileId, user.id))
         .where(
-          and(eq(chatMembers.chatId, chatIdStr), eq(chatMembers.isBanned, false)),
+          and(
+            eq(chatMembers.chatId, chatIdStr),
+            eq(chatMembers.isBanned, false),
+          ),
         )
         .orderBy(chatMembers.joinedAt);
 
       return res.json({ ...chat, members });
     } catch (error: any) {
-      console.log(error);
+      logger.error("Failed to fetch chat details", error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -412,7 +423,7 @@ export class ChatController {
         messages: chatMessages,
       });
     } catch (error: any) {
-      console.error(error);
+      logger.error("Failed to fetch chat messages", error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -498,7 +509,9 @@ export class ChatController {
 
       if (!admin) return res.status(403).json({ message: "Admins only" });
 
-      await db.insert(chatMembers).values({ chatId: chatId, profileId: profileId });
+      await db
+        .insert(chatMembers)
+        .values({ chatId: chatId, profileId: profileId });
 
       return res.json({ message: "Member added successfully" });
     } catch (error: any) {

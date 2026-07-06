@@ -4,6 +4,7 @@ exports.UserSettingsController = void 0;
 const db_1 = require("../db");
 const drizzle_orm_1 = require("drizzle-orm");
 const settings_1 = require("../db/schema/settings");
+const logger_1 = require("../utils/logger");
 class UserSettingsController {
     // ===============================
     // GET USER SETTINGS
@@ -27,7 +28,7 @@ class UserSettingsController {
             return res.json({ settings: settings[0] });
         }
         catch (error) {
-            console.log(error);
+            logger_1.logger.error("Failed to fetch settings", error);
             return res.status(500).json({
                 message: "Failed to fetch settings",
                 error: error.message,
@@ -68,7 +69,7 @@ class UserSettingsController {
             return res.json({ settings: updated });
         }
         catch (error) {
-            console.log(error);
+            logger_1.logger.error("Failed to update settings", error);
             return res.status(500).json({
                 message: "Failed to update settings",
                 error: error.message,
@@ -100,7 +101,7 @@ class UserSettingsController {
             return res.json({ settings: updated });
         }
         catch (error) {
-            console.log(error);
+            logger_1.logger.error("Failed to switch account mode", error);
             return res.status(500).json({
                 message: "Failed to switch account mode",
                 error: error.message,

@@ -83,7 +83,7 @@ class EventPlannerControllers {
             });
         }
         catch (error) {
-            console.error("Create event planner error:", error);
+            logger_1.logger.error("Create event planner error", error);
             return res.status(500).json({
                 message: "Failed to create event planner profile",
                 error: error.message,
@@ -115,6 +115,7 @@ class EventPlannerControllers {
             });
         }
         catch (error) {
+            logger_1.logger.error("Failed to get event planner", error);
             return res.status(500).json({
                 message: "Failed to get event planner",
                 error: error.message,
@@ -137,6 +138,7 @@ class EventPlannerControllers {
             });
         }
         catch (error) {
+            logger_1.logger.error("Failed to get event planners", error);
             return res.status(500).json({
                 message: "Failed to get event planners",
                 error: error.message,
@@ -193,7 +195,7 @@ class EventPlannerControllers {
             });
         }
         catch (error) {
-            logger_1.logger.error(error.message);
+            logger_1.logger.error("Failed to update event planner", error);
             return res
                 .status(500)
                 .json({ message: "Update failed", error: error.message });
@@ -229,6 +231,7 @@ class EventPlannerControllers {
             });
         }
         catch (error) {
+            logger_1.logger.error("Failed to delete event planner", error);
             return res
                 .status(500)
                 .json({ message: "Delete failed", error: error.message });

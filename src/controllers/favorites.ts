@@ -3,6 +3,7 @@ import { db } from "../db";
 import { favoriteEvents } from "../db/schema/favorites";
 import { eq, and } from "drizzle-orm";
 import { events } from "../db/schema";
+import { logger } from "../utils/logger";
 
 export class FavoriteController {
   // ⭐ Toggle Favorite (Add or Remove)
@@ -19,8 +20,8 @@ export class FavoriteController {
         .where(
           and(
             eq(favoriteEvents.eventId, eventIdStr),
-            eq(favoriteEvents.userId, userId as string)
-          )
+            eq(favoriteEvents.userId, userId as string),
+          ),
         )
         .limit(1);
 
@@ -41,14 +42,17 @@ export class FavoriteController {
         userId: userId as string,
         eventId: eventIdStr,
       });
-console.log("success");
+      logger.info("Favorite toggled successfully", {
+        eventId: eventIdStr,
+        userId,
+      });
 
       return res.status(201).json({
         message: "Event added to favorites",
         isFavorite: true,
       });
     } catch (err) {
-      console.error(err);
+      logger.error("Error toggling favorite", err);
       res.status(500).json({
         message: "Error toggling favorite",
         error: err,
@@ -73,7 +77,7 @@ console.log("success");
 
       res.status(200).json({ favorites });
     } catch (err) {
-      console.error(err);
+      logger.error("Error fetching favorites", err);
       res.status(500).json({
         message: "Error fetching favorites",
         error: err,

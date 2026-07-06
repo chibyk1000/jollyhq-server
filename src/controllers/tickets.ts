@@ -7,6 +7,7 @@ import { eventDiscounts } from "../db/schema/eventDiscounts";
 import { userTickets } from "../db/schema/userTickets";
 import { events } from "../db/schema";
 import { orders } from "../db/schema/order";
+import { logger } from "../utils/logger";
 
 export class TicketController {
   /**
@@ -77,7 +78,7 @@ export class TicketController {
         discounts: createdDiscounts,
       });
     } catch (e: any) {
-      console.log(e);
+      logger.error("Failed to create tickets", e);
       return res.status(500).json({ error: e.message });
     }
   }
@@ -97,7 +98,7 @@ export class TicketController {
 
       return res.json(result);
     } catch (e: any) {
-      console.log(e);
+      logger.error("Failed to fetch ticket", e);
       res.status(500).json({ error: e.message });
     }
   }
@@ -214,7 +215,7 @@ export class TicketController {
 
       return res.json({ tickets });
     } catch (err: any) {
-      console.error(err);
+      logger.error("Failed to fetch tickets by user", err);
       return res.status(500).json({ error: err.message });
     }
   }
@@ -227,7 +228,7 @@ export class TicketController {
       const tickets = await db.select().from(eventTickets);
       return res.json(tickets);
     } catch (e: any) {
-      console.log(e);
+      logger.error("Failed to fetch all tickets", e);
       res.status(500).json({ error: e.message });
     }
   }
@@ -269,7 +270,7 @@ export class TicketController {
         totalRevenue,
       });
     } catch (e: any) {
-      console.log(e);
+      logger.error("Failed to fetch ticket stats", e);
       res.status(500).json({ error: e.message });
     }
   }

@@ -14,6 +14,8 @@ router.get("/events/favorites/", verify_1.verifyToken, favorites_1.FavoriteContr
 // router.get("/wallets", verifyToken, UserControllers.getMyWallet);
 router.get("/events/tickets", verify_1.verifyToken, tickets_1.TicketController.getTicketsByUser);
 router.post("/favorites/:eventId/", verify_1.verifyToken, favorites_1.FavoriteController.toggleFavorite);
+// static route MUST come before "/:id"
+router.get("/dashboard", verify_1.verifyToken, users_1.UserControllers.getUserDashboard);
 router.get("/:id", verify_1.verifyToken, users_1.UserControllers.getProfile);
 router.put("/:id", upload_1.upload.single("avatar"), users_1.UserControllers.updateProfile);
 exports.default = router;

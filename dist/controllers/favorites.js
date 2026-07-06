@@ -5,6 +5,7 @@ const db_1 = require("../db");
 const favorites_1 = require("../db/schema/favorites");
 const drizzle_orm_1 = require("drizzle-orm");
 const schema_1 = require("../db/schema");
+const logger_1 = require("../utils/logger");
 class FavoriteController {
     // ⭐ Toggle Favorite (Add or Remove)
     static async toggleFavorite(req, res) {
@@ -33,14 +34,14 @@ class FavoriteController {
                 userId: userId,
                 eventId: eventIdStr,
             });
-            console.log("success");
+            logger_1.logger.info("Favorite toggled successfully", { eventId: eventIdStr, userId });
             return res.status(201).json({
                 message: "Event added to favorites",
                 isFavorite: true,
             });
         }
         catch (err) {
-            console.error(err);
+            logger_1.logger.error("Error toggling favorite", err);
             res.status(500).json({
                 message: "Error toggling favorite",
                 error: err,
@@ -63,7 +64,7 @@ class FavoriteController {
             res.status(200).json({ favorites });
         }
         catch (err) {
-            console.error(err);
+            logger_1.logger.error("Error fetching favorites", err);
             res.status(500).json({
                 message: "Error fetching favorites",
                 error: err,

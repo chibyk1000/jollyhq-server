@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TrendingEventsController = void 0;
 const db_1 = require("../db");
 const drizzle_orm_1 = require("drizzle-orm");
+const logger_1 = require("../utils/logger");
 class TrendingEventsController {
     static async getTrendingEvents(req, res) {
         try {
@@ -54,7 +55,7 @@ class TrendingEventsController {
             res.json({ trending: formatted });
         }
         catch (error) {
-            console.error(error);
+            logger_1.logger.error("Failed to fetch trending events", error);
             res.status(500).json({ error: error.message });
         }
     }

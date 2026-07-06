@@ -4,6 +4,7 @@ import { db } from "../db";
 import { user as profiles } from "../db/schema/profiles";
 import { eq } from "drizzle-orm";
 import { supabase } from "../utils/supabase";
+import { logger } from "../utils/logger";
 
 export class UserControllers {
   static async createUser(req: Request, res: Response) {
@@ -105,7 +106,6 @@ export class UserControllers {
       const newUser = await db
         .insert(profiles)
         .values({
-          
           firstName,
           lastName,
           email,
@@ -115,7 +115,7 @@ export class UserControllers {
           googleId: googleId || null,
           facebookId: facebookId || null,
           instagramId: instagramId || null,
-          image:avatarUrl,
+          image: avatarUrl,
         })
         .returning();
 
@@ -123,7 +123,7 @@ export class UserControllers {
         .status(201)
         .json({ message: "User created successfully", user: newUser });
     } catch (error) {
-      console.error(error);
+      logger.error("Failed to create user", error);
       return res.status(500).json({ error: "Server error" });
     }
   }
