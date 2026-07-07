@@ -24,7 +24,6 @@ export const user = pgTable("user", {
   username: varchar("username", { length: 100 }).unique(),
   displayUsername: varchar("display_username", { length: 100 }).unique(),
 
-  password: text("password"),
   lastLoginMethod: varchar("last_login_method"),
   // Profile
   firstName: varchar("first_name", { length: 100 }).notNull(),

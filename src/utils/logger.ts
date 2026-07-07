@@ -3,8 +3,9 @@ import winston, { createLogger, transports, format } from "winston";
 const { combine, timestamp, printf, colorize, json } = format;
 
 const consoleFormat = printf(({ level, message, timestamp, ...meta }) => {
+  const pathInfo = meta.url || meta.path ? ` [${meta.url || meta.path}]` : "";
   const extra = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : "";
-  return `[${timestamp}] ${level}: ${message}${extra}`;
+  return `[${timestamp}] ${level}: ${message}${pathInfo}${extra}`;
 });
 
 // detect serverless or cloud env
@@ -44,14 +45,10 @@ const createLoggerInstance = (name: string, level: "info" | "error") =>
     format: combine(timestamp(), json()),
     transports: [
       consoleTransport,
-      ...(isServerless
-        ? []
-        : [
-            new transports.File({
-              filename:
-                level === "error" ? "logs/server-error.log" : "logs/server.log",
-            }),
-          ]),
+      new transports.File({
+        filename:
+          level === "error" ? "logs/server-error.log" : "logs/server.log",
+      }),
     ],
   });
 
