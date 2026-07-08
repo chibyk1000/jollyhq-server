@@ -1,5 +1,5 @@
 {
-  "id": "faf9ddb2-53f9-4f0c-ab32-a9cf4edbad3b",
+  "id": "e975fa5d-3fee-4143-a9a6-1da88aee5d5f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -918,12 +918,6 @@
         "display_username": {
           "name": "display_username",
           "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -2651,14 +2645,6 @@
         "vendor"
       ]
     },
-    "public.wallet_tx_type": {
-      "name": "wallet_tx_type",
-      "schema": "public",
-      "values": [
-        "credit",
-        "debit"
-      ]
-    },
     "public.wallet_tx_source": {
       "name": "wallet_tx_source",
       "schema": "public",
@@ -2667,6 +2653,14 @@
         "vendor_payment",
         "withdrawal_payout",
         "refund_reversal"
+      ]
+    },
+    "public.wallet_tx_type": {
+      "name": "wallet_tx_type",
+      "schema": "public",
+      "values": [
+        "credit",
+        "debit"
       ]
     },
     "public.order_status": {

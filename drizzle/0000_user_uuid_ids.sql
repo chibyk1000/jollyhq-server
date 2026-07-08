@@ -1,7 +1,7 @@
 CREATE TYPE "public"."chat_direct_type" AS ENUM('user_vendor', 'vendor_planner');--> statement-breakpoint
 CREATE TYPE "public"."wallet_owner_type" AS ENUM('event_planner', 'vendor');--> statement-breakpoint
-CREATE TYPE "public"."wallet_tx_type" AS ENUM('credit', 'debit');--> statement-breakpoint
 CREATE TYPE "public"."wallet_tx_source" AS ENUM('ticket_sale', 'vendor_payment', 'withdrawal_payout', 'refund_reversal');--> statement-breakpoint
+CREATE TYPE "public"."wallet_tx_type" AS ENUM('credit', 'debit');--> statement-breakpoint
 CREATE TYPE "public"."order_status" AS ENUM('PENDING', 'PAID', 'FAILED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."withdrawal_status" AS ENUM('pending', 'approved', 'paid', 'rejected');--> statement-breakpoint
 CREATE TABLE "account" (
@@ -117,7 +117,6 @@ CREATE TABLE "user" (
 	"email" varchar(255) NOT NULL,
 	"username" varchar(100),
 	"display_username" varchar(100),
-	"password" text,
 	"last_login_method" varchar,
 	"first_name" varchar(100) NOT NULL,
 	"last_name" varchar(100) NOT NULL,
