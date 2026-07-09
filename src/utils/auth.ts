@@ -260,13 +260,13 @@ export const auth = betterAuth({
         // Implement sending OTP code via SMS
       },
     }),
-    dash({
-      apiKey: process.env.BETTER_AUTH_API_KEY,
-      activityTracking: {
-        enabled: true,
-        updateInterval: 300000, // Update interval in ms (default: 5 minutes)
-      },
-    }),
+    // dash({
+    //   apiKey: process.env.BETTER_AUTH_API_KEY,
+    //   activityTracking: {
+    //     enabled: true,
+    //     updateInterval: 300000, // Update interval in ms (default: 5 minutes)
+    //   },
+    // }),
   ],
   onAPIError: {
     onError: (err, ctx) => {
