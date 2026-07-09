@@ -20,7 +20,6 @@ import { sendVerifyPhoneOTP } from "./twilio";
 import { wallets } from "../db/schema";
 import WalletService from "../services/walletServices";
 import { WalletController } from "../controllers/walletController";
-import { dash } from "@better-auth/infra";
 const walletServices = new WalletService();
 const wallletController = new WalletController();
 
@@ -98,6 +97,7 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       mapProfileToUser: (profile) => {
+    
         return {
           name: profile.family_name ?? "nil",
           lastName: profile.given_name ?? "nil",
@@ -111,6 +111,7 @@ export const auth = betterAuth({
       clientId: process.env.FACEBOOK_CLIENT_ID as string,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
       mapProfileToUser: (profile) => {
+     
         return {
           name: profile.name.split(" ")[0] ?? "nil",
           lastName: profile.name.split(" ")[1] ?? "nil",
@@ -118,7 +119,7 @@ export const auth = betterAuth({
           facebook_id: profile.id,
           agreed_to_terms: true, // or whatever default makes sense
         };
-      },
+      }
     },
   },
   emailAndPassword: {
@@ -258,13 +259,6 @@ export const auth = betterAuth({
       sendOTP: async ({ phoneNumber, code }, ctx) => {
         await sendVerifyPhoneOTP(phoneNumber, code);
         // Implement sending OTP code via SMS
-      },
-    }),
-    dash({
-      apiKey: process.env.BETTER_AUTH_API_KEY,
-      activityTracking: {
-        enabled: true,
-        updateInterval: 300000, // Update interval in ms (default: 5 minutes)
       },
     }),
   ],

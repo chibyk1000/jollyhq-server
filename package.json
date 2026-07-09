@@ -9,7 +9,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "seed": "node dist/seed.js"
+    "seed": "node dist/seed.js",
+    "dev::seed": "ts-node src/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
   },
   "dependencies": {
     "@better-auth/expo": "^1.4.17",
+    "@better-auth/infra": "^0.3.5",
     "@hixbe/otp-pass-kit": "^2.0.2",
     "@supabase/supabase-js": "^2.86.0",
     "bcrypt": "^6.0.0",
@@ -47,7 +49,6 @@
     "nodemailer": "^7.0.12",
     "nodemailer-otp": "^1.0.8",
     "pg": "^8.21.0",
-   
     "socket.io": "^4.8.3",
     "twilio": "^5.12.0",
     "uuid": "^13.0.0",
