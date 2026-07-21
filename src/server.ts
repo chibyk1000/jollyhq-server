@@ -10,6 +10,10 @@ import { Server } from "socket.io";
 import { registerSocketHandlers } from "./sockets";
 import { auth } from "./utils/auth";
 import cors from "cors";
+import { MulterError } from "multer";
+import { MAX_UPLOAD_SIZE_LABEL } from "./middlewares/upload";
+import { appendFileSync } from "fs";
+import { UPLOAD_DIR, UPLOAD_ROUTE } from "./utils/upload";
 
 const PORT = process.env.PORT;
 const app = express();
@@ -60,7 +64,43 @@ app.use(
   }),
 );
 
+// TEMP DEBUG: trace every request so we can tell which device reaches the server.
+app.use((req, _res, next) => {
+  const trace = (event: string, extra?: unknown) =>
+    appendFileSync(
+      "/tmp/jollyhq-upload-trace.log",
+      `${new Date().toISOString()} ${event} ${JSON.stringify(extra ?? {})}\n`,
+    );
+
+  trace("REQUEST_IN", {
+    method: req.method,
+    url: req.originalUrl,
+    ip: req.socket.remoteAddress,
+    ua: req.headers["user-agent"],
+    contentType: req.headers["content-type"],
+    contentLength: req.headers["content-length"],
+    hasAuth: !!req.headers.authorization,
+  });
+
+  if (req.method === "POST" && req.originalUrl.includes("event-planners")) {
+    req.on("aborted", () => trace("REQUEST_ABORTED"));
+    req.on("error", (err) => trace("REQUEST_ERROR", { message: err.message }));
+    _res.on("finish", () => trace("RESPONSE_SENT", { status: _res.statusCode }));
+    _res.on("close", () =>
+      trace("CONNECTION_CLOSED", {
+        status: _res.statusCode,
+        finished: _res.writableFinished,
+      }),
+    );
+  }
+  next();
+});
+
 app.all("/api/auth/*splat", toNodeHandler(auth));
+
+// Serve uploaded files from local disk (same behaviour in dev and on the VPS).
+app.use(UPLOAD_ROUTE, express.static(UPLOAD_DIR));
+
 app.use(express.json());
 app.use("/api", router);
 
@@ -75,6 +115,27 @@ app.use(
       method: req.method,
       url: req.originalUrl,
     });
+
+    // TEMP DEBUG
+    appendFileSync(
+      "/tmp/jollyhq-upload-trace.log",
+      `${new Date().toISOString()} HANDLER_ERROR ${JSON.stringify({
+        url: req.originalUrl,
+        name: (err as Error)?.name,
+        message: (err as Error)?.message,
+        code: (err as any)?.code,
+      })}\n`,
+    );
+
+    if (err instanceof MulterError) {
+      const message =
+        err.code === "LIMIT_FILE_SIZE"
+          ? `${err.field ?? "File"} is too large. Maximum size is ${MAX_UPLOAD_SIZE_LABEL}.`
+          : `Upload failed: ${err.message}`;
+
+      res.status(413).json({ message });
+      return;
+    }
 
     res.status(500).json({ message: "Internal server error" });
   },

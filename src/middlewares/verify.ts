@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { supabase } from "../utils/supabase";
-
 
 import { auth } from "../utils/auth";
 import { fromNodeHeaders,  } from "better-auth/node";

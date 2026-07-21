@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { NewUser as NewProfile, user as profiles } from "../db/schema/profiles";
-import { supabase } from "../utils/supabase";
 import { db } from "../db";
 import { uploadToSupabase } from "../utils/upload";
 import { and, asc, desc, eq, gte, inArray, or, sql } from "drizzle-orm";

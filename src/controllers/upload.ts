@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { db } from "../db";
 import { user as profiles } from "../db/schema/profiles";
 import { eq } from "drizzle-orm";
-import { supabase } from "../utils/supabase";
+import { uploadFile } from "../utils/upload";
 import { logger } from "../utils/logger";
 
 export class UserControllers {
@@ -83,23 +83,7 @@ export class UserControllers {
       // -------- AVATAR UPLOAD --------
       let avatarUrl: string | null = null;
       if (file) {
-        const filePath = `avatars/${username}-${Date.now()}-${
-          file.originalname
-        }`;
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, file.buffer, {
-            contentType: file.mimetype,
-          });
-
-        if (uploadError) {
-          return res.status(400).json({ error: uploadError.message });
-        }
-
-        const { data } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(filePath);
-        avatarUrl = data.publicUrl;
+        avatarUrl = await uploadFile(file, "avatars");
       }
 
       // -------- SAVE USER IN DB --------
